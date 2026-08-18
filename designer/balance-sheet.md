@@ -1,23 +1,23 @@
 # Final First-Pass Balance Contract
 
-These are the canonical numbers for the first implementation. They may move after automated simulation or human playtesting, but no code should silently invent alternatives. Any change to a value in this file must be recorded in `paperplay/final-amendments.md`.
+These are the canonical first implementation values. Change them only after simulation or human testing and record every change in `paperplay/final-amendments.md`.
 
 ## 1. Starting state
 
-| Lord | Gold | Levies / Capacity | Prestige | Claim | Influence | Stable-phase private position |
+| Lord | Gold | Levies / Cap | Prestige | Claim | Influence | Stable private position |
 |---|---:|---:|---:|---:|---:|---|
-| Player / Greyfen | 70 | 360 / 420 | 12 | 10 | 35 | Not a candidate |
+| Player / Greyfen | 70 | 360 / 420 | 12 | 10 | 35 | Not candidate |
 | Edric / Northkeep | 55 | 620 / 720 | 55 | 18 | 35 | Unaligned; dislikes Renard |
 | Ysabel / Eastvale | 170 | 240 / 300 | 36 | 24 | 55 | Leaning Renard |
 | Renard / Southmere | 110 | 450 / 520 | 48 | 72 | 60 | Declares at Ailing |
 | Oswin / Abbeylands | 85 | 210 / 260 | 42 | 16 | 50 | Leaning Renard |
-| Mara / Westmarch | 65 | 430 / 500 | 34 | 12 | 40 | Unaligned; strongly anti-Renard |
+| Mara / Westmarch | 65 | 430 / 500 | 34 | 12 | 40 | Unaligned; anti-Renard |
 
-No public succession Pledge exists during Stable.
+No public Pledge exists during Stable.
 
-## 2. Territory values
+## 2. Territories
 
-| Territory | Wealth | Levy capacity | Starting levies | Fortification | Trait |
+| Territory | Wealth | Levy cap | Starting levies | Fort | Trait |
 |---|---:|---:|---:|---:|---|
 | Greyfen | 2 | 420 | 360 | 1 | Fen Roads |
 | Northkeep | 2 | 720 | 620 | 3 | Iron Hills |
@@ -25,57 +25,50 @@ No public succession Pledge exists during Stable.
 | Eastvale | 5 | 300 | 240 | 1 | Golden Vale |
 | Abbeylands | 3 | 260 | 210 | 2 | Holy Seat |
 | Southmere | 4 | 520 | 450 | 2 | Old Blood |
-| Capital | 4 | — | Phase garrison | 3 | Seat of the Crown |
+| Capital | 4 | — | phase garrison | 3 | Seat of Crown |
 
-Eastvale's trait adds +1 Gold per day while Ysabel legally and physically controls it. A Capital occupier receives only 1 Gold per day.
+Eastvale trait: +1 Gold/day for Ysabel while legal and physical controller. Capital occupier receives 1 Gold/day.
 
-## 3. Clock and death distribution
+## 3. Clock and death
 
-- 1 day = 60 real seconds at 1×.
-- Death cannot occur before elapsed Day 49.
-- One dawn is selected and stored at run creation.
+1 day = 60 real seconds at 1×. Death dawn is stored at run creation.
 
-| Elapsed day | Live minutes at 1× | Probability |
-|---:|---:|---:|
-| 49 | 49 | 5% |
-| 50 | 50 | 8% |
-| 51 | 51 | 12% |
-| 52 | 52 | 16% |
-| 53 | 53 | 19% |
-| 54 | 54 | 18% |
-| 55 | 55 | 13% |
-| 56 | 56 | 9% |
+| Elapsed day | Probability |
+|---:|---:|
+| 49 | 5% |
+| 50 | 8% |
+| 51 | 12% |
+| 52 | 16% |
+| 53 | 19% |
+| 54 | 18% |
+| 55 | 13% |
+| 56 | 9% |
 
-Physician reports are intentionally approximate:
+Reports: Day42 “perhaps a fortnight”; Day49 “unlikely to survive week”; Day53 “days”; Day55 “any hour,” only if alive.
 
-- elapsed Day 42: “perhaps a fortnight”;
-- elapsed Day 49: “unlikely to survive the week”;
-- elapsed Day 53: “days, perhaps fewer”;
-- elapsed Day 55 if alive: “any hour.”
-
-## 4. Passive economy
+## 4. Economy
 
 ### Gold
 
-Daily income is legal Wealth plus trait modifiers, multiplied by current conditions.
+Daily legal income = Wealth + trait, multiplied by conditions.
 
-- Occupier: 25% of normal Wealth.
-- Tax Strain: ×0.50.
-- Unrest: ×0.25.
-- Greyfen Charter: Greyfen ×0.75 for the remainder of the run.
-- Church Immunities: passive income unchanged; Raise Taxes proceeds ×0.80.
+- occupation income ×0.25;
+- Tax Strain ×0.50;
+- Unrest ×0.25;
+- Greyfen Charter ×0.75 remainder;
+- Provincial Liberties event ×0.90 remainder, multiplicative with Charter if both occur;
+- Defaulted Debtor Greyfen ×0.50 remainder;
+- Church Immunities changes Raise Taxes only: proceeds ×0.80.
 
-Gold uses a fractional accumulator. For example, occupying Wealth 2 produces 0.5 Gold per day and pays one whole Gold every second dawn.
+Use fractional accumulator.
 
 ### Levies
 
-Daily levy recovery enters a fractional accumulator:
+Daily recovery accumulator:
 
-`levyCapacity × 0.005 × active modifiers`
+`capacity × 0.005 × modifiers`
 
-Normal rates before rounding through the accumulator:
-
-| Territory | Recovery/day |
+| Territory | Base/day |
 |---|---:|
 | Greyfen | 2.10 |
 | Northkeep | 3.60 |
@@ -84,535 +77,300 @@ Normal rates before rounding through the accumulator:
 | Abbeylands | 1.30 |
 | Southmere | 2.60 |
 
-Modifiers:
-
-- Tax Strain: ×0.50.
-- Greyfen Charter: ×0.75.
-- Unrest or occupation: 0.
-
-There is no minimum one-troop recovery. Fractions accumulate until a whole levy becomes available.
+Tax Strain ×0.50; Charter ×0.75; Unrest/occupation 0. No minimum daily troop.
 
 ### Influence
 
-- +1 every dawn.
-- Maximum 100.
-- No passive gain while under an explicit Disgraced condition.
-- Discrete political successes and Hold Court can add more.
++1 each dawn, maximum100, blocked only by explicit Disgraced condition.
 
-## 5. Relationship changes
+## 5. Relationship values
 
 | Cause | Change |
 |---|---:|
-| 20 Gold Gift | +4 |
-| 40 Gold Gift | +8 |
-| 80 Gold Gift | +12 |
-| Second Gift within 14 days | 50% listed gain |
-| Premature Request Declaration | -4 |
-| Request invalidated by external change | -2 |
-| Successful bargain fulfillment | +8 to +15, authored |
-| Break Agreement | -25 with partner |
-| Public Threaten | -20 with target |
-| Occupy target's seat | -40 with legal lord |
-| Liberate target's seat | +20 with legal lord |
-| Expose target's secret | -30 with target |
-| Join target's defensive war | +12 |
+| Gift20 / 40 / 80 | +4 / +8 / +12 |
+| Second Gift within14d | half |
+| Premature Request | -4 |
+| Request invalidated externally | -2 |
+| Break Agreement | -25 partner |
+| Public Threaten | -20 target |
+| Occupy seat | -40 legal lord |
+| Liberate seat | +20 legal lord |
+| Expose secret | -30 target |
+| Join defensive war | +12 |
+| First Hold Court invitee | +6 |
+| Diminished second Court invitee | +3 |
+| First Patronize Church | +8 Oswin |
+| Later valid Patronage repetition | +3 Oswin |
+| Abbey Endowment | +8 Oswin unless first Patronage already granted; never stacks twice |
 
-Relationship contribution to candidate evaluation:
+Relationship component = `round(value / 5)`, clamp -20…+20.
 
-`round(relationship / 5)`, clamped to -20…+20.
+## 6. Viability component
 
-## 6. Candidate viability component
+- voluntary Pledge +5;
+- voluntary Commitment +8 instead;
+- coerced Pledge +2 Ysabel / 0 Edric,Mara / -2 Oswin;
+- Claim None -8, Dubious -4, Plausible0, Strong+3, Excellent+6, Overwhelming+8;
+- Church Favorable +3, Endorsed +7;
+- Capital +5;
+- major victory last10d +4;
+- major defeat last10d -5;
+- Dispossessed -6;
+- withdrawn excluded.
 
-This is one capped input to one lord's evaluation, not a victory score.
+Clamp -20…+20. Ysabel ×1.25 before cap; Mara ×0.60; Edric/Oswin ×1.00.
 
-- Voluntary Pledge: +5 each.
-- Voluntary Commitment: +8 each instead of +5.
-- Coerced Pledge: +2 for Ysabel, 0 for Edric/Mara, -2 for Oswin.
-- Claim None: -8.
-- Claim Dubious: -4.
-- Claim Plausible: 0.
-- Claim Strong: +3.
-- Claim Excellent: +6.
-- Claim Overwhelming: +8.
-- Church Favorable: +3.
-- Church Endorsed: +7.
-- Controls Capital: +5.
-- Major victory in previous 10 days: +4.
-- Major defeat in previous 10 days: -5.
-- Dispossessed: -6.
-- Withdrawn: candidate excluded.
+All other exact evaluation is in `candidate-evaluation.md`.
 
-Clamp to -20…+20 before personality weighting.
+## 7. Support thresholds
 
-- Ysabel multiplies Viability by 1.25 before the cap.
-- Mara multiplies it by 0.60.
-- Edric and Oswin use 1.00.
+- hear bargain: evaluation≥0;
+- Leaning: best≥15 and margin≥8;
+- retain Leaning: best≥10 and margin≥4;
+- voluntary Pledge: declared + Leaning + maturation + Proof + accepted collateral + no Red Line.
 
-## 7. Support thresholds and maturation
+Maturation: Ailing2d, Gravely3d, Deathbed4d. Reset when candidate changes or lord becomes Unaligned.
 
-- Hear bargain: candidate evaluation ≥0.
-- Leaning: best evaluation ≥15 and margin over next candidate ≥8.
-- Request Declaration available: declared candidate, current Leaning, no refusal cooldown.
-- Voluntary Pledge: Leaning + maturation + Proof + accepted present collateral + no Red Line.
-- Pledge break: automatic authored breaker or shock threshold plus alternative lead ≥10.
+Inertia: Ailing10, Gravely20, Deathbed30.
 
-Leaning maturation at Request resolution:
+Numeric shock entries expire after10 full days. Automatic breakers, active Red Lines, breached agreements and persistent conditions remain.
 
-| Phase | Required continuous Leaning |
-|---|---:|
-| Ailing | 2 full days |
-| Gravely Ill | 3 full days |
-| Deathbed | 4 full days |
-
-The current phase requirement applies. Earlier Leaning time counts. A Commitment-grade shared-risk event may waive maturation for that lord.
-
-Pledge inertia:
-
-- Ailing: 10.
-- Gravely Ill: 20.
-- Deathbed: 30.
-
-Premature Request cooldown: 7 days.
+Premature Request cooldown7d.
 
 ## 8. Church case
 
-| Claim band | Case strength |
-|---|---:|
-| None | 0 |
-| Dubious | 1 |
-| Plausible | 2 |
-| Strong | 3 |
-| Excellent | 4 |
-| Overwhelming | 5 |
+Claim case: None0, Dubious1, Plausible2, Strong3, Excellent4, Overwhelming5.
 
-Other modifiers:
+- Oswin Pledged +2 / Committed +4;
+- after Simony +1 / +2;
+- Patronage +1;
+- Renard undiscredited Favorite +1;
+- defended Abbeylands +1;
+- funeral +1;
+- Usurper -2;
+- Broke Peace -1;
+- Stable defiance additional -1;
+- two publicly known coerced Pledges block Endorsement;
+- Abbeylands attack or unconfessed Forgery = Condemned.
 
-- Oswin Pledged: +2.
-- Oswin Committed: +4 instead.
-- If Simony exposed: Oswin Pledged +1 / Committed +2 instead.
-- Patronage: +1.
-- Renard's undiscredited favorite presumption: +1.
-- Defended Abbeylands: +1.
-- Funded royal funeral: +1.
-- Usurper from Capital seizure: -2.
-- Broke King's Peace: -1.
-- Defied King while Stable: -1 additional.
-- Two or more coerced Pledges: cannot be Endorsed.
-- Attack on Abbeylands: Condemned.
-- Unconfessed exposed Forgery: Condemned.
+Case0–1 Skeptical,2–3 Neutral,4–5 Favorable,6+ eligible. Highest qualifying wins; tie Claim, then Oswin, then no endorsement.
 
-When not Condemned:
+## 9. Actions
 
-- case 0–1: Skeptical;
-- 2–3: Neutral;
-- 4–5: Favorable;
-- 6+: eligible for Endorsed.
+| Action | Duration | Gold | Influence |
+|---|---:|---:|---:|
+| Gift | 1d | 20/40/80 | 0 |
+| Offer Bargain | 2d | collateral on acceptance | 8 start |
+| Request Declaration | 2d / 1d Deathbed | 0 | 8 |
+| Threaten | 2d / 1d Deathbed | 0 | 12 |
+| Watch Court | 3d | 20 | 8 |
+| Find Dirt | 5d | 30 | 12 |
+| Research Lineage | 6d | 35 | 12 |
+| Forge Royal Descent | 8d | 50 | 25 |
+| Expose Secret | 2d / 1d Deathbed | 0 | 10 |
+| Invade | 3d / 2d Deathbed | 10 + troops | 0 |
+| Raise Taxes | 1d | 0 | 0 |
+| Hold Court | 3d / 2d Deathbed | 60 | 0 |
+| Patronize Church | 4d / 3d Deathbed | 50 | 0 |
+| Declare | 1d | 0 | 15 |
+| Confess/Penance | 3d | 40 | 10 |
 
-Highest qualifying case receives sole Endorsement. Tie: higher Claim, then Oswin preference, then no endorsement.
+Hold Court: +8 Prestige,+10 Influence. Second within21d halves both; third locked. Penance also -5 Prestige.
 
-Baseline when Ailing begins:
-
-- Renard: Excellent Claim 4 + Favorite 1 = 5 / Favorable.
-- Player: Dubious Claim 1 / Skeptical.
-
-## 9. Action values
-
-| Action | Duration | Gold | Influence | Principal result |
-|---|---:|---:|---:|---|
-| Gift small | 1d | 20 | 0 | +4 relationship |
-| Gift medium | 1d | 40 | 0 | +8 relationship |
-| Gift grand | 1d | 80 | 0 | +12 relationship |
-| Offer Bargain | 2d | At acceptance | 8 at start | Negotiate agreement |
-| Request Declaration | 2d / 1d Deathbed | 0 | 8 | Leaning → Pledged if all gates pass |
-| Threaten | 2d / 1d Deathbed | 0 | 12 | Coercion or authored concession |
-| Watch Court | 3d | 20 | 8 | Guaranteed current intelligence |
-| Find Dirt | 5d | 30 | 12 | Contested secret discovery |
-| Research Lineage | 6d | 35 | 12 | +12 safe Claim, once |
-| Forge Royal Descent | 8d | 50 | 25 | +25 Claim + Forgery Evidence, once |
-| Expose Secret | 2d / 1d Deathbed | 0 | 10 | Authored public consequence |
-| Invade | 3d / 2d Deathbed | 10 + troops | 0 | Battle/occupation |
-| Raise Taxes | 1d | 0 | 0 | Advance income + Strain/Unrest |
-| Hold Court | 3d / 2d Deathbed | 60 | 0 | +8 Prestige, +10 Influence, relations |
-| Patronize Church | 4d / 3d Deathbed | 50 | 0 | Patronage and Church/Oswin effect |
-| Declare Candidacy | 1d | 0 | 15 | Irreversible claimant state |
-| Confess and Seek Penance | 3d | 40 | 10 | Repair fraud Condemnation; -5 Prestige |
-
-Offer Bargain charges only 8 Influence at start. Collateral is applied only on acceptance at resolution.
-
-## 10. Bargain values
+## 10. Bargains
 
 ### Edric
 
-**Marshal's Baton**
-
-- Reserve candidate's Marshal office.
-- Must also satisfy military Proof.
-- Office alone cannot Pledge.
-
-**Border Aid**
-
-- Lock 150 levies for 7 days.
-- If Edric is attacked, they fight.
-- Refusal after trigger is Red Line/breach.
-
-**Joint Campaign**
-
-- Both sides commit at least 100 troops to same objective.
-- Victory upgrades an existing Pledge to Committed.
+- Marshal: reserve office + military Proof.
+- Border Aid: lock150 levies7d.
+- Joint Campaign: both commit100+; victory can Commit.
 
 ### Ysabel
 
-**Gold Escrow**
+- Escrow80; with Access Debt100.
+- Chancellorship budget40; with Access Debt60.
+- Protection100 troops7d; with Access Debt150.
 
-- Lock 80 Gold.
-- Still requires Viability Proof.
-
-**Chancellorship**
-
-- Reserve candidate's Chancellor.
-- Lock 40 Gold as court budget.
-- Still requires Viability Proof.
-
-**Protection**
-
-- Lock 100 troops in Eastvale for 7 days.
-- Counts as collateral and Proof.
-
-Commitment trigger: successful defense of Eastvale while Pledged, or two other voluntary public supporters followed by Ysabel's public 40-Gold financing Intent.
+Access Debt is consumed on accepted bargain.
 
 ### Oswin
 
-**Abbey Endowment**
-
-- Pay 60 Gold on acceptance.
-- Acceptance itself creates Patronage.
-- Candidate must have Plausible Claim.
-
-**Church Immunities**
-
-- Future Raise Taxes proceeds ×0.80.
-- Complete Patronize Church for 50 Gold.
-- No additional cash charge.
-- Candidate must have Plausible Claim.
-
-Commitment trigger: Church Endorses candidate while Oswin is Pledged.
+- Abbey Endowment60; creates Patronage and +8 relationship unless already granted.
+- Church Immunities: Raise Taxes×0.80 + Patronize Church50; no extra cash.
 
 ### Mara
 
-**Greyfen Charter**
+- Charter: Greyfen income/recovery×0.75; Edric -4, Oswin -3.
+- Denounce: Renard -15, Mara +4, Oswin -3, future Capital Church penalty -1 extra; Leaning only.
+- Provincial Aid: lock100 troops5d or liberate.
 
-- Greyfen passive income ×0.75.
-- Greyfen levy recovery ×0.75.
-- -4 Edric relationship; -3 Oswin relationship.
+## 11. Coercion
 
-**Denounce Central Rule**
+Thresholds after Fortification:
 
-- -15 Renard relationship.
-- +4 Mara relationship.
-- -3 Oswin relationship.
-- Future Capital-seizure Church penalty worsens by 1.
-- Creates/strengthens Leaning only.
+- Ysabel1.25× or occupation;
+- Mara1.50× or occupation;
+- Edric2.00×, occupation only if army<250;
+- Oswin no military Pledge; secret can coerce vote;
+- Renard separate withdrawal.
 
-**Provincial Aid**
+Military/occupation coercion is public Under Duress and known to Church/rivals. Secret blackmail is private; only informed actors react. One secret yields one successful blackmail use. Exposure removes that leverage and releases the coerced support unless another basis exists.
 
-- Lock 100 troops for 5 days or liberate Westmarch.
-- Can enable Pledge.
+Threat: target -20; cautious/pious observers -5 if public.
 
-Commitment trigger: full Charter plus a public anti-central act, or liberation of Westmarch while Pledged.
+## 12. Spy
 
-## 11. Coercion thresholds
+At Order start snapshot:
 
-Military coercion compares attacker effective power with target defensive effective power, including Fortification.
+`spyPower = 50 + floor(actorInfluence/5) + modifiers + seeded(-15…15)`
 
-- Ysabel: ≥1.25× while adjacent; occupation always qualifies.
-- Mara: ≥1.50×; occupation qualifies but support breaks when occupation ends.
-- Edric: ≥2.00×; occupation qualifies only while his available army is below 250.
-- Oswin: military threat can force neutrality/withdrawal, not an Under Duress Pledge. A devastating secret can coerce his vote, but makes the Church hostile to coercer.
-- Renard: separate withdrawal rule.
+`defense = 50 + floor(targetInfluence/5) + modifiers`
 
-Threat relationship effects:
+- ≥defense+10: secret, no detection;
+- ≥defense: secret,25% detection;
+- ≥defense-10: partial intel,50% detection;
+- lower: no useful intel, detected.
 
-- target -20;
-- cautious/pious observers -5;
-- normal derived threat.
+Repeated Find Dirt within10d adds +20 percentage points detection each, cap100; no defense increase.
 
-A valid Commitment cannot be overwritten by ordinary coercion. A secret can power one successful blackmail agreement and then becomes spent for blackmail, though still exposable.
+## 13. Claim/fraud
 
-## 12. Spy checks
+Research +12 safe. Forge +25 fabricated. Genealogy event +4/+6 safe.
 
-Values snapshot when Find Dirt begins.
+Forgery exposure: remove20 fabricated, -10 Prestige, Condemned, shocks. Rumor confession removes12 and -5 Prestige. Post-exposure Penance costs40 Gold/10 Influence/3d/-5 Prestige, removes fraud Condemnation to at most Skeptical, restores no Claim.
 
-`spyPower = 50 + floor(actorInfluence / 5) + modifiers`
+## 14. Secrets
 
-`defense = 50 + floor(targetInfluence / 5) + modifiers`
+Every secret can be exposed once and used for one blackmail.
 
-Add stored seeded factor -15…+15 to spyPower.
+### Renard: one guaranteed
 
-- `spyPower ≥ defense + 10`: discover secret; no detection.
-- `spyPower ≥ defense`: discover secret; base 25% stored detection chance.
-- `spyPower ≥ defense - 10`: no secret; reveal Intent and one reason; base 50% detection chance.
-- lower: no useful result; detected.
+**Questioned Paternity:** Claim -20, Prestige -5, remove Favorite, Church conduct -1, Oswin shock15, Ysabel shock8.
 
-Repeated Find Dirt on same target within 10 days:
+**Foreign Concession:** Prestige -8, remove Favorite, Edric relation -25, Mara -15, Edric shock20, Compromised Sovereignty.
 
-- does not increase defense;
-- adds +20 percentage points detection per repeat, capped at 100%;
-- uses a stored detection draw created with the Order.
+**Bought Royal Testament:** Claim -15, Prestige -8, remove Favorite, Church conduct -1, all voluntary Renard Pledges shock10, Oswin15.
 
-Fen Roads reduces Watch Court Gold by 5 against adjacent courts.
+### Others
 
-## 13. Claim consequences
+**Edric Border Massacre:** Prestige -8, candidate Church case -2, Mara relation -25, Oswin -15, Edric-candidate Pledges shock10.
 
-- Research Lineage: +12 safe Claim.
-- Forge Royal Descent: +25 fabricated Claim.
-- Forgotten Genealogy: +4 or +6 safe Claim.
-- Exposed Forgery: remove 20 fabricated Claim, -10 Prestige, Condemned, support shocks.
-- Rumor-event confession: remove 12 fabricated Claim, -5 Prestige, penitent repair after 3 days.
-- Post-exposure Penance: 40 Gold, 10 Influence, 3 days, -5 Prestige; removes fraud Condemnation to at most Skeptical; no Claim restoration.
-- Clamp Claim 0–100.
+**Ysabel Tax Embezzlement:** lose up to40 Gold, Prestige -8, Renard relation -20, her Opportunistic Pledge shock10.
 
-## 14. Canonical secret consequences
+**Oswin Simony:** Prestige -10, Church influence reduced to+1/+2, pious relationships -10, immediate recalc.
 
-Every secret is discoverable, exposable once and usable for one successful blackmail agreement.
+**Mara Smuggler Compact:** Prestige -6, lose up to30 Gold, Oswin relation -15, mercenary discount disabled7d.
 
-### Renard — Questioned Paternity
+**Player Forgery:** as Section13.
 
-- Claim -20.
-- Prestige -5.
-- Remove Royal Favorite presumption.
-- Church conduct -1 and recalculate stance.
-- Oswin Pledge shock 15 if backing Renard.
-- Ysabel Pledge shock 8 if backing Renard.
+## 15. Battle
 
-### Renard — Foreign Concession
+Commander ordinary1.00, Edric1.10. Fort levels0/1/2/3 =1.00/1.10/1.20/1.30. Fortune stored0.92–1.08.
 
-- Prestige -8.
-- Remove Royal Favorite presumption.
-- Edric relationship toward Renard -25.
-- Mara relationship toward Renard -15.
-- Edric Pledge shock 20 if backing Renard.
-- Renard gains public flag Compromised Sovereignty.
+Garrisons: hereditary75, Capital200.
 
-### Renard — Bought Royal Testament
+Mercenary:150 troops,50 Gold/7d, renewal20, max2; Mara holding Westmarch40 initial.
 
-- Claim -15.
-- Prestige -8.
-- Remove Royal Favorite presumption.
-- Church conduct -1.
-- All voluntary Renard Pledges take 10 shock; Oswin takes 15.
+Capital royal garrison450 Gravely/300 Deathbed; minimum attack250. Victory with <200 survivors makes Capital Uncontrolled.
 
-Exactly one of these three exists every run.
+AI Yield uses observer-known expected power excluding fortune and requires≥1.75× with no relief.
 
-### Edric — Border Massacre
+## 16. Prestige
 
-- Prestige -8.
-- If Edric is candidate, Church case -2.
-- Mara relationship toward Edric -25.
-- Oswin relationship toward Edric -15.
-- Voluntary Pledges to candidate Edric take 10 shock.
+- Declare None -5/Laughable;
+- Plausible +3; Strong+ +5;
+- major victory +8;
+- minor +4;
+- lose attack -6;
+- lose defense -4;
+- yield -5;
+- Capital +8/-8;
+- dispossessed -8 once;
+- Court +8;
+- break agreement -8;
+- loan default -12;
+- Forgery -10;
+- Penance -5.
 
-### Ysabel — Royal Tax Embezzlement
+Clamp0–100.
 
-- Lose up to 40 current Gold.
-- Prestige -8.
-- Renard relationship toward Ysabel -20.
-- Any Opportunistic Pledge held by Ysabel takes 10 shock because her leverage and safety collapse.
-- Counts as devastating financial blackmail.
+## 17. Threat
 
-### Oswin — Simony
+Each observer uses their knowledge estimate:
 
-- Prestige -10.
-- His Church influence becomes +1 when Pledged and +2 when Committed for the remainder of the run.
-- Church stance recalculates immediately.
-- Relationship with every pious/legitimacy-minded lord -10.
+- fresh exact/direct observation exact;
+- public midpoint Broken75, Modest225, Strong400, Formidable600 unless visible minimum higher;
+- stale exact blended halfway toward current midpoint;
+- own defense exact;
+- no prebattle fortune.
 
-### Mara — Smuggler Compact
+Then:
 
-- Prestige -6.
-- Lose up to 30 current Gold to confiscation.
-- Oswin relationship toward Mara -15.
-- Free Companies discount is disabled for 7 days.
-- Counts as devastating blackmail because exposure threatens the network.
+- +20 if estimate >1.25× own defense;
+- +15 adjacent occupation;
+- +10 per occupied seat;
+- +15 Capital;
+- +10 two public supporters;
+- +10 second offensive war;
+- +10 per publicly known coerced Pledge;
+- -10 if voluntarily Committed.
 
-### Player — Forgery Evidence
+Bands Low<20, Concern20–39, Serious40–59, Existential60+.
 
-Uses the Claim consequences in Section 13 and activates Oswin's fraud Red Line until repaired.
+## 18. Council
 
-## 15. Battle values
+Six legal votes; four wins. Candidate self-votes. Valid Pledge/Commitment binds; coercion revalidates. Eliminate lowest until two. Sole candidate gets6–0.
 
-Commander:
+Final3–3: Church → Capital → Commitments → exact Claim → Prestige → earlier declaration.
 
-- ordinary: ×1.00;
-- Edric: ×1.10.
+If player is eliminated or never declared and more than one candidate remains, mandatory Cast Greyfen's Vote. It can decide historical winner but player still loses.
 
-Fortification:
-
-- level 0 ×1.00;
-- level 1 ×1.10;
-- level 2 ×1.20;
-- level 3 ×1.30.
-
-Fortune: stored uniform factor 0.92–1.08 per side.
-
-Garrison:
-
-- hereditary seat: 75;
-- Capital: 200.
-
-Mercenary band:
-
-- 150 troops;
-- 50 Gold / 7 days;
-- renewal 20 Gold / 7 days;
-- max two bands;
-- Mara controlling Westmarch pays 40 initial Gold.
-
-Capital:
-
-- Gravely royal garrison 450;
-- Deathbed royal garrison 300;
-- minimum attack 250;
-- hold after victory 200;
-- victory with fewer than 200 survivors makes Capital Uncontrolled.
-
-AI Yield:
-
-- attacker known effective power at least 1.75× defender;
-- no allied relief;
-- personality may raise, never lower, threshold.
-
-## 16. Prestige values
-
-| Cause | Prestige |
-|---|---:|
-| Declare with None Claim | -5 + Laughable Pretender |
-| Declare with Dubious Claim | 0 |
-| Declare with Plausible Claim | +3 |
-| Declare with Strong+ Claim | +5 |
-| Major battle victory | +8 |
-| Minor battle victory | +4 |
-| Lose major attack | -6 |
-| Lose major defense | -4 |
-| Yield seat | -5 |
-| Occupy Capital | +8 |
-| Lose Capital | -8 |
-| Become dispossessed | -8 once |
-| First Hold Court | +8 |
-| Break Agreement | -8 |
-| Loan default | -8 |
-| Exposed Forgery | -10 |
-| Penance | -5 |
-
-Clamp 0–100.
-
-## 17. Threat calculation
-
-Per observer:
-
-- +20 if candidate's available military >1.25× observer defense.
-- +15 if candidate occupies adjacent seat.
-- +10 per occupied hereditary seat.
-- +15 Capital control.
-- +10 at least two public Pledges/Commitments.
-- +10 after second offensive war.
-- +10 per coerced Pledge.
-- -10 if observer voluntarily Committed.
-
-Bands: Low <20; Concern 20–39; Serious 40–59; Existential 60+.
-
-## 18. Council and acclamation
-
-- Six legal lords retain votes.
-- Four votes wins any ballot.
-- Candidate votes self.
-- Valid Pledges/Commitments bind vote.
-- Under Duress revalidates leverage at death.
-- Lowest candidate eliminated until two remain.
-- Sole eligible candidate receives required 6–0 acclamation.
-- Final 3–3: Church Endorsement → Capital control → more Commitments → exact Claim → Prestige → earlier declaration.
-
-Military Acclamation requires:
-
-- declared candidacy;
-- Capital control;
-- physical control of three non-Capital seats;
-- 200 troops in Capital.
-
-Minimum physical example: Greyfen + Westmarch occupation 75 + Abbeylands occupation 75 + Capital 200. The route locks at least 350 troops before casualties.
+Military Acclamation: declared + Capital + three non-Capital seats +200 Capital troops.
 
 ## 19. Opening packages
 
-### Fractured Court
+- Fractured: Renard–Ysabel -10, Edric Prestige+5, Player–Mara+5.
+- Border: Edric/Mara levies -60, relation -10, border Intents.
+- Holy: Renard Church conduct -2, Oswin Gold+15/levies-30, legitimacy Intent.
+- Favorite: Renard–Ysabel bargain progress, Ysabel Gold+20, Renard vulnerability still guaranteed.
 
-- Renard–Ysabel -10 from baseline.
-- Edric Prestige +5.
-- Player–Mara +5.
+## 20. Event exact values
 
-### Border Crisis
+- Raiders casualties: stored uniform integer0–20.
+- Ignored unpaid Guard:50%0,25%-25,25%-50 at Deathbed.
+- Hawk Tournament:50% high result,50% low.
+- Rumor blame:50% success; failure -5 Prestige and +20 discovery points.
+- Funeral troops:25 Capital-only for3d; expire absolutely and can collapse garrison.
+- Mara avoidance: next bargain +10 Influence.
 
-- Edric levies -60.
-- Mara levies -60.
-- Edric–Mara -10 further.
-- First Intents border-weighted.
+### Merchant Loan
 
-### Holy Anxiety
+Eligibility Stable/Ailing, elapsed≤27, Gold<80, Ysabel not Hostile.
 
-- Renard Church conduct -2 at Ailing, baseline case 3 / Neutral.
-- Oswin Gold +15.
-- Oswin levies -30.
-- First Intent legitimacy investigation.
+Borrow +80, mandatory decision14d later:
 
-### Favorite Ascendant
+- repay105 if available;
+- default: spendable Gold→0, Prestige -12, Ysabel -25, Greyfen income×0.50 remainder, Defaulted Debtor, Ysabel one Debt Leverage use.
 
-- Renard begins with Ysabel bargain progress and first Ailing Request.
-- Ysabel Gold +20.
-- One Renard vulnerability still guaranteed.
+Political Access alternative: +45 Gold and exact Ysabel Access Debt modifiers in Section10.
 
-## 20. Route feasibility budgets
+## 21. Route budgets
 
-### Coalition
+Coalition minimum political cost: Declare15 + three bargains24 + three Requests24 =63 Influence, plus collateral.
 
-Three kingmakers require at minimum:
+Legitimacy: Research35g/12i, Forge50g/25i, Declare15i, Patronage50g or Endowment60g, Oswin bargain/request16i.
 
-- Declaration 15 Influence.
-- Three bargains 24 Influence.
-- Three Requests 24 Influence.
-- Total 63 Influence before other political actions.
+Military minimum lock: two seats150 + Capital200 + casualties80–200+ + mercenaries50–100 and renewals.
 
-The player starts 35 and gains one daily, so the route is feasible but consumes most political capacity. Collateral such as Charter, 150 troops and 40–80 Gold is additional.
+## 22. Tuning invariants
 
-### Legitimacy
-
-- Research 35 Gold / 12 Influence / 6 days.
-- Forge 50 Gold / 25 Influence / 8 days.
-- Declaration 15 Influence.
-- Patronize 50 Gold or Endowment 60 Gold.
-- Oswin bargain/request 16 Influence.
-
-This is fundable through time and taxation but leaves little flexibility and creates Forgery risk.
-
-### Military
-
-Minimum Acclamation locks:
-
-- two hereditary garrisons 150;
-- Capital garrison 200;
-- expected casualties 80–200+;
-- one or two mercenary bands 50–100 Gold plus renewals.
-
-It requires several successful campaigns and active contract management.
-
-## 21. Tuning invariants
-
-Preserve these relationships even when values move:
-
-1. Future promises are cheaper than collateral and never Pledge alone.
-2. Three preferred kingmaker packages cost more than the starting stockpile.
-3. Research + Forge + one viable Oswin route can reach Endorsement without event dependence.
-4. One battle cannot normally satisfy Military Acclamation.
-5. Two occupations plus Capital require more troops than the player's starting available levies after expected casualties.
-6. Mercenary-assisted conquest remains possible.
-7. Repeated taxes worsen before becoming optimal spam.
-8. A late declaration cannot mature multiple new voluntary Pledges from scratch before every possible death date.
-9. Renard starts favored but not automatically crowned.
-10. Every decisive number is visible in preview or reconstructible in the ending.
+1. Future promise never Pledges alone.
+2. Three kingmakers cost more than starting stockpile.
+3. Claim + viable Oswin route can Endorse without event luck.
+4. One battle cannot normally Acclaim.
+5. Two occupations + Capital exceed starting levies after casualties.
+6. Mercenary conquest remains possible.
+7. Repeated taxes worsen.
+8. Late declaration cannot mature several fresh voluntary Pledges before every death date.
+9. Renard favored, not automatic.
+10. Every decisive number is previewed or reconstructible.
