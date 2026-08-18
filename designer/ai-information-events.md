@@ -1,539 +1,316 @@
 # Rival AI, Information and Events
 
-## 1. AI design goal
+## 1. AI goal
 
-The rivals should appear purposeful, bounded and politically legible.
+Rivals must appear purposeful, bounded and readable. Each pursues one meaningful plan, spends real resources, reacts to shocks and knows only permitted information.
 
-They do not need a full grand-strategy simulation. Each lord should visibly pursue one meaningful objective, react to shocks and operate with the same finite resources and time as the player.
+## 2. Capacity and fairness
 
-The player should think:
+Each NPC has exactly **one major Intent**.
 
-> Renard is trying to secure Oswin before I can.
+Intent stores action, target, start/completion, sequenceId, costs, committed troops, visibility, resolution fallback and all seeded factors.
 
-not:
+Reactions do not consume the Intent: defense, bargaining response, mercenary renewal, Red Line break, ultimatum and event choice.
 
-> Five invisible scripts are changing numbers whenever they need to.
+AI uses player action costs/durations unless authored advantage explicitly changes them. It cannot spend locked resources.
 
-## 2. AI capacity
+## 3. Knowledge
 
-Each NPC has exactly **one major active Intent** at a time.
+### Public to all
 
-An Intent is the AI equivalent of a player Order. It has:
+- candidates;
+- public Pledges/Commitments/bargains/policies;
+- Claim and Church stance;
+- territory control and campaigns;
+- approximate army bands;
+- Prestige and conduct.
 
-- action family;
-- target;
-- start and completion time;
-- committed Gold, Influence and troops;
-- visibility state;
-- expected result;
-- fallback result;
-- deterministic random factors, if any.
+### Private to actor
 
-NPCs may react immediately without consuming their Intent, exactly as the player does.
+- own exact state/Intent;
+- bargains addressed to actor;
+- discovered secrets;
+- Spy results;
+- communicated Leanings;
+- exact incoming force once campaign public.
 
-Examples of reactions:
+### Forbidden unless discovered
 
-- defend an invasion;
-- accept or refuse a bargain;
-- renew mercenaries;
-- break a Pledge after a Red Line;
-- answer an ultimatum;
-- choose an event response.
+- player Order target;
+- exact player Gold/Influence;
+- hidden Leanings/negotiations;
+- Forgery Evidence;
+- future RNG/death;
+- UI/pause behavior.
 
-An individual NPC cannot court one lord, spy on another and prepare war simultaneously.
+## 4. Army information
 
-## 3. AI resource fairness
+- Broken: 0–149
+- Modest: 150–299
+- Strong: 300–499
+- Formidable: 500+
 
-AI actions use the same baseline costs, durations and rules as player actions unless an authored special advantage explicitly changes them.
+Fresh Watch Court reveals exact breakdown for7 days; afterward marked stale.
 
-Examples:
+## 5. Intent visibility
 
-- Ysabel can afford more gifts because Eastvale is rich, not because her gifts are free.
-- Edric wins more battles because of Veteran Command and Northkeep's levies, not because combat secretly favors AI.
-- Mara pays the authored Westmarch mercenary discount.
-- Renard starts with stronger Claim and relationships but still spends Influence to negotiate.
+- Hidden: private preparation.
+- Suspected: visible clues.
+- Public: army march, public courtship, Patronage, exposure, Pledge request.
 
-AI cannot spend resources already committed to another Intent, agreement or garrison.
+Campaign public after12 hours. Fresh Watch Court may reveal at start.
 
-## 4. AI knowledge model
+## 6. Decision cycle
 
-Each actor has a knowledge set.
+When idle at dawn or after major shock:
 
-### Public knowledge available to every lord
+1. remove illegal/unaffordable/impossible actions;
+2. insert mandatory Red Line/defense/obligation responses;
+3. score Intent families by phase, Desire, Fear, support and threat;
+4. target using actor knowledge only;
+5. apply ±5% seeded near-tie noise;
+6. commit resources and snapshot all contested values/random factors.
 
-- declared candidacies;
-- public Pledges and Commitments;
-- public bargains and policies;
-- Claim bands and exact public Claim;
-- Church stance;
-- territory control and occupations;
-- wars and campaign announcements;
-- approximate military bands;
-- Prestige;
-- public conduct flags;
-- relationship history involving that actor.
+Noise cannot violate Red Lines or affordability.
 
-### Private knowledge
+## 7. Intent vocabulary
 
-A lord knows:
+- relationship cultivation;
+- bargain/obligation;
+- Request Declaration;
+- Threaten;
+- Watch Court/Find Dirt;
+- build/defend Claim;
+- Expose Secret;
+- raise funds;
+- Hold Court;
+- Patronize Church;
+- prepare/launch war;
+- liberate seat;
+- March Capital;
+- fulfill Commitment;
+- undermine most relevant rival.
 
-- their own exact resources and Intent;
-- bargains offered directly to them;
-- secrets they personally possess or discover;
-- Spy results they obtained;
-- private Leanings communicated to them;
-- exact troops committed against them once a campaign becomes public.
+Personality restricts use. Oswin does not military-threaten; Ysabel rarely attacks without direct fear; Edric does not spam gifts.
 
-### Forbidden AI knowledge
-
-Unless discovered, AI cannot read:
-
-- the player's current Order target;
-- exact player Gold or Influence;
-- the player's private Leanings with other lords;
-- undiscovered Forgery Evidence;
-- another actor's secret bargain;
-- future event or death RNG;
-- the player's cursor, selected panel or pause behavior.
-
-## 5. Public military information
-
-Without fresh Spy intelligence, military availability appears in bands:
-
-- **Broken:** 0–149
-- **Modest:** 150–299
-- **Strong:** 300–499
-- **Formidable:** 500+
-
-Occupations and visible campaign commitments may narrow the estimate.
-
-Watch Court reveals the exact current breakdown for seven days. The value remains historically visible afterward but is marked stale.
-
-## 6. Intent visibility
-
-Intent visibility has three states:
-
-### Hidden
-
-Early private preparation, known only to the actor and successful spies.
-
-### Suspected
-
-Public behavior gives a clue without exact target or completion.
-
-Example:
-
-> Edric is gathering captains at Northkeep.
-
-### Public
-
-The action necessarily becomes visible.
-
-Examples:
-
-- army marching;
-- public courtship;
-- Church patronage;
-- declared bargain;
-- exposed scandal;
-- Pledge request.
-
-A campaign becomes public after 12 hours. Most diplomatic Intents become Suspected halfway through and public only on resolution unless the action itself is public.
-
-## 7. AI decision cycle
-
-An idle AI lord chooses a new Intent at dawn or immediately after a phase transition/major shock.
-
-Decision sequence:
-
-1. Remove actions that are illegal, unaffordable or impossible.
-2. Add mandatory personality responses to Red Lines, invasion or bargain obligations.
-3. Score remaining Intent families using phase, Desire, Fear, current support, threat and candidacy.
-4. Select a target using only the actor's knowledge.
-5. Apply small seeded preference noise of ±5% to avoid identical openings.
-6. Commit resources and store all random factors at Intent creation.
-
-The noise can change which of two near-equal plans is selected; it cannot make a lord violate a Red Line or choose an obviously unaffordable action.
-
-## 8. Intent families
-
-NPCs draw from a limited vocabulary:
-
-- improve relationship;
-- offer or fulfill a bargain;
-- request a public Pledge;
-- threaten;
-- Watch Court;
-- Find Dirt;
-- build or defend Claim;
-- expose a secret;
-- raise emergency funds;
-- hold court;
-- patronize Church;
-- prepare and launch war;
-- liberate a seat;
-- March on the Capital;
-- fortify a current political position by fulfilling Commitment;
-- undermine the current frontrunner.
-
-Not every lord uses every family. Ysabel rarely launches an offensive war without direct fear. Edric rarely spends his sole Intent on repeated gifts. Oswin will not threaten military force.
-
-## 9. Phase priorities
+## 8. Phase priorities
 
 ### Stable
 
-- personal economy and recovery;
-- spying;
-- unresolved territorial grievances;
-- relationship cultivation;
-- legitimacy preparation;
-- only exceptional early rebellion.
+economy, spying, grievances, relationships, Claim, rare rebellion.
 
 ### Ailing
 
-- Renard seeks one public Pledge and Church advantage;
-- kingmakers assess declared candidates;
-- player candidacy becomes a recognized threat;
-- bargains and public declarations grow in priority.
+Renard seeks Pledge/Church; kingmakers assess candidates; bargains open.
 
-### Gravely Ill
+### Gravely
 
-- succession is the primary objective;
-- AI attacks rival support and legitimacy;
-- Edric may declare;
-- wars against strategically important seats become common;
-- claimants consider the Capital.
+succession primary; undermine rivals; war/Capital consideration; Edric may declare.
 
 ### Deathbed
 
-- no new long preparation;
-- complete or break immediate bargains;
-- seize/defend Capital;
-- coerce exposed weak lords;
-- expose held secrets;
-- rescue wavering Pledges;
-- attack the candidate most likely to beat the actor's objective.
+immediate votes, Capital, defense, exposures, coercion, rescue of wavering support. No new long preparation.
 
-## 10. Personality priority summaries
+## 9. Personality priorities
 
 ### Renard
 
-1. retain lawful legitimacy;
-2. secure Oswin or Ysabel;
-3. undermine the most plausible rival claimant;
-4. protect Southmere;
-5. use force only when political containment is insufficient.
+legitimacy → Oswin/Ysabel → contain plausible rival → protect Southmere → force when politics insufficient.
 
 ### Edric
 
-1. answer military threats and border opportunities;
-2. preserve enough force to matter at succession;
-3. support a strong candidate on favorable terms;
-4. declare when the favorite collapses;
-5. seize the Capital if he becomes a credible claimant.
+military threat/opportunity → preserve decisive army → bargain with strong candidate → declare if favorite collapses → Capital.
 
 ### Ysabel
 
-1. preserve Eastvale and liquid wealth;
-2. identify the likely winner;
-3. extract costly collateral;
-4. fund or join a credible coalition;
-5. submit temporarily when faced with overwhelming coercion.
+preserve Eastvale/Gold → identify winner → extract collateral → fund coalition → temporary submission under overwhelming force.
 
 ### Oswin
 
-1. defend Abbeylands and Church authority;
-2. investigate legitimacy;
-3. favor a lawful candidate;
-4. expose impiety or fraud;
-5. resist coercive rulers.
+defend Church → investigate legitimacy → lawful candidate → expose fraud/impiety → resist coercion.
 
 ### Mara
 
-1. weaken central authority;
-2. defend Westmarch;
-3. exploit conflict between Edric and Renard;
-4. support a claimant who makes a concrete provincial concession;
-5. resist any claimant who becomes an existential conqueror.
+weaken Crown → defend Westmarch → exploit Edric/Renard conflict → support concrete autonomy → resist conqueror.
 
-## 11. Targeting the player
+## 10. Player threat targeting
 
-AI does not simply attack the public vote leader.
+AI does not merely attack vote leader. A player becomes relevant through two supporters, rapid Claim, Church status, Capital, major victory, Serious military threat, occupation or visible bargaining momentum.
 
-A declared player becomes strategically relevant through any combination of:
+Each lord notices different evidence. This prevents safe second-place hoarding without eliminating risky late coups.
 
-- two public supporters;
-- Plausible or better Claim rising quickly;
-- Church Favorable/Endorsed status;
-- control of the Capital;
-- a major victory over a rival;
-- Serious/Existential military threat;
-- occupation of a strategically adjacent seat;
-- visible wealth-backed bargaining.
+## 11. NPC bargaining
 
-Renard notices political plausibility. Edric notices army strength. Ysabel notices momentum and liquidity. Oswin notices Claim and conduct. Mara notices centralization and aggression.
+Same agreement/support rules as player:
 
-This prevents “stay second, hoard everything, burst in the last three days” from being reliably safe while preserving late coups as a risky strategy.
+- one succession target;
+- per-candidate office uniqueness;
+- collateral removed only on acceptance;
+- real resources;
+- normal maturation/inertia;
+- no Commitment override by ordinary bargain/coercion.
 
-## 12. Bargaining between NPCs
+## 12. Deterministic randomness
 
-NPC claimants and kingmakers use the same bargain records as the player.
+One stored64-bit seed determines opening package, guaranteed Renard vulnerability, two other secrets, relationship variation, near-tie AI choices, events, battle fortune, Spy checks and death dawn.
 
-- A kingmaker can have only one succession Pledge.
-- Unique offices cannot be reserved twice.
-- Immediate collateral is removed from the claimant's resources.
-- AI can refuse demands it cannot afford.
-- AI can break a bargain only under the same Red Line, shock or strategic-collapse rules.
-- Public bargains appear in the chronicle; private negotiations require intelligence.
+- draw once/store result;
+- preserve RNG state in save;
+- refresh never rerolls;
+- ending displays seed;
+- same build+seed+choices reproduces run.
 
-Renard's initial advantages therefore consume actual resources and political promises rather than being free scripted votes.
+Every scheduled item also stores sequenceId for same-time resolution.
 
-## 13. Deterministic randomness
+## 13. Event cadence
 
-A run receives one 64-bit seed at creation.
+Mandatory phase events plus at most six ambient choice events.
 
-The seeded generator determines:
+Seeded windows around elapsed days:
 
-- opening package;
-- secret distribution;
-- minor relationship variation;
-- initial AI near-tie choices;
-- event schedule and eligible event selection;
-- battle fortune factors;
-- Spy contested checks;
-- the King's exact death dawn.
+- 6–10
+- 14–18
+- 22–26
+- 30–34
+- 38–42
+- 45–49
 
-Rules:
+Choose one eligible unused event. Defer one day if a major decision/battle occurred. Max one choice interruption per24h. Every event has a zero-Gold option.
 
-- Every random draw is made once and stored with the resulting object when practical.
-- Save/load preserves generator state.
-- Refreshing cannot reroll outcomes.
-- The ending report displays the seed.
-- The same build, version and seed should reproduce the same world when player choices are repeated.
+## 14. Authored events
 
-## 14. Event cadence
+### E01 Prognosis
 
-Events are divided into:
+Run start; mandatory. Explains eight weeks, pause, Orders and forecast.
 
-- mandatory royal-health events;
-- ambient choice events;
-- systemic notifications generated by actions and state.
+### E02 King Takes to Bed
 
-### Mandatory events
+Ailing; mandatory. Renard declares; candidacy/Pledges unlock.
 
-One at the beginning of each phase. They explain the rule change and update the King's portrait/health presentation.
+### E03 Last Council
 
-### Ambient events
+Gravely; mandatory. King's Peace collapse and Capital unlock.
 
-A run presents at most six ambient choice events.
+### E04 Deathbed
 
-Six seeded windows occur around elapsed Days:
+Deathbed; mandatory. Long-scheme lock, action acceleration and uncertain prognosis.
 
-- 6–10;
-- 14–18;
-- 22–26;
-- 30–34;
-- 38–42;
-- 45–49.
+### E05 Failed Harvest
 
-Within each window, choose one eligible unused event. If no event is eligible, skip the window. If a major mandatory decision or battle already occurred that dawn, defer the ambient event by one day.
+Greyfen unoccupied/no Unrest.
 
-No more than one choice event may interrupt the player in a 24-hour period.
+- Buy grain:30 Gold, +3 Prestige.
+- Open granaries: lose7 days Greyfen income, +5 Mara relationship, +2 Prestige.
+- Let villages bear: Tax Strain14 days, -4 Prestige.
 
-Every ambient event has at least one zero-Gold option. The zero-cost option may be politically painful, but the player is never blocked from continuing because a modal demands unavailable resources.
+### E06 Northern Raiders
 
-## 15. Authored event set
+Stable/Ailing; Edric/Mara hold seats.
 
-Numbers below are canonical first-pass values and may be tuned without changing event structure.
+- send100 levies3 days, 0–20 stored casualties, +6 Edric, military Proof;
+- pay25 Gold, +3 Edric/+3 Mara;
+- stay out, Edric–Mara -5 and border Intent weight.
 
-### E01 — A Physician's Prognosis
+### E07 Forgotten Genealogy
 
-**Trigger:** Run start.  
-**Type:** Mandatory, no choice.
+Player has not completed both Claim projects.
 
-Explains the roughly eight-week horizon, continuous clock, pause, Orders and the initial succession forecast.
+- pay35 Gold: +6 safe Claim;
+- spend10 Influence: +4 Claim, only+2 if Oswin Cold;
+- sell to Ysabel: +25 Gold/+5 relationship.
 
-### E02 — The King Takes to His Bed
+Never required for Claim route.
 
-**Trigger:** Ailing begins.  
-**Type:** Mandatory, no choice.
+### E08 Saint's Hand
 
-Unlocks candidacy and Pledges. Renard declares.
+Abbeylands unoccupied.
 
-### E03 — The Last Council
+- sponsor25 Gold: +1 Church conduct/+5 Oswin;
+- attend: +2 Oswin;
+- dismiss: +3 Mara/-1 Church conduct.
 
-**Trigger:** Gravely Ill begins.  
-**Type:** Mandatory, no choice.
+### E09 Unpaid Capital Guard
 
-Explains that the King's Peace has effectively failed and the Capital can be contested.
+Before/at Gravely; Capital royal.
 
-### E04 — The Deathbed
+- pay50: Capital Guard Favor, future royal garrison -75 for player;
+- tell Renard: +6 relation, he may fund;
+- ignore: stored 25–50 garrison loss possibility at Deathbed.
 
-**Trigger:** Deathbed begins.  
-**Type:** Mandatory, no choice.
+### E10 Renard's Progress
 
-Locks new long schemes, accelerates short actions and introduces uncertain death reports.
+Ailing; Southmere held.
 
-### E05 — Failed Harvest in Greyfen
+- attend: +4 Renard/-2 Mara, exact public Claim case;
+- spies15 Gold: one-use +10 Find Dirt against Renard, detection risk;
+- mock: +3 Prestige if Prestige≥25 else -3; Renard -10.
 
-**Eligibility:** Greyfen unoccupied; no current Unrest.
+### E11 Provincial Liberties
 
-Choices:
+No Greyfen Charter.
 
-- **Buy grain:** pay 30 Gold; +3 Prestige; no condition.
-- **Open the granaries:** lose the next seven days of Greyfen income; +5 relationship with Mara; +2 Prestige.
-- **Let the villages bear it:** apply Tax Strain for 14 days; -4 Prestige.
+- support: lighter10% income reduction, +8 Mara, -4 Edric/-3 Oswin;
+- defend Crown: +5 Edric/+4 Renard/-10 Mara;
+- avoid: Mara next bargain +10 Influence difficulty.
 
-### E06 — Raiders on the Northern Road
+Does not replace full Charter Proof.
 
-**Eligibility:** Stable or Ailing; Edric and Mara both hold their seats.
+### E12 Hawk's Tournament
 
-Choices:
+Edric holds Northkeep; not Deathbed.
 
-- **Send 100 levies for three days:** possible casualties of 0–20; +6 Edric relationship; military Proof progress.
-- **Fund local defense:** pay 25 Gold; +3 Edric and +3 Mara relationship.
-- **Stay out:** no resource cost; the Edric–Mara relationship worsens by 5 and one gains a border-war Intent weight.
+- sponsor30: stored contest, +5 Prestige/+6 Edric or +2 Prestige;
+- send75 levies2 days: +5 Edric/Proof;
+- decline: -2 Edric.
 
-### E07 — The Forgotten Genealogy
+### E13 Merchant Loan
 
-**Eligibility:** Player has not completed both Claim projects.
+**Eligibility:** Stable or Ailing only, elapsed Day≤27, Gold<80, Ysabel not Hostile.
 
-Choices:
+- borrow80; repay105 in14 days; default -8 Prestige/-15 Ysabel and leverage;
+- political access: +45 Gold, Ysabel bargain one tier harder;
+- refuse.
 
-- **Buy the records:** pay 35 Gold; +6 safe Claim.
-- **Ask Oswin to authenticate them:** spend 10 Influence; +4 Claim; if Oswin relationship is Cold or worse, gain only +2.
-- **Sell them to Ysabel:** gain 25 Gold; +5 Ysabel relationship; no Claim.
+Due date always precedes earliest death.
 
-This event improves a route but is never required for Claim viability.
+### E14 Rumor of False Blood
 
-### E08 — Procession of the Saint's Hand
+Player has Forgery Evidence.
 
-**Eligibility:** Abbeylands unoccupied.
+- suppress35 Gold/12 Influence; future Find Dirt detection risk rises;
+- blame Renard: -15 relationship and stored belief outcome;
+- confess embellishment: lose12 fabricated Claim, penitent state, cheaper than post-exposure Penance.
 
-Choices:
+### E15 Dispossessed Retinue
 
-- **Sponsor the procession:** pay 25 Gold; +1 Church conduct; +5 Oswin relationship.
-- **Attend without gift:** consume no Order; +2 Oswin relationship.
-- **Dismiss the spectacle:** +3 Mara relationship; -1 Church conduct.
+NPC dispossessed; player holds Greyfen.
 
-### E09 — The Capital Guard Is Unpaid
+- sanctuary: lock50 levies5 days, +12 relation/basing;
+- fund30 Gold, +8 relation;
+- refuse: -10 lord/+3 occupier.
 
-**Eligibility:** Gravely Ill or earlier; Capital still royal.
+### E16 Funeral Preparations
 
-Choices:
+Deathbed; player declared.
 
-- **Advance their wages:** pay 50 Gold; record Capital Guard Favor. A future March on the Capital reduces royal garrison by 75 for the player.
-- **Tell Renard:** +6 Renard relationship; Renard may fund them.
-- **Ignore it:** no immediate effect; seeded chance the royal garrison loses 25–50 troops at Deathbed, stored now.
+- fund40: +4 Prestige/+1 Church conduct;
+- demand Great Council12 Influence: reveal current Leaning of every unpledged lord at that moment only; timestamped, no Intent/secret/bargain;
+- prepare troops: +25 temporary Capital-only readiness3 days/-1 Church conduct.
 
-### E10 — Renard's Royal Progress
+## 15. Systemic notifications
 
-**Eligibility:** Ailing; Renard holds Southmere.
+Interrupt only direct attack/defense, addressed bargain/ultimatum, Pledge/Commitment change, declaration/withdrawal, major scandal, occupation/Capital change, phase, choice event and death.
 
-Choices:
+Routine AI gifts/taxes/spy completions go to chronicle.
 
-- **Attend publicly:** +4 Renard relationship; -2 Mara relationship; gain exact view of Renard's public Claim case.
-- **Send spies among the retinue:** pay 15 Gold; gain a one-use +10% Find Dirt modifier against Renard; detection can cost 5 relationship.
-- **Mock the performance:** +3 Prestige if player Prestige is at least 25, otherwise -3; Renard relationship -10.
+## 16. Invalid AI Intent
 
-### E11 — Petition of Provincial Liberties
+Use same fallback as player action, release resources accordingly, log reason, remain idle until next decision cycle. No instant free replacement except phase-transition invalidation.
 
-**Eligibility:** Player has not issued Greyfen Charter.
+## 17. Forecast information safety
 
-Choices:
+The succession forecast receives a `PlayerKnowledgeProjection`, never authoritative lords/support/secrets. Tests must fail if unknown Leaning, secret or Intent is read.
 
-- **Support the petition:** applies a lighter 10% Greyfen income reduction; +8 Mara relationship; -4 Edric and -3 Oswin relationship.
-- **Defend royal authority:** +5 Edric and +4 Renard relationship; -10 Mara relationship.
-- **Avoid the issue:** no immediate modifier; Mara's next bargain demand becomes 10 Influence harder.
+## 18. Difficulty
 
-This does not replace Mara's full Charter Proof.
-
-### E12 — The Hawk's Tournament
-
-**Eligibility:** Edric holds Northkeep; not during Deathbed.
-
-Choices:
-
-- **Sponsor a champion:** pay 30 Gold; seeded contest grants either +5 Prestige/+6 Edric relationship or +2 Prestige.
-- **Send Greyfen levies to compete:** lock 75 levies for two days; +5 Edric relationship and military Proof progress.
-- **Decline:** no cost; -2 Edric relationship.
-
-### E13 — The Merchant Syndicate's Loan
-
-**Eligibility:** Player Gold below 80; Ysabel not Hostile.
-
-Choices:
-
-- **Borrow 80 Gold:** repayment of 105 Gold due in 14 days. Default causes -8 Prestige, -15 Ysabel relationship and transfers 20 Influence to Ysabel's leverage record.
-- **Offer political access instead:** gain 45 Gold and increase the value of Ysabel's future bargain by one tier.
-- **Refuse:** no effect.
-
-Debt is due before the succession can normally end, so it is a present cost rather than postgame fiction.
-
-### E14 — Rumor of False Blood
-
-**Eligibility:** Player has Forgery Evidence.
-
-Choices:
-
-- **Suppress the rumor:** pay 35 Gold and 12 Influence; Forgery remains hidden; future Find Dirt against the player gains +10%.
-- **Blame Renard's agents:** Renard relationship -15; 50% seeded public-belief outcome stored at event creation; failure costs 5 Prestige.
-- **Confess embellishment:** lose 12 fabricated Claim instead of 20, Church conduct improves from severe fraud to penitent, Oswin Red Line can later be repaired.
-
-### E15 — A Dispossessed Retinue
-
-**Eligibility:** Any NPC lord is dispossessed; player holds Greyfen.
-
-Choices:
-
-- **Offer sanctuary:** lock 50 levies as security for five days; +12 relationship with dispossessed lord; grants them basing rights.
-- **Fund their household:** pay 30 Gold; +8 relationship.
-- **Turn them away:** -10 relationship; +3 relationship with their occupier.
-
-### E16 — Funeral Preparations
-
-**Eligibility:** Deathbed; player declared.
-
-Choices:
-
-- **Fund a royal funeral:** pay 40 Gold; +4 Prestige; +1 Church conduct.
-- **Demand a Great Council be ready:** spend 12 Influence; exact private Leaning intelligence for all lords becomes one day fresher, without revealing secrets.
-- **Prepare your troops instead:** lock no resources; +25 troops count as ready only for Capital defense or attack for three days; -1 Church conduct.
-
-## 16. Systemic notifications
-
-Systemic actions generate chronicle entries but normally do not interrupt.
-
-Interrupt only for:
-
-- direct attack or required defense;
-- bargain offer or ultimatum addressed to the player;
-- public Pledge/Commitment change;
-- candidate declaration or withdrawal;
-- major scandal exposure;
-- territory occupation/liberation;
-- Capital control change;
-- royal-health phase transition;
-- event requiring a choice;
-- King's death.
-
-Routine AI gifts, taxes, completed Spy attempts and relationship changes belong in the feed unless they directly affect the player.
-
-## 17. AI failure behavior
-
-If an AI Intent becomes invalid:
-
-- apply the same documented fallback as the equivalent player Order;
-- release unspent/locked resources according to that action;
-- log the reason;
-- leave the lord idle until the next decision cycle.
-
-AI may not receive an instant replacement Intent in the same moment unless the invalidation was caused by a mandatory phase transition. This prevents hidden extra actions.
-
-## 18. Difficulty and tuning
-
-The first release has one difficulty.
-
-Do not create Easy/Normal/Hard before the base simulation is balanced. Difficulty changes would obscure whether the core political rules are sound.
-
-Balance targets are defined in `interface-content-and-production.md` and `balance-sheet.md`.
+One difficulty only. Tune core before modes.
