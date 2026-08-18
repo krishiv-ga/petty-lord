@@ -1,458 +1,358 @@
 # War, Royal Authority and Occupation
 
-## 1. Purpose of the military system
+## 1. Design purpose
 
-War is a political instrument, not a second game layered beside succession.
+War is a political instrument. Every campaign changes troops, Gold, Prestige, physical control, adjacency, support viability, threat and lawful/Church judgment.
 
-A campaign must simultaneously affect:
-
-- available Levies and Gold;
-- Prestige;
-- physical control and adjacency;
-- the target's economy;
-- support viability;
-- neighboring lords' perception of threat;
-- Church and lawful-conduct judgments;
-- occupation garrison requirements.
-
-Winning a battle is therefore useful without automatically producing an economic snowball.
-
-There is no tactical battlefield, army-piece movement, siege minigame or legal annexation in the first release.
+There is no tactical battlefield, free army-piece movement, siege minigame, annexation or title inheritance.
 
 ## 2. Royal Authority
 
-The King's health determines what force is politically possible.
-
 ### Stable
 
-The King's Peace is still enforceable.
+Offensive war requires **Defy the King's Peace**:
 
-Starting an offensive war requires an explicit **Defy the King's Peace** confirmation and applies:
+- +15 Influence beyond campaign cost;
+- -10 Prestige;
+- -1 Church conduct;
+- -8 relationship with every non-belligerent lawful lord, except Mara -2;
+- Royally Sanctioned history;
+- +150 royal troops to defender.
 
-- 15 Influence cost in addition to campaign costs;
-- -10 Prestige immediately;
-- -1 Church-conduct step;
-- -8 relationship with every non-belligerent lawful lord, except Mara receives only -2;
-- the public history flag **Royally Sanctioned**;
-- 150 royal troops added to the defender for that campaign.
-
-March on the Capital is unavailable.
-
-A Stable-phase war is not forbidden because radical early rebellion should remain possible, but it is deliberately costly.
+Capital unavailable.
 
 ### Ailing
 
-The Crown can condemn private war but can rarely intervene.
-
-Starting an offensive war applies:
+Offensive war:
 
 - -5 Prestige;
-- the public history flag **Broke the King's Peace**;
-- normal threat consequences;
+- Broke the King's Peace history;
+- normal threat;
 - no royal reinforcement.
 
-March on the Capital remains unavailable.
+Capital unavailable.
 
 ### Gravely Ill
 
-Private war no longer has a flat legitimacy penalty.
-
-- normal threat and relationship consequences still apply;
-- declared claimants may March on the Capital;
-- the royal Capital garrison is 450 troops.
+- no flat King's-Peace Prestige penalty;
+- normal threat/relationship consequences;
+- declared claimants may attack Capital;
+- royal Capital garrison 450.
 
 ### Deathbed
 
-Royal government is barely functioning.
+- newly started campaigns take one fewer day;
+- royal Capital garrison 300;
+- AI prioritizes Capital and immediate defense.
 
-- campaign duration is reduced by one day;
-- the royal Capital garrison falls to 300 troops;
-- AI claimants weight Capital control and emergency coercion heavily;
-- no flat King's-Peace penalty remains.
+### Abbeylands
 
-### Abbeylands exception
-
-An offensive attack against Abbeylands without a recognized defensive or liberation cause always applies an additional severe Church-conduct penalty and may produce Condemnation, regardless of phase.
+Unjustified attack on Abbeylands always creates severe Church penalty/possible Condemnation. Defensive liberation is exempt from the special lawful penalty, not from casualties or hostility.
 
 ## 3. Military availability
 
-A lord's military breakdown contains:
+Track separately:
 
 - home levies available;
-- levies committed to current Orders;
-- levies locked in allied aid;
-- levies locked in occupation garrisons;
-- active mercenary troops;
-- mercenaries locked in garrisons;
-- casualties awaiting no automatic return.
+- troops committed to Orders;
+- allied-aid locks;
+- occupation garrisons;
+- active mercenaries;
+- mercenary garrisons;
+- permanent casualties.
 
-Only available troops can be committed to a new campaign or threat.
+A campaign requires an operational base:
 
-A lord must have an operational base to invade:
+- own unoccupied seat;
+- territory physically occupied by attacker;
+- unoccupied seat of Pledged/Committed ally granting basing rights.
 
-- their own unoccupied hereditary seat; or
-- an occupied territory they physically control; or
-- an unoccupied seat belonging to a Pledged or Committed ally who grants basing rights.
-
-A dispossessed lord with no allied base may still conduct diplomacy and intrigue but cannot start a campaign.
+Dispossessed lord without a base can use diplomacy/intrigue but cannot campaign.
 
 ## 4. Campaign sequence
 
-### 4.1 Start
+### Start
 
-The attacker chooses:
+Choose:
 
 - adjacent target;
 - levy commitment in increments of 25;
-- zero, one or two mercenary bands;
-- whether the goal is occupation or liberation.
+- zero to two mercenary bands;
+- occupation or liberation goal.
 
-The UI previews:
+Preview known defense range, Fortification, garrison requirement, Royal Authority consequences and threatened neighbors.
 
-- known defender strength range;
-- Fortification modifier;
-- required occupation garrison;
-- projected political consequences;
-- which neighboring lords will treat the attack as threatening.
+Pay 10 Gold logistics and lock troops.
 
-The attacker pays 10 Gold logistics and locks the selected troops.
+### Visibility
 
-### 4.2 Warning and reaction
+Campaign becomes public after 12 hours of mustering. Fresh Watch Court may reveal immediately.
 
-The campaign is publicly revealed after 12 in-game hours of mustering. A current Watch Court intelligence result may reveal it immediately.
+### Defender reaction
 
-The defender receives a mandatory reaction and may:
+Defender may:
 
 - defend with available levies;
-- add an eligible mercenary band;
-- call troops already committed through an alliance bargain;
-- yield the seat without battle;
-- abandon an occupation and restore the legal lord.
+- add eligible mercenaries;
+- call already-promised allied troops;
+- yield;
+- abandon a hostile occupation.
 
-A reaction uses no Order slot.
+Reaction uses no Order slot.
 
-### 4.3 Resolution
+### Yield
 
-The battle resolves when the Invade Order completes.
+Player may yield voluntarily at any ratio.
 
-Normal duration is 3 days. Deathbed duration is 2 days.
+AI may yield only if:
 
-If the target changes hands or the war becomes impossible before resolution, use the invalidation rules in Section 12 rather than resolving against a nonexistent state.
+- known attacker effective power is at least 1.75× defender effective power;
+- no allied relief is available;
+- no personality rule raises the threshold.
 
-## 5. Effective battle power
+Edric's courage may raise the threshold; no AI trait may lower it below 1.75.
 
-For each side:
+A yielding army becomes a mobile dispossessed retinue. It remains intact but cannot campaign until granted allied basing rights. It may defend an ally only when an agreement explicitly permits.
 
-`baseForce = committedLevies + committedMercenaries + eligibleAlliedTroops`
+### Resolution
 
-`effectivePower = baseForce × commanderModifier × terrainModifier × fortificationModifier × fortuneModifier`
+Normal duration 3 days; Deathbed 2. Duration fixes at creation. Battle resolves at completion using stored fortune.
 
-### Commander modifier
+## 5. Effective power
+
+`baseForce = levies + mercenaries + eligible allied troops`
+
+`effectivePower = baseForce × commander × terrain × fortification × fortune`
+
+### Commander
 
 - ordinary lord/player: 1.00
 - Edric: 1.10
-- authored event modifier: 0.90–1.10
+- explicit event modifier: 0.90–1.10
 
-### Terrain modifier
+### Terrain
 
-Only explicit territory traits apply. Northkeep gives Edric's defending force +10%. Other launch territories have no generic terrain bonus.
+Only explicit traits. Northkeep gives Edric defenders +10%.
 
-### Fortification modifier
+### Fortification
 
-Defender only:
+Defender:
 
-`1 + (0.10 × Fortification)`
-
-Examples:
-
-- Fortification 1: 1.10
-- Fortification 2: 1.20
-- Fortification 3: 1.30
+`1 + 0.10 × Fortification`
 
 Unrest reduces Fortification by one, minimum zero.
 
-### Fortune modifier
+### Fortune
 
-Each side receives a deterministic seeded factor between 0.92 and 1.08.
-
-The factor is drawn once when the campaign begins, stored in the Order and never rerolled by refresh. The result report describes it qualitatively as poor, ordinary or favorable battlefield fortune.
+Stored seeded factor 0.92–1.08 per side, drawn at campaign creation and shown qualitatively after battle.
 
 ### Victory
 
-The side with greater effective power wins. Exact ties favor the defender.
-
-The game shows a full post-battle breakdown; combat cannot feel arbitrary.
+Higher effective power wins; exact tie favors defender.
 
 ## 6. Casualties
 
-Let:
+`ratio = winnerPower / loserPower`
 
-`powerRatio = winnerEffectivePower / loserEffectivePower`
+Loser rate:
 
-Loser casualty rate:
+`clamp(0.28 + 0.08 × (ratio - 1), 0.28, 0.45)`
 
-`clamp(0.28 + 0.08 × (powerRatio - 1), 0.28, 0.45)`
+Winner rate:
 
-Winner casualty rate:
+`clamp(0.18 - 0.04 × (ratio - 1), 0.08, 0.18)`
 
-`clamp(0.18 - 0.04 × (powerRatio - 1), 0.08, 0.18)`
+Round whole casualties and distribute proportionally among levies, mercenaries and allied contingents.
 
-Round casualties to the nearest whole troop and distribute proportionally between levies, mercenaries and allied contingents.
+- levy losses persist;
+- mercenary survivors remain only while contracted;
+- allied casualties belong to ally and can trigger support/bargain effects.
 
-Consequences:
+Major battle: at least 250 total troops or a hereditary seat changes physical control.
 
-- levy casualties are permanent except for slow normal recovery;
-- mercenary casualties reduce the active contract's surviving force;
-- allied casualties belong to the ally and can trigger bargain or support effects;
-- a lord never loses more troops than were committed.
+## 7. Prestige
 
-A **major battle** is one where at least 250 total troops fought or a hereditary seat changed physical control. Major battles create support shocks and larger Prestige changes.
-
-## 7. Prestige and political effects of battle
-
-### Major victory
-
-- winner: +8 Prestige;
-- losing attacker: -6 Prestige;
-- losing defender: -4 Prestige;
-- occupation or liberation event is public;
-- relevant support viability and shock checks occur.
-
-### Minor victory
-
-- winner: +4 Prestige;
-- loser: -2 Prestige.
-
-### Yield without battle
-
-- attacker: +3 Prestige;
-- defender: -5 Prestige;
-- no casualties;
-- occupation and threat consequences still occur.
-
-Edric may respect a military victory while simultaneously becoming alarmed by excessive expansion. These are separate evaluation reasons.
+- major victory: winner +8;
+- losing major attacker -6;
+- losing major defender -4;
+- minor victory +4, loser -2;
+- yield: attacker +3, defender -5;
+- Capital victory +8;
+- Capital loss -8.
 
 ## 8. Mercenaries
 
-Mercenaries are hired contextually when beginning an invasion, defending or maintaining a threatened garrison.
-
-### Standard band
+Standard band:
 
 - 150 troops;
-- 50 Gold for a seven-day contract;
-- maximum two active bands per lord;
-- Westmarch's legal controller pays 40 Gold while physically controlling Westmarch.
+- 50 Gold for 7 days;
+- max two active bands per lord;
+- Westmarch legal controller pays 40 while physically controlling Westmarch;
+- renewal 20 Gold for 7 days.
 
-### Contract behavior
+Survivors may fight again or garrison. One day before expiry, player receives renewal reaction. At expiry unpaid band leaves before King's-death check.
 
-- surviving mercenaries remain available until contract expiry;
-- they may fight again or serve in a garrison;
-- renewing a surviving band costs 20 Gold for seven more days;
-- the player receives a mandatory renewal reaction one day before expiry;
-- if unpaid, the band leaves at dawn;
-- if departure reduces a garrison below its minimum, the occupation or Capital control ends immediately after a warning.
+If departure drops hereditary garrison below 75 or Capital below 200, control ends immediately.
 
-Mercenaries do not replenish and do not become permanent levies.
+## 9. Hereditary occupation
 
-## 9. Occupation
+Legal ownership never changes.
 
-Legal lordship never changes during the crisis. A victory may create physical occupation.
+### Hold requirement
 
-### Hereditary-seat occupation requirements
+At least 75 surviving loyal/contracted troops assigned after victory. Without 75, attacker withdraws and legal lord retains physical control.
 
-- at least 75 surviving loyal or contracted troops assigned as garrison;
-- garrison is locked and unavailable elsewhere;
-- if the attacker cannot assign 75 after casualties, the army withdraws and no occupation is established.
+### Legal lord loses
 
-### Effects on legal lord
+- all seat income;
+- levy recovery;
+- special trait;
+- -8 Prestige once;
+- viability shock.
 
-- zero territory income;
-- zero levy recovery;
-- loss of special trait;
-- one-time -8 Prestige for dispossession;
-- viability shock;
-- remains a voter and political actor.
+They retain title, vote, Claim, Gold, relationships, agreements and political agency.
 
-### Effects on occupier
+### Occupier gains/costs
 
-- receives 25% of the territory's normal Gold income;
-- receives no levy recruitment;
-- does not gain the legal lord's special trait;
-- gains adjacency from the occupied seat;
-- denies the legal lord the territory's resources;
-- locks the garrison;
-- generates threat and hostility.
+- 25% Wealth income through fractional accumulator;
+- no levy recruitment;
+- no legal trait;
+- adjacency;
+- resource denial;
+- 75+ locked troops;
+- full threat/hostility.
 
-### End of occupation
+### End
 
-Occupation ends when:
+Liberation victory, voluntary withdrawal, garrison below75 or authored restoration.
 
-- the legal lord or ally wins a liberation campaign;
-- the occupier voluntarily withdraws;
-- the garrison falls below 75;
-- an authored agreement restores the seat.
+## 10. Threat
 
-Ending occupation does not restore casualties or erase Aggressor history.
+Derived per observer from public facts:
 
-## 10. Threat perception
-
-Threat is a derived per-observer judgment, not a sixth headline resource.
-
-For implementation, calculate an internal threat value from public facts:
-
-- +20 if candidate's available military exceeds 1.25× the observer's defensive availability;
-- +15 if candidate occupies a seat adjacent to the observer;
+- +20 if candidate available military >1.25× observer defense;
+- +15 if candidate occupies adjacent seat;
 - +10 per occupied hereditary seat;
-- +15 if candidate controls the Capital;
-- +10 if candidate has at least two public Pledges/Commitments;
-- +10 after the candidate's second offensive war;
-- +10 per current coerced Pledge;
-- -10 if observer is voluntarily Committed to the candidate.
+- +15 Capital control;
+- +10 at least two public Pledges/Commitments;
+- +10 after second offensive war;
+- +10 per coerced Pledge;
+- -10 if observer voluntarily Committed.
 
 Bands:
 
-- below 20: Low
-- 20–39: Concern
-- 40–59: Serious Threat
-- 60+: Existential Threat
+- <20 Low
+- 20–39 Concern
+- 40–59 Serious
+- 60+ Existential
 
-The UI shows reasons, not the numeric total.
+UI shows reasons, not number.
 
-### Personality response
+Responses:
 
-- **Edric:** respects Concern-level strength; resists Serious or Existential dominance.
-- **Ysabel:** seeks protection or temporary accommodation at Concern/Serious; defects if protection collapses.
-- **Oswin:** treats unlawful aggression as instability and favors containment.
-- **Mara:** tolerates anti-Renard defiance but resists centralizing conquest.
-- **Renard:** prioritizes any declared claimant who reaches Serious Threat or credible succession viability.
+- Edric respects Concern strength, resists Serious/Existential.
+- Ysabel seeks protection/accommodation but defects if it vanishes.
+- Oswin favors containment of unlawful aggression.
+- Mara tolerates anti-Renard defiance but resists central conquest.
+- Renard targets any declared claimant reaching Serious threat or credible political viability.
 
-### Example: taking Westmarch
+## 11. Capital
 
-A successful occupation of Westmarch gives the player:
+### Attack gates
 
-- victory Prestige;
-- adjacency to Northkeep and the Capital;
-- denial of Mara's Gold, levies and mercenary discount;
-- a possible coercive lever over Mara.
+- declared claimant;
+- Gravely Ill or Deathbed;
+- adjacent physical base;
+- at least 250 troops committed.
 
-It also causes:
+### Royal defense
 
-- battle casualties;
-- 75 troops locked in occupation;
-- severe hostility from Mara;
-- threat increase for Edric, Oswin and the Capital-aligned court;
-- possible Church/lawful-conduct consequences depending on phase and cause;
-- no Westmarch levy growth or special trait for the player.
+- Gravely: 450;
+- Deathbed: 300;
+- Fortification3.
 
-## 11. March on the Capital
+If occupied, current garrison defends and may be reinforced as reaction.
 
-The Capital uses the same battle system with special gates.
+### Successful occupation
 
-### Availability
+Requires at least 200 surviving troops assigned.
 
-- declared claimant only;
-- Gravely Ill or Deathbed phase;
-- attacker physically controls an adjacent territory;
-- attacker commits at least 250 troops;
-- no existing unresolved campaign against the Capital by that same lord.
+Effects:
 
-### Defender
-
-If the Capital is royal:
-
-- Gravely Ill garrison: 450;
-- Deathbed garrison: 300;
-- Fortification: 3.
-
-If occupied, the current Capital garrison defends. The occupier may reinforce as a reaction.
-
-### Victory effects
-
-- requires at least 200 surviving troops assigned to the Capital garrison;
 - +8 Prestige;
-- public **Usurper** conduct flag;
-- -2 Church-case conduct;
-- +15 threat for Capital control;
-- 1 Gold per day from the disrupted royal administration;
-- access to the Capital constitutional tie-break and possible Military Acclamation.
+- Usurper conduct;
+- Church case -2;
+- +15 threat;
+- 1 Gold/day;
+- constitutional Capital tie-break;
+- potential Military Acclamation.
 
-If fewer than 200 troops survive, the attack is a military victory but the claimant cannot hold the Capital; the royal administration or prior occupier retains control after the army withdraws.
+### Pyrrhic Capital victory
 
-### Losing the Capital
+If attacker wins but cannot assign 200:
 
-Loss produces:
+- Capital becomes **Uncontrolled**;
+- royal/current garrison is destroyed;
+- nobody receives income, tie-break or Acclamation credit;
+- victor receives battle Prestige only, not Capital-control/Usurper effects;
+- later declared claimant may complete a one-day March and assign 200 without another battle.
 
-- -8 Prestige for the prior claimant controller;
-- a 12-point Pledge shock;
-- immediate removal of Capital tie-break and Military Acclamation eligibility.
+### Loss
 
-## 12. Order invalidation
+Prior claimant controller loses 8 Prestige, takes 12 Pledge shock and immediately loses constitutional benefits.
 
-Every campaign revalidates before battle.
+## 12. Simultaneous Capital campaigns
 
-### Target already restored or vacated
+Scheduler sequenceId determines first resolution. Later campaign revalidates against new controller or Uncontrolled state. If target fundamentally changes, later attacker receives documented withdrawal reaction where applicable.
 
-If the target has no hostile occupier and the declared goal was liberation, the Order ends early. Troops return after one travel day; logistics Gold is lost; no Prestige change.
+## 13. Invalidation
 
-### Target changes occupier
+### Liberation target already restored
 
-The campaign continues against the new physical controller if still hostile and adjacent. The player receives a reaction allowing withdrawal before battle.
+End early; troops return after one travel day; logistics lost; no Prestige.
 
-### Attacker loses all operational bases
+### Occupier changes
 
-The campaign is cancelled before battle. Troops already marching return as a dispossessed retinue after two days; logistics Gold is lost.
+Continue against new hostile controller if still legal/adjacent; attacker may withdraw.
 
-### Attacker's available force falls below committed force
+### Attacker loses all bases
 
-Committed troops are locked at campaign start, so unrelated events cannot spend them. Casualties from an earlier same-dawn battle resolve first; if this creates an impossible second commitment, the later-started Order is cancelled and the inconsistency is logged as a validation failure for QA.
+Cancel before battle; troops return as retinue after two days; logistics lost.
 
-### Defender has no troops
+### Defender has no force
 
-The defender may yield or the attacker wins automatically, but still needs the occupation garrison.
+Defender may yield; attacker still needs garrison.
 
-## 13. Defensive causes and liberation
+Committed troops are locked at Order start. If QA finds same troops double-committed, later sequenceId Order cancels and logs validation failure.
 
-A campaign counts as defensive/liberating when:
+## 14. Defensive causes
 
-- reclaiming one's own hereditary seat;
-- helping a Pledged or Committed ally reclaim their seat under an active agreement;
-- responding to an aggressor who attacked the lord within the previous 14 days.
+Defensive/liberation when:
 
-Defensive causes avoid King's-Peace penalties and reduce threat consequences by 10, but normal casualties, occupation and relationships still apply.
+- reclaiming own seat;
+- helping Pledged/Committed ally reclaim under active agreement;
+- responding within14 days to a lord who attacked actor.
 
-## 14. Dispossessed-player behavior
+Avoid King's-Peace penalty and reduce threat by10. All other effects remain.
 
-Losing Greyfen is not immediate defeat.
+## 15. Dispossessed player
 
-The player retains both Order slots and can:
+Retains two Orders and can negotiate, spy, expose, request support, use existing resources, campaign from ally base and win Council.
 
-- negotiate;
-- spy;
-- expose secrets;
-- request support;
-- use existing Gold and Influence;
-- conduct a campaign from a willing ally's seat;
-- win the Council vote while landless.
+Cannot receive Greyfen income/recovery, Raise Taxes or campaign without base.
 
-The player cannot:
+A strategically hopeless state may remain a loss; the design guarantees no software softlock, not a guaranteed comeback.
 
-- receive Greyfen income;
-- recover Greyfen levies;
-- Raise Taxes;
-- launch a campaign without an allied or occupied base.
+## 16. Military-acclamation pressure
 
-This creates severe pressure without deleting the political story.
+Military route is bounded by:
 
-## 15. No military spam edge
+- persistent casualties;
+- 75 troops per occupation;
+- 200 Capital troops;
+- mercenary contracts/renewals;
+- negligible occupation income;
+- threat/containment;
+- requirement for Capital plus three non-Capital seats.
 
-The military route is constrained by simultaneous costs:
-
-- every battle creates persistent casualties;
-- occupations lock 75 troops each;
-- the Capital locks 200;
-- mercenaries require large Gold outlays and contract renewals;
-- occupation income is negligible;
-- repeated aggression raises threat and containment;
-- military acclamation requires four physical territories including the Capital.
-
-The intended conqueror path is possible, but it is not “win one war, absorb the economy, repeat.”
+It is viable but cannot snowball through absorbed economies.
