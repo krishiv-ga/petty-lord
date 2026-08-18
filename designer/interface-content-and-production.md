@@ -2,439 +2,393 @@
 
 ## 1. Product definition
 
-The first release is a complete desktop-browser game, not a feature demo.
+The first release is a complete desktop-browser game, not a systems demo.
 
-A complete run must include:
+A complete run includes:
 
 - title screen;
-- new game and resume;
+- new game and exact resume;
 - integrated onboarding;
-- full 49–56 minute simulation;
+- 49–56 live minutes of simulation at 1×;
 - active rival behavior;
-- all succession routes;
-- win and loss resolution;
-- detailed ending report;
-- restart with a new seed;
+- all constitutional victory paths;
+- win/loss resolution;
+- detailed ending reconstruction;
+- replay with new or same seed;
 - deterministic autosave;
-- readable feedback and error handling.
+- readable feedback and recoverable errors.
 
 ## 2. Interface principles
 
-### Political, not administrative-dashboard
+### Political rather than dashboard-like
 
-The interface should feel like a medieval ruler's map table and correspondence desk.
+Use an illustrated parchment map, heraldry, portraits, seals, ribbons, letters and proclamations. Avoid generic SaaS cards, tiny icon grids, opaque progress bars and information available only on hover.
 
-Use:
-
-- illustrated parchment map;
-- heraldry;
-- portraits;
-- seals and ribbons for Pledges;
-- letters and proclamations for major events;
-- chronicle language for system feedback.
-
-Avoid:
-
-- generic SaaS cards;
-- excessive spreadsheets;
-- neon data visualization;
-- unexplained progress bars;
-- rows of tiny icon-only buttons;
-- hidden hover-only information.
-
-### Explain consequences before commitment
+### Consequences before commitment
 
 Every action confirmation shows:
 
-- time;
-- Gold/Influence cost;
+- duration;
+- start cost;
+- collateral applied on acceptance;
 - troops locked;
 - public/private visibility;
-- known relationship and support consequences;
-- legal/Royal Authority consequences;
-- conditions that may invalidate the action.
+- known relationship/support/legal consequences;
+- cancellation loss;
+- invalidation conditions;
+- explicitly unknown outcomes.
 
-Unknown outcomes should be identified as unknown rather than omitted.
+### Reasons rather than unexplained numbers
 
-### Explain political state through reasons
-
-A lord panel separates:
+Every lord inspector separates:
 
 - Personal Attitude;
 - Succession Position;
 - What They Want;
 - What They Fear;
 - Proof progress;
-- Active Bargain;
-- Public reasons;
-- Known private intelligence and its age.
+- active bargain/collateral;
+- public reasons;
+- private intelligence with observation date.
 
-No lord panel should imply that a high relationship automatically means a vote.
+High relationship must never visually imply a guaranteed vote.
 
-## 3. Main-screen layout
+## 3. Main screen
 
 Target minimum viewport: 1280×720. Preferred: 1440×900.
 
 ### Top bar
 
 - King portrait and health phase;
-- current week/day and approximate prognosis;
+- current week/day and qualitative prognosis;
 - Gold;
 - available/total Levies;
 - Prestige;
-- Claim with band label;
+- Claim with band;
 - Influence;
-- pause, 1× and 2× controls;
-- menu/save indicator.
+- pause, 1×, 2×;
+- autosave/menu state.
 
-Resource changes animate briefly and create a reason tooltip.
+Resource deltas briefly animate with a source reason.
 
 ### Left rail — great lords
 
-Six compact portrait entries including the player.
+Six compact portraits including player:
 
-Each shows:
-
-- heraldry;
-- name/title;
-- candidate marker, if declared;
-- public Pledge/Commitment ribbon;
-- dispossessed/occupied warning;
-- relationship descriptor toward the player;
+- crest and title;
+- declared-candidate marker;
+- public Pledge/Commitment ribbon and basis icon;
+- Dispossessed/occupied warning;
+- relationship descriptor toward player;
 - unread direct-message marker.
 
-A private Leaning is never shown here unless intelligence reveals it, in which case it is marked with an eye icon and observation age.
+Private Leaning appears only when known, with an eye/intelligence icon and age.
 
-### Center — kingdom map
+### Center — fixed SVG kingdom map
 
-A fixed SVG map containing seven territories.
+Seven territories show:
 
-Each territory shows:
-
-- legal lord's crest;
+- legal lord crest;
 - occupation overlay and occupier banner;
-- Wealth, available levy band and Fortification on selection;
-- temporary-condition icon;
-- active campaign route if public;
-- adjacency highlight when selecting a military action.
+- temporary conditions;
+- public campaign route;
+- Capital state: Royal, Occupied or Uncontrolled;
+- military adjacency highlights during action setup.
 
-The map is the primary navigation object. Clicking a territory selects its lord and physical state.
+Selection reveals Wealth, exact known or banded Levies, Fortification, trait, income rate, recovery rate, legal lord, physical controller and garrison.
 
 ### Right inspector
 
-Context-sensitive panel for:
+Contextual but structurally stable:
 
-- lord;
-- territory;
-- candidate;
-- agreement;
-- secret;
-- action setup;
-- succession forecast.
+1. identity;
+2. current state;
+3. reasons/evidence;
+4. agreements/intelligence;
+5. available actions.
 
-The panel keeps one stable hierarchy: identity, current state, reasons, available actions.
+Handles lord, territory, candidate, agreement, secret, action setup and forecast detail.
 
-### Bottom bar
+### Bottom
 
-#### Order slots
+#### Two Order slots
 
-Two large slots showing:
+Each shows:
 
-- action name;
-- target portrait/crest;
-- time remaining;
+- action;
+- target;
+- completion time;
 - committed resources;
-- public/hidden state;
-- cancel button and exact cancellation loss.
+- visibility;
+- cancellation consequence.
 
 #### Chronicle
 
-Scrollable event feed with filters:
+Filters: All, Succession, War, Court, Intelligence.
 
-- All;
-- Succession;
-- War;
-- Court;
-- Intelligence.
+Routine AI activity remains here rather than interrupting.
 
-Routine AI actions remain here rather than opening modals.
+## 4. Succession forecast
 
-## 4. Succession forecast screen
+The Crown overlay presents **IF THE KING DIED TODAY** using only a `PlayerKnowledgeProjection`.
 
-The forecast is a full overlay reachable from the Crown icon.
+It shows:
 
-It contains:
-
-- each declared candidate in a column;
-- public Pledged/Committed voters;
-- candidate self-vote;
-- known Leanings with intelligence timestamps;
+- declared candidates;
+- self-votes;
+- public Pledges/Commitments;
+- known private Leanings with timestamps;
 - unknown houses;
 - Claim and Church stance;
 - Capital controller;
-- military-acclamation progress;
-- projected elimination/runoff path using only known information;
-- current qualitative verdict.
+- Military Acclamation checklist;
+- expected elimination/runoff using known state;
+- conditional tie-break chain;
+- qualitative verdict: Favored, Contested, Unlikely, Constitutionally Blocked.
 
-The screen must distinguish:
+Information styles must distinguish:
 
-- **Locked by public state**;
-- **Expected from intelligence**;
-- **Unknown**;
-- **Conditional tie-break**.
+- locked public state;
+- expected from fresh intelligence;
+- stale intelligence;
+- unknown;
+- conditional constitutional result.
 
-Example language:
+Never show percentage or aggregate king score.
 
-> If the King died today, Renard would lead the first ballot. Your intelligence suggests Ysabel may defect, but the report is eight days old. A 3–3 runoff would currently favor Renard through Church endorsement.
+Example:
 
-## 5. Major-event presentation
+> Renard would lead the known first ballot. Ysabel leaned toward you when observed three days ago. A 3–3 final ballot would currently favor Renard through sole Church Endorsement.
 
-Major events appear as letters, proclamations, reports or council scenes.
+A unit test must fail if forecast code accesses an unknown Leaning, secret, Intent, exact army or bargain.
 
-A major event:
+## 5. Event and decision presentation
+
+Major events appear as letters, reports, proclamations or council scenes.
+
+A mandatory event:
 
 - auto-pauses;
-- clearly states why it occurred;
-- presents 2–3 choices;
+- explains why it occurred;
+- presents 2–3 choices where applicable;
 - previews known direct consequences;
-- hides only consequences that are intentionally uncertain;
-- cannot be dismissed without choosing.
+- labels deliberate uncertainty;
+- cannot be dismissed without resolution.
 
-Modal priority:
+Decision priority:
 
 1. King's death;
 2. direct military defense;
-3. time-limited ultimatum/bargain;
+3. expiring ultimatum/bargain;
 4. phase transition;
-5. ambient choice event;
+5. ambient event;
 6. tutorial prompt.
 
-Lower-priority events queue behind higher-priority ones. The clock remains paused until the queue contains no mandatory decision.
+Lower-priority decisions queue. Queue and selected outcomes serialize into saves.
 
 ## 6. Onboarding
 
-The tutorial is integrated into the first run and can be disabled later.
+Tutorial is embedded in the first run and can later be disabled.
 
-### Beat 1 — The prognosis
+### Prognosis
 
-At game start, explain:
+Explain eight-week estimate, continuous time, pause, objective and two Orders. Require one pause/unpause interaction.
 
-- eight-week estimate;
-- continuous time and pause;
-- objective: be crowned when the King dies;
-- two Order slots.
+### Read the board
 
-The player must pause/unpause once.
-
-### Beat 2 — Read the board
-
-Highlight Renard, then the succession forecast.
-
-Explain:
+Highlight Renard and forecast. Explain:
 
 - Renard is favorite;
-- public support is not relationship;
-- the player is not yet a candidate;
-- Claim, Church, noble votes and Capital have distinct roles.
+- relationship is not support;
+- player is not yet a candidate;
+- nobles, Claim, Church and Capital have different jobs.
 
-### Beat 3 — Begin an initiative
+### First initiative
 
-Prompt the player to inspect three suggested openings without forcing one:
+Offer three non-forcing suggestions:
 
-- Watch a rival court;
+- Watch Court;
 - Research Lineage;
-- cultivate a lord with a Gift.
+- send Gift.
 
-The player selects any legal Order.
+Player may choose any legal action.
 
-### Beat 4 — First phase transition
+### Ailing transition
 
-When Ailing begins, explain Declare Candidacy and the danger of waiting while Pledges harden.
+Explain declaration, public Pledges, maturation and political hardening.
 
-### Beat 5 — First public Pledge or war
+### First Pledge or war
 
-Show the difference between Leaning, Pledged and Committed, or the battle preview if war occurs first.
+Explain Leaning/Pledged/Committed or battle preview, whichever arrives first.
 
-Tutorial text must never assume a particular route.
+Tutorial never assumes one strategy.
 
-## 7. Feedback requirements
+## 7. Feedback contract
 
-Every state change creates at least one of:
+Every authoritative state change produces at least one visible explanation through:
 
-- floating delta near the relevant resource;
-- highlighted reason in lord panel;
+- resource delta;
+- highlighted lord reason;
 - chronicle entry;
 - map overlay;
-- public ribbon/condition icon;
-- major event.
+- support/condition icon;
+- major event;
+- ending reconstruction.
 
 Examples:
 
 - `Prestige +8 — Victory at Westmarch`
 - `Edric: Neutral → Cordial — You demonstrated strength`
-- `Oswin remains with Renard — Your Claim is plausible, but your attack on Abbeylands violates his Red Line`
-- `Ysabel's Pledge broke — Your army no longer exceeds Eastvale's defense`
+- `Oswin refuses — your Claim is Plausible, but the attack on Abbeylands activates his Red Line`
+- `Ysabel's coerced Pledge ended — Eastvale is no longer occupied`
+- `Capital: Occupied → Uncontrolled — only 176 troops survived to hold it`
 
-No important change may occur only inside an invisible reducer.
+No decisive mutation may happen only inside code.
 
 ## 8. Accessibility and controls
 
 - Space: pause/unpause.
-- 1 and 2: speed controls.
-- Escape: close non-mandatory overlay.
-- Tab navigation for all actionable UI.
-- No information conveyed by color alone.
-- Minimum body text 16 px at target viewport.
-- Portrait support states include text labels and icons.
-- Reduced-motion mode disables map pulses and resource-count animations.
-- Audio is optional and never required for warning.
-- Contrast must meet WCAG AA for core text.
+- 1 / 2: speed.
+- Escape: close nonmandatory overlay.
+- Full keyboard/tab operation.
+- No information by color alone.
+- Minimum 16 px body text at target viewport.
+- Text labels plus symbols for support/occupation.
+- Reduced-motion mode.
+- Audio never required for warning.
+- WCAG AA contrast for core text.
 
-## 9. Audio
+When browser visibility changes to hidden, pause before further scheduler advancement.
 
-Audio is a low-priority polish layer.
+## 9. Audio priority
 
-Minimum useful set if time permits:
+Optional minimum set if ahead:
 
-- parchment/UI clicks;
+- parchment clicks;
 - seal stamp for Pledge;
-- distant bell at phase change;
-- restrained battle report hit;
+- phase bell;
+- battle report accent;
 - death bell;
-- low ambient court/map loop.
+- subdued map ambience.
 
-Cut audio before cutting rules clarity, endings or onboarding.
+Cut audio before rules clarity, endings or onboarding.
 
-## 10. Art asset list
-
-All art can be generated and then manually selected without requiring animation rigs.
+## 10. Art assets
 
 ### Required
 
-- player silhouette/customizable crest rather than a fixed face;
-- portraits: King, Edric, Ysabel, Renard, Oswin, Mara;
-- seven territory vignettes or map emblems;
-- six house crests plus Crown and Church symbols;
+- customizable player crest and silhouette rather than fixed player portrait;
+- King, Edric, Ysabel, Renard, Oswin and Mara portraits;
+- seven territory vignettes/emblems;
+- six house crests, Crown and Church marks;
 - parchment map background;
-- phase-state variants for the King portrait, achievable through cropping/overlays if necessary;
+- King deterioration variants/overlays;
 - UI frames, seals, ribbons and condition icons;
-- title-screen key art.
+- title key art.
 
 ### Optional
 
-- event-specific small illustrations;
-- alternate portrait expressions;
-- animated candle/smoke ambience;
-- bespoke ending art for each coronation route.
+- event illustrations;
+- alternate expressions;
+- ambient candle/smoke;
+- unique route-ending art.
 
-### Art direction
+### Direction
 
-Painterly medieval manuscript realism with strong silhouettes, limited muted palette, readable heraldry and no photorealistic modern costume styling.
+Painterly medieval-manuscript realism, strong silhouette, muted palette, readable heraldry, no modern photographic costume look.
 
-Portraits should communicate personality before text:
-
-- Edric: martial, direct, weathered;
-- Ysabel: controlled, observant, wealthy;
-- Renard: polished favorite with cultivated confidence;
-- Oswin: austere and politically alert rather than saintly;
-- Mara: defiant provincial ruler, not generic bandit queen;
-- King: visibly deteriorating authority.
+- Edric: direct, martial, weathered.
+- Ysabel: observant, controlled, wealthy.
+- Renard: polished confidence.
+- Oswin: austere and politically alert.
+- Mara: provincial authority and defiance, not generic bandit.
+- King: visibly declining body and authority.
 
 ## 11. Ending report
 
-The ending report is essential because the game ends immediately at succession.
+Essential because simulation stops at coronation.
 
 ### Header
 
 - winner;
-- route/title;
-- exact day of death;
-- run seed;
-- total real and paused time.
+- exact mechanical route/title;
+- death day;
+- seed;
+- live and paused time.
 
-### Succession reconstruction
+### Constitutional reconstruction
 
-- every ballot, in order;
-- every lord's vote;
-- dominant reasons for the vote;
+- Military Acclamation checklist or every ballot;
+- each lord's vote;
+- dominant vote reasons;
 - candidate elimination;
-- tie-break used, if any;
-- Military Acclamation conditions, if used.
+- released/reassigned votes;
+- tie-break used.
 
 ### Political cost
 
-- active promises and offices;
-- Gold still in escrow;
-- public concessions;
-- Oathbreaker/coercion history;
-- supporters who were Pledged versus Committed;
-- houses that consider the new reign illegitimate.
+- Pledged versus Committed supporters;
+- coercion;
+- reserved offices;
+- escrow;
+- Charters/immunities;
+- Oathbreaker and conduct history;
+- hostile houses.
 
 ### Realm cost
 
-- wars fought;
-- territories occupied;
-- levy and mercenary casualties;
+- wars;
+- occupations;
+- Capital state;
+- levy/mercenary casualties;
 - Greyfen conditions;
 - final Claim, Prestige and Church stance.
 
 ### Turning points
 
-Select up to five chronicle events with the greatest state impact.
+Select up to five highest-impact chronicle entries.
 
-### Replay prompt
+### Replay
 
-- New Crisis with new seed;
-- Replay same seed;
-- return to title.
+- new seed;
+- same seed;
+- title.
 
-## 12. Win ending labels
+## 12. Ending labels
 
-- **Crowned by Acclamation:** four or more votes before final runoff.
-- **Crowned by Council:** wins final ballot 4–2 or better.
-- **Crowned by the Church:** wins a 3–3 tie through sole endorsement.
-- **Master of the Capital:** wins a 3–3 tie through Capital control.
-- **The Rightful Heir:** wins a later tie through superior Claim.
+- **Crowned by Acclamation:** four votes before final runoff.
+- **Crowned by Council:** final ballot 4–2 or better.
+- **Crowned by the Church:** 3–3, sole Endorsement.
+- **Master of the Capital:** 3–3, Capital control.
+- **The Rightful Heir:** later tie-break through Claim.
 - **Crowned by the Sword:** Military Acclamation.
 
-More than one descriptive subtitle may apply, but the mechanical route must be named exactly.
+Losses explain whether player never declared, was eliminated, lost ballot, lost tie-break or missed an explicit Acclamation condition.
 
-## 13. Loss endings
-
-- Renard crowned;
-- Edric crowned;
-- player eliminated before final ballot;
-- player loses final ballot;
-- player never declared;
-- player loses a constitutional tie-break;
-- player built a military position but failed one explicit Acclamation condition.
-
-Loss text should explain the missing condition and show a plausible different decision, not merely “Defeat.”
-
-## 14. Technical architecture
-
-Recommended stack:
+## 13. Recommended implementation stack
 
 - React;
-- TypeScript with strict mode;
+- TypeScript strict;
 - Vite;
-- a single serializable state store such as Zustand with reducer-style transitions;
-- SVG for map and campaign lines;
-- CSS for animation and layout;
-- localStorage or IndexedDB for autosave;
-- seeded PRNG library or small audited deterministic generator.
+- serializable reducer-style store, e.g. Zustand;
+- SVG map/campaign lines;
+- CSS animations;
+- localStorage or IndexedDB autosave;
+- small audited seeded PRNG.
 
-No game engine, canvas renderer or backend is required.
+No backend, game engine or canvas renderer required.
 
-## 15. Canonical state shape
+## 14. Canonical serializable state
 
-The exact names may change in code, but every concept must be serializable.
+Names may vary; concepts may not.
 
 ```ts
 interface GameState {
-  version: number;
+  schemaVersion: number;
+  buildVersion: string;
   seed: string;
   rngState: string;
+  nextSequenceId: number;
   status: 'playing' | 'succession' | 'won' | 'lost';
   timeHours: number;
   speed: 0 | 1 | 2;
@@ -450,7 +404,7 @@ interface GameState {
   aiIntents: Partial<Record<LordId, OrderState>>;
   secrets: SecretState[];
   knowledge: Record<LordId, KnowledgeState>;
-  scheduledEvents: ScheduledEvent[];
+  scheduledEvents: ScheduledItem[];
   pendingDecisions: DecisionState[];
   chronicle: ChronicleEntry[];
   flags: Record<string, boolean | number | string>;
@@ -458,227 +412,213 @@ interface GameState {
 }
 ```
 
-### Rule
+Required nested state includes:
 
-No authoritative simulation state may live only inside a React component, timeout or animation callback.
+- fractional Gold accumulators;
+- per-territory fractional levy-recovery accumulators;
+- Pledge shock/maturation timestamps;
+- contract expiry;
+- Capital Royal/Occupied/Uncontrolled state;
+- stored battle/Spy draws;
+- blackmail-used flags;
+- per-candidate office reservations;
+- decision queue.
 
-## 16. Simulation engine
+No authoritative state may live only in a React component, browser timeout or animation callback.
 
-Use a deterministic event scheduler rather than independent browser timers.
+## 15. Deterministic simulation engine
+
+Use an event scheduler, never independent wall-clock timers.
 
 `advanceTime(deltaHours)`:
 
-1. identifies the next due timestamp;
-2. advances to it;
-3. resolves all due items using the canonical priority order;
-4. stops if a mandatory decision is created;
-5. repeats until requested delta is consumed or paused.
+1. find next due timestamp;
+2. advance to it;
+3. sort due items by priority then `sequenceId`;
+4. resolve using canonical transition functions;
+5. stop if a mandatory decision appears;
+6. repeat until requested delta consumed or paused.
 
-This permits:
+This enables pause, 2×, save/load, deterministic replay, instant test advancement and no timer drift.
 
-- pause;
-- 2× speed;
-- save/load;
-- deterministic replay;
-- unit testing of long periods without real time;
-- no timer drift after backgrounding the browser.
+All random-dependent objects snapshot their draws at creation where practical.
 
-When the browser tab is hidden, default behavior is to auto-pause. The game never advances while the player is away.
+## 16. Data-driven definitions
 
-## 17. Data-driven definitions
+Data, not UI branches:
 
-The following should be data, not hard-coded UI branches:
-
-- lords and personality weights;
-- territories and adjacency;
-- actions, costs and durations;
+- lords/personality weights;
+- territory/adjacency;
+- action costs/durations;
 - bargains;
-- secrets;
-- event choices;
+- secrets/consequences;
+- events;
 - support shocks;
 - phase modifiers;
-- Church consequences;
-- ending labels.
+- Church modifiers;
+- endings.
 
-Core transition logic remains typed code.
-
-Every action definition must include:
+Each action definition includes:
 
 - availability predicate;
+- preview builder;
 - start cost;
+- acceptance collateral if applicable;
 - duration;
 - visibility timeline;
-- resolution function;
+- resolution;
 - invalidation fallback;
-- AI usage permissions;
-- chronicle template;
-- UI consequence preview.
+- AI permissions;
+- chronicle templates.
 
-## 18. Save behavior
+Typed transition code remains authoritative.
 
-- Autosave after every dawn.
-- Autosave after every player action start/cancel.
-- Autosave after every mandatory decision.
-- Autosave before and after succession.
-- Keep one current autosave and one previous checkpoint for recovery from corrupted writes.
-- Include schema version and migration hook.
-- Validate loaded state before resuming.
-- A normal browser refresh resumes the exact seeded timeline.
+## 17. Save behavior
 
-Save editing is not treated as a security problem. The goal is reliability, not anti-cheat.
+Autosave:
 
-## 19. Debug tools
+- every dawn;
+- player action start/cancel;
+- every mandatory decision;
+- before/after succession.
 
-Development builds should include a hidden debug panel capable of:
+Maintain current save and previous checkpoint. Include schema version/migration. Validate on load. If current is invalid, offer previous checkpoint with transparent warning.
 
-- advancing one hour/day;
-- forcing a phase;
-- forcing King's death;
-- inspecting AI knowledge versus true state;
-- inspecting candidate evaluation reasons;
-- completing/cancelling Orders;
-- setting resources;
-- forcing event eligibility;
-- exporting/importing a save JSON;
-- running succession immediately;
-- displaying deterministic RNG draw log.
+Queued decisions, sequence IDs, fractional accumulators and random draws must restore exactly.
 
-This panel is critical for automated Codex development and paperplay verification.
+Save editing is not a security concern.
 
-## 20. Automated tests
+## 18. Debug tooling
 
-### Unit tests
+Development build hidden panel:
 
-- action availability, costs and anti-spam;
-- clock priority order;
-- Claim projects and fraud exposure;
-- support transitions and pledge inertia;
-- Church endorsement selection;
-- battle formula and casualty bounds;
-- occupation/garrison loss;
-- coercion validity;
-- Council ballots and every tie-break;
+- advance hour/day;
+- force phase/death;
+- inspect true state versus each actor's knowledge;
+- inspect candidate evaluation reasons;
+- inspect scheduler ordering/sequenceId;
+- complete/cancel Orders;
+- set resources;
+- force event eligibility;
+- export/import save JSON;
+- run succession now;
+- show RNG draw log;
+- set Capital Uncontrolled;
+- validate invariant suite.
+
+## 19. Automated tests
+
+### Unit
+
+- action availability/cost/anti-spam;
+- same-time scheduler sequence;
+- bargain acceptance versus collateral timing;
+- Leaning maturation across phase boundary;
+- Pledge/Commitment/defection/coercion transitions;
+- Church Endorsement and fraud repair;
+- exact secret consequences;
+- battle/casualty bounds;
+- Yield threshold;
+- fractional economy/recovery;
+- occupation/garrison/mercenary expiry;
+- Uncontrolled Capital;
+- Council ballots, sole candidate and every tie-break;
 - Military Acclamation;
+- knowledge-safe forecast;
 - save/load determinism.
 
-### Scenario tests
+### Scenario
 
-- player wins 4-vote first ballot;
-- player wins Church 3–3 tie;
-- player wins Capital 3–3 tie;
-- player wins Military Acclamation;
-- Renard wins despite liking player;
-- Edric declares and reaches runoff;
+- four-vote first ballot;
+- Church 3–3 win;
+- Capital 3–3 win;
+- Claim tie-break;
+- Military Acclamation;
+- Renard victory despite liking player;
+- Edric declaration/runoff;
 - player wins while dispossessed;
-- coerced vote breaks when army collapses;
-- King dies on same dawn an Order completes;
-- mercenary expiry collapses an occupation;
-- exposed Forgery breaks Oswin support;
-- reload produces identical event and battle outcomes.
+- coerced vote breaks with leverage;
+- Commitment resists ordinary coercion;
+- King dies on Order-completion dawn;
+- mercenary expiry ends Capital control before death;
+- pyrrhic Capital becomes Uncontrolled;
+- exposed Forgery breaks Oswin then Penance repairs Condemnation;
+- late loan event cannot occur;
+- same seed/repeated choices reproduce result.
 
-### Simulation tests
+### Simulation
 
-Run hundreds of seeded AI-versus-scripted-policy simulations to detect:
+Hundreds of seeded runs with scripted policy families to detect:
 
-- unwinnable opening packages;
-- one dominant action chain;
-- Renard automatic-win rate;
+- unwinnable package;
+- dominant action chain;
+- automatic Renard win;
 - impossible military route;
-- excessive pledge oscillation;
-- notification overload;
-- softlocks after dispossession or resource exhaustion.
+- pledge oscillation;
+- event/notification overload;
+- resource/dispossession softlock;
+- universal Mara-first coalition;
+- late-declaration dominance.
 
-## 21. Balance targets
+## 20. Balance targets
 
-These are targets, not promises before testing.
+- First-time attentive player understands why they lost.
+- Skilled player lacks deterministic opening win.
+- No package gives Renard >75% against varied competent scripted policies after tuning.
+- Coalition, legitimacy/intrigue and military targeted policies each achieve at least 15% after tuning.
+- At least two private Leanings commonly move; public Pledge breaks average below two per run.
+- Typical run: 12–20 initiatives, 0–3 wars, 4–8 direct decision events.
+- Any nonterminal Deathbed position has at least three legal high-value actions.
 
-- A first-time attentive player should understand the loss even if they do not win.
-- A skilled player should not have a deterministic win from the opening state.
-- No opening package should make Renard win more than 75% against varied competent scripted policies.
-- Each of Coalition, Legitimacy/Puppetmaster and Military routes should win at least 15% of targeted simulation attempts after tuning.
-- At least two lords should change private Leaning in a typical run; public Pledge churn should average below two breaks per run.
-- Typical run: 12–20 meaningful player initiatives, 0–3 wars, 4–8 direct decision events.
-- Deathbed should contain at least three legal high-value actions for any non-terminal player state.
+## 21. Four-day production order
 
-## 22. Four-day production order
+### Day 1 — complete loop
 
-### Day 1 — complete rules loop
+State, scheduler, map data, economy, Orders, declaration, exact succession, debug panel. A full run must force-advance to ending.
 
-- serializable state;
-- clock and scheduler;
-- map and actor data;
-- resources and daily economy;
-- two Order slots;
-- Declare Candidacy;
-- exact succession resolver;
-- debug panel.
+### Day 2 — interaction/opposition
 
-A full run must be force-advanceable to an ending before Day 1 ends.
+Support, bargains, coercion, Claim/Church, one-Intent AI, war/occupation/Capital, save/load. A normal run must be playable end-to-end.
 
-### Day 2 — interactions and opposition
+### Day 3 — content/presentation
 
-- support states;
-- bargains and coercion;
-- Claim and Church;
-- AI one-Intent loop;
-- war, casualties, occupation and Capital;
-- save/load.
+Events, portraits/map art, forecast, onboarding, chronicle, ending. Audio only if ahead.
 
-A normal-speed complete run must be playable before Day 2 ends.
+### Day 4 — freeze
 
-### Day 3 — content and presentation
+No new systems. Automated simulations, full manual runs, balance, bugs, desktop responsiveness, deployment, copy/art QA.
 
-- events;
-- portraits and map art;
-- succession forecast;
-- onboarding;
-- chronicle;
-- ending report;
-- sound only if ahead.
+## 22. Cut order
 
-### Day 4 — feature freeze
-
-- no new mechanics;
-- automated simulations;
-- full manual runs;
-- balance and bug fixes;
-- responsiveness within desktop range;
-- deployment;
-- final copy and asset QA.
-
-## 23. Cut order if behind
-
-Cut in this order:
+Cut first:
 
 1. optional audio;
-2. event-specific illustrations;
-3. alternate portrait expressions;
-4. some ambient events, retaining at least eight total authored events plus phase events;
+2. event illustrations;
+3. portrait variants;
+4. ambient events down to minimum eight plus phase events;
 5. one opening package;
-6. Find Dirt detection nuance, retaining secrets and Watch Court;
-7. visual flourishes and nonessential animation.
+6. nuanced detection presentation while retaining Watch/Secrets;
+7. visual flourishes.
 
-Do not cut:
+Never cut:
 
-- exact succession procedure;
-- Leaning/Pledged/Committed distinction;
-- present collateral requirement;
-- one-Intent AI capacity;
-- Royal Authority phases;
-- casualties, occupation garrisons and threat;
-- Capital rules;
-- deterministic save/RNG;
+- exact succession;
+- Leaning/Pledged/Committed;
+- maturation and present collateral;
+- one-Intent AI;
+- Royal Authority;
+- casualties/garrisons/threat;
+- Capital rules including Uncontrolled;
+- deterministic save/RNG/scheduler;
 - ending explanation;
-- pause and mandatory reactions.
+- pause/reactions.
 
-## 24. Definition of done
+## 23. Definition of done
 
-The build is complete when:
-
-- no critical state can become impossible or undefined;
-- every action has a preview and result explanation;
-- every ending is reconstructible;
-- all non-negotiable tests in `README.md` pass;
-- at least ten complete runs have been played or simulated across different seeds;
-- the game can be deployed as a static site;
-- a new player can begin, understand the objective, finish and restart without developer guidance.
+- No critical state undefined.
+- Every action previews and explains consequences.
+- Every ending reconstructs the constitution.
+- README non-negotiable tests pass.
+- At least ten complete runs across seeds.
+- Static-site deployment works.
+- New player can begin, finish, understand and restart without developer guidance.
