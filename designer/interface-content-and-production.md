@@ -2,385 +2,146 @@
 
 ## 1. Product definition
 
-The first release is a complete desktop-browser game, not a systems demo.
+The first release is a complete desktop-browser game:
 
-A complete run includes:
-
-- title screen;
-- new game and exact resume;
+- title, new game and exact resume;
 - integrated onboarding;
-- 49–56 live minutes of simulation at 1×;
-- active rival behavior;
-- all constitutional victory paths;
-- win/loss resolution;
-- detailed ending reconstruction;
-- replay with new or same seed;
+- 49–56 live minutes at1×;
+- active rivals;
+- every constitutional route;
+- win/loss and detailed reconstruction;
+- same/new seed replay;
 - deterministic autosave;
 - readable feedback and recoverable errors.
 
 ## 2. Interface principles
 
-### Political rather than dashboard-like
+### Political, not dashboard-like
 
-Use an illustrated parchment map, heraldry, portraits, seals, ribbons, letters and proclamations. Avoid generic SaaS cards, tiny icon grids, opaque progress bars and information available only on hover.
+Use parchment map, heraldry, portraits, seals, ribbons, letters and proclamations. Avoid generic SaaS cards, opaque progress bars and hover-only facts.
 
 ### Consequences before commitment
 
-Every action confirmation shows:
+Every confirmation shows duration, start cost, acceptance collateral, troops locked, visibility, known political/legal effects, cancellation loss, invalidation and intentional unknowns.
 
-- duration;
-- start cost;
-- collateral applied on acceptance;
-- troops locked;
-- public/private visibility;
-- known relationship/support/legal consequences;
-- cancellation loss;
-- invalidation conditions;
-- explicitly unknown outcomes.
+### Reasons, not totals
 
-### Reasons rather than unexplained numbers
-
-Every lord inspector separates:
-
-- Personal Attitude;
-- Succession Position;
-- What They Want;
-- What They Fear;
-- Proof progress;
-- active bargain/collateral;
-- public reasons;
-- private intelligence with observation date.
-
-High relationship must never visually imply a guaranteed vote.
+Lord inspector separates Attitude, Succession Position, Desire, Fear, Proof, bargain/collateral, public reasons and timestamped private intelligence. Relationship never visually equals vote.
 
 ## 3. Main screen
 
-Target minimum viewport: 1280×720. Preferred: 1440×900.
+Minimum1280×720; preferred1440×900.
 
-### Top bar
+### Top
 
-- King portrait and health phase;
-- current week/day and qualitative prognosis;
-- Gold;
-- available/total Levies;
-- Prestige;
-- Claim with band;
-- Influence;
-- pause, 1×, 2×;
-- autosave/menu state.
+King/phase, week/day/prognosis, Gold, available/total Levies, Prestige, Claim band, Influence, pause/1×/2× and autosave.
 
-Resource deltas briefly animate with a source reason.
+### Left lords
 
-### Left rail — great lords
+Six portraits with crest/title, candidate marker, public support ribbon, public Under Duress icon, dispossession, relationship and unread direct message.
 
-Six compact portraits including player:
+A private Leaning or secretly blackmailed Pledge appears only when the player knows it, with intelligence/secret icon and observation age. Other actors' UI projections do not receive that label.
 
-- crest and title;
-- declared-candidate marker;
-- public Pledge/Commitment ribbon and basis icon;
-- Dispossessed/occupied warning;
-- relationship descriptor toward player;
-- unread direct-message marker.
+### Center SVG map
 
-Private Leaning appears only when known, with an eye/intelligence icon and age.
+Legal crest, occupation banner, conditions, campaign lines, adjacency and Capital state Royal/Occupied/Uncontrolled.
 
-### Center — fixed SVG kingdom map
-
-Seven territories show:
-
-- legal lord crest;
-- occupation overlay and occupier banner;
-- temporary conditions;
-- public campaign route;
-- Capital state: Royal, Occupied or Uncontrolled;
-- military adjacency highlights during action setup.
-
-Selection reveals Wealth, exact known or banded Levies, Fortification, trait, income rate, recovery rate, legal lord, physical controller and garrison.
+Selection exposes Wealth, exact known or banded Levies, Fort, trait, income/recovery, controller and garrison.
 
 ### Right inspector
 
-Contextual but structurally stable:
-
-1. identity;
-2. current state;
-3. reasons/evidence;
-4. agreements/intelligence;
-5. available actions.
-
-Handles lord, territory, candidate, agreement, secret, action setup and forecast detail.
+Stable order: identity → state → reasons → agreements/intelligence → actions.
 
 ### Bottom
 
-#### Two Order slots
-
-Each shows:
-
-- action;
-- target;
-- completion time;
-- committed resources;
-- visibility;
-- cancellation consequence.
-
-#### Chronicle
-
-Filters: All, Succession, War, Court, Intelligence.
-
-Routine AI activity remains here rather than interrupting.
+Two Orders with target, completion, resources, visibility and cancellation loss; chronicle filters All/Succession/War/Court/Intelligence.
 
 ## 4. Succession forecast
 
-The Crown overlay presents **IF THE KING DIED TODAY** using only a `PlayerKnowledgeProjection`.
+**IF THE KING DIED TODAY** receives only `PlayerKnowledgeProjection`.
 
-It shows:
+Show candidates, self-votes, public support, known Leanings with timestamps, unknown houses, Claim/Church, Capital, Military Acclamation checklist, expected elimination/runoff, tie-breaks and verdict Favored/Contested/Unlikely/Constitutionally Blocked.
 
-- declared candidates;
-- self-votes;
-- public Pledges/Commitments;
-- known private Leanings with timestamps;
-- unknown houses;
-- Claim and Church stance;
-- Capital controller;
-- Military Acclamation checklist;
-- expected elimination/runoff using known state;
-- conditional tie-break chain;
-- qualitative verdict: Favored, Contested, Unlikely, Constitutionally Blocked.
+Styles distinguish public, fresh intelligence, stale intelligence, unknown and conditional.
 
-Information styles must distinguish:
+The player's own private blackmail is labeled **Secretly Coerced**. To uninformed AI/Church projections it appears as a normal public Pledge.
 
-- locked public state;
-- expected from fresh intelligence;
-- stale intelligence;
-- unknown;
-- conditional constitutional result.
+No percentages or king score. Tests fail if forecast reads unknown Leaning, Intent, secret, exact army or private blackmail.
 
-Never show percentage or aggregate king score.
+## 5. Decisions and events
 
-Example:
+Mandatory decision auto-pauses, explains trigger, previews known consequences and requires resolution.
 
-> Renard would lead the known first ballot. Ysabel leaned toward you when observed three days ago. A 3–3 final ballot would currently favor Renard through sole Church Endorsement.
+Priority:
 
-A unit test must fail if forecast code accesses an unknown Leaning, secret, Intent, exact army or bargain.
-
-## 5. Event and decision presentation
-
-Major events appear as letters, reports, proclamations or council scenes.
-
-A mandatory event:
-
-- auto-pauses;
-- explains why it occurred;
-- presents 2–3 choices where applicable;
-- previews known direct consequences;
-- labels deliberate uncertainty;
-- cannot be dismissed without resolution.
-
-Decision priority:
-
-1. King's death;
-2. direct military defense;
-3. expiring ultimatum/bargain;
+1. King's death/succession state;
+2. direct defense;
+3. expiring ultimatum, loan repayment or bargain;
 4. phase transition;
 5. ambient event;
-6. tutorial prompt.
+6. tutorial.
 
-Lower-priority decisions queue. Queue and selected outcomes serialize into saves.
+Inside succession, **Cast Greyfen's Vote** pauses ballot resolution if the player is no longer eligible and more than one candidate remains. It clearly states that the player has already lost the Crown and is choosing only the historical victor.
+
+Decision queue and selected/stored outcomes serialize.
 
 ## 6. Onboarding
 
-Tutorial is embedded in the first run and can later be disabled.
+- Prognosis: clock, pause, Orders and objective.
+- Read board: Renard favorite; relationship≠support; nobles/Claim/Church/Capital differ.
+- First initiative: suggest Watch Court, Research or Gift without forcing.
+- Ailing: Declare, maturation and hardening.
+- First Pledge/war: support levels or battle preview.
 
-### Prognosis
+Never assumes one route.
 
-Explain eight-week estimate, continuous time, pause, objective and two Orders. Require one pause/unpause interaction.
+## 7. Feedback
 
-### Read the board
-
-Highlight Renard and forecast. Explain:
-
-- Renard is favorite;
-- relationship is not support;
-- player is not yet a candidate;
-- nobles, Claim, Church and Capital have different jobs.
-
-### First initiative
-
-Offer three non-forcing suggestions:
-
-- Watch Court;
-- Research Lineage;
-- send Gift.
-
-Player may choose any legal action.
-
-### Ailing transition
-
-Explain declaration, public Pledges, maturation and political hardening.
-
-### First Pledge or war
-
-Explain Leaning/Pledged/Committed or battle preview, whichever arrives first.
-
-Tutorial never assumes one strategy.
-
-## 7. Feedback contract
-
-Every authoritative state change produces at least one visible explanation through:
-
-- resource delta;
-- highlighted lord reason;
-- chronicle entry;
-- map overlay;
-- support/condition icon;
-- major event;
-- ending reconstruction.
+Every authoritative change appears through delta, reason, chronicle, map, icon, event or ending.
 
 Examples:
 
 - `Prestige +8 — Victory at Westmarch`
-- `Edric: Neutral → Cordial — You demonstrated strength`
-- `Oswin refuses — your Claim is Plausible, but the attack on Abbeylands activates his Red Line`
-- `Ysabel's coerced Pledge ended — Eastvale is no longer occupied`
-- `Capital: Occupied → Uncontrolled — only 176 troops survived to hold it`
-
-No decisive mutation may happen only inside code.
+- `Ysabel's public Pledge remains, but you know it is secured by blackmail`
+- `Edric's defeat shock expired after ten days`
+- `Capital → Uncontrolled — only176 troops survived`
+- `Greyfen income halved — default on the Merchant Syndicate`
 
 ## 8. Accessibility and controls
 
-- Space: pause/unpause.
-- 1 / 2: speed.
-- Escape: close nonmandatory overlay.
-- Full keyboard/tab operation.
-- No information by color alone.
-- Minimum 16 px body text at target viewport.
-- Text labels plus symbols for support/occupation.
-- Reduced-motion mode.
-- Audio never required for warning.
-- WCAG AA contrast for core text.
+Space pause,1/2 speed, Escape nonmandatory close, full tab navigation, no color-only state,16px minimum body, labels+icons, reduced motion, WCAG AA. Browser hiding auto-pauses before scheduler advances.
 
-When browser visibility changes to hidden, pause before further scheduler advancement.
+## 9. Art and audio
 
-## 9. Audio priority
+Required: player crest/silhouette; King+five rival portraits; seven territory emblems; house/Crown/Church symbols; parchment map; King deterioration; seals/ribbons/condition icons; title key art.
 
-Optional minimum set if ahead:
+Painterly medieval-manuscript realism, muted palette and readable heraldry. Audio is optional: clicks, pledge seal, phase/death bells, battle accent and ambience. Cut audio before clarity.
 
-- parchment clicks;
-- seal stamp for Pledge;
-- phase bell;
-- battle report accent;
-- death bell;
-- subdued map ambience.
-
-Cut audio before rules clarity, endings or onboarding.
-
-## 10. Art assets
-
-### Required
-
-- customizable player crest and silhouette rather than fixed player portrait;
-- King, Edric, Ysabel, Renard, Oswin and Mara portraits;
-- seven territory vignettes/emblems;
-- six house crests, Crown and Church marks;
-- parchment map background;
-- King deterioration variants/overlays;
-- UI frames, seals, ribbons and condition icons;
-- title key art.
-
-### Optional
-
-- event illustrations;
-- alternate expressions;
-- ambient candle/smoke;
-- unique route-ending art.
-
-### Direction
-
-Painterly medieval-manuscript realism, strong silhouette, muted palette, readable heraldry, no modern photographic costume look.
-
-- Edric: direct, martial, weathered.
-- Ysabel: observant, controlled, wealthy.
-- Renard: polished confidence.
-- Oswin: austere and politically alert.
-- Mara: provincial authority and defiance, not generic bandit.
-- King: visibly declining body and authority.
-
-## 11. Ending report
-
-Essential because simulation stops at coronation.
+## 10. Ending report
 
 ### Header
 
-- winner;
-- exact mechanical route/title;
-- death day;
-- seed;
-- live and paused time.
+Winner, route, death day, seed, live/paused time.
 
 ### Constitutional reconstruction
 
-- Military Acclamation checklist or every ballot;
-- each lord's vote;
-- dominant vote reasons;
-- candidate elimination;
-- released/reassigned votes;
-- tie-break used.
+Military checklist or every ballot; every lord's vote/reasons; eliminations, released votes, player's Cast Greyfen decision and tie-break.
 
-### Political cost
+### Political/realm cost
 
-- Pledged versus Committed supporters;
-- coercion;
-- reserved offices;
-- escrow;
-- Charters/immunities;
-- Oathbreaker and conduct history;
-- hostile houses.
+Pledged/Committed/coerced support, private blackmail revealed to player, offices, escrow, policies, debt/default, Oathbreaker, hostile houses, wars, occupations, Capital, casualties, Greyfen, final ratings.
 
-### Realm cost
+### Turning points and replay
 
-- wars;
-- occupations;
-- Capital state;
-- levy/mercenary casualties;
-- Greyfen conditions;
-- final Claim, Prestige and Church stance.
+Up to five decisive chronicle entries; new seed, same seed, title.
 
-### Turning points
+Ending labels: Crowned by Acclamation, Crowned by Council, Crowned by Church, Master of Capital, Rightful Heir, Crowned by Sword.
 
-Select up to five highest-impact chronicle entries.
+## 11. Stack
 
-### Replay
+React, TypeScript strict, Vite, serializable reducer-style store, SVG, CSS, localStorage/IndexedDB and audited seeded PRNG. No backend/engine/canvas required.
 
-- new seed;
-- same seed;
-- title.
-
-## 12. Ending labels
-
-- **Crowned by Acclamation:** four votes before final runoff.
-- **Crowned by Council:** final ballot 4–2 or better.
-- **Crowned by the Church:** 3–3, sole Endorsement.
-- **Master of the Capital:** 3–3, Capital control.
-- **The Rightful Heir:** later tie-break through Claim.
-- **Crowned by the Sword:** Military Acclamation.
-
-Losses explain whether player never declared, was eliminated, lost ballot, lost tie-break or missed an explicit Acclamation condition.
-
-## 13. Recommended implementation stack
-
-- React;
-- TypeScript strict;
-- Vite;
-- serializable reducer-style store, e.g. Zustand;
-- SVG map/campaign lines;
-- CSS animations;
-- localStorage or IndexedDB autosave;
-- small audited seeded PRNG.
-
-No backend, game engine or canvas renderer required.
-
-## 14. Canonical serializable state
-
-Names may vary; concepts may not.
+## 12. Canonical serializable state
 
 ```ts
 interface GameState {
@@ -412,213 +173,76 @@ interface GameState {
 }
 ```
 
-Required nested state includes:
+Nested state includes fractional economy/recovery, shock timestamps, maturationStart, contracts, Capital state, stored draws, blackmail-used/visibility, Debt Leverage, per-candidate offices and decision queue.
 
-- fractional Gold accumulators;
-- per-territory fractional levy-recovery accumulators;
-- Pledge shock/maturation timestamps;
-- contract expiry;
-- Capital Royal/Occupied/Uncontrolled state;
-- stored battle/Spy draws;
-- blackmail-used flags;
-- per-candidate office reservations;
-- decision queue.
+No authoritative state only in component/timer/animation.
 
-No authoritative state may live only in a React component, browser timeout or animation callback.
+## 13. Deterministic scheduler
 
-## 15. Deterministic simulation engine
+`advanceTime(deltaHours)` finds next due item, advances, sorts by priority and sequenceId, resolves, stops for mandatory decision and repeats.
 
-Use an event scheduler, never independent wall-clock timers.
+All random-dependent objects snapshot draws. This supports pause,2×, save/load, replay and instant tests.
 
-`advanceTime(deltaHours)`:
+## 14. Data-driven definitions
 
-1. find next due timestamp;
-2. advance to it;
-3. sort due items by priority then `sequenceId`;
-4. resolve using canonical transition functions;
-5. stop if a mandatory decision appears;
-6. repeat until requested delta consumed or paused.
+Data: lords, candidate evaluation values, territories, actions, bargains, secrets, events, shocks, phase/Church modifiers and endings.
 
-This enables pause, 2×, save/load, deterministic replay, instant test advancement and no timer drift.
+Each action contains availability, preview, start cost, acceptance collateral, duration, visibility, resolution, fallback, AI permissions and chronicle templates.
 
-All random-dependent objects snapshot their draws at creation where practical.
+Typed transitions remain authoritative.
 
-## 16. Data-driven definitions
+## 15. Saves
 
-Data, not UI branches:
+Autosave each dawn, action start/cancel, mandatory decision and before/after succession. Keep current+previous checkpoint; schema migration and validation. Restore decision queue, sequence IDs, fractional values and draws exactly.
 
-- lords/personality weights;
-- territory/adjacency;
-- action costs/durations;
-- bargains;
-- secrets/consequences;
-- events;
-- support shocks;
-- phase modifiers;
-- Church modifiers;
-- endings.
+## 16. Debug panel
 
-Each action definition includes:
+Advance time, force phase/death, inspect truth versus each actor knowledge, candidate evaluation reasons, scheduler sequence, Orders, resources, events, save JSON, succession, RNG log, Capital Uncontrolled and invariant suite.
 
-- availability predicate;
-- preview builder;
-- start cost;
-- acceptance collateral if applicable;
-- duration;
-- visibility timeline;
-- resolution;
-- invalidation fallback;
-- AI permissions;
-- chronicle templates.
-
-Typed transition code remains authoritative.
-
-## 17. Save behavior
-
-Autosave:
-
-- every dawn;
-- player action start/cancel;
-- every mandatory decision;
-- before/after succession.
-
-Maintain current save and previous checkpoint. Include schema version/migration. Validate on load. If current is invalid, offer previous checkpoint with transparent warning.
-
-Queued decisions, sequence IDs, fractional accumulators and random draws must restore exactly.
-
-Save editing is not a security concern.
-
-## 18. Debug tooling
-
-Development build hidden panel:
-
-- advance hour/day;
-- force phase/death;
-- inspect true state versus each actor's knowledge;
-- inspect candidate evaluation reasons;
-- inspect scheduler ordering/sequenceId;
-- complete/cancel Orders;
-- set resources;
-- force event eligibility;
-- export/import save JSON;
-- run succession now;
-- show RNG draw log;
-- set Capital Uncontrolled;
-- validate invariant suite.
-
-## 19. Automated tests
+## 17. Tests
 
 ### Unit
 
-- action availability/cost/anti-spam;
-- same-time scheduler sequence;
-- bargain acceptance versus collateral timing;
-- Leaning maturation across phase boundary;
-- Pledge/Commitment/defection/coercion transitions;
-- Church Endorsement and fraud repair;
-- exact secret consequences;
-- battle/casualty bounds;
-- Yield threshold;
-- fractional economy/recovery;
-- occupation/garrison/mercenary expiry;
-- Uncontrolled Capital;
-- Council ballots, sole candidate and every tie-break;
-- Military Acclamation;
+- costs/anti-spam;
+- same-time sequence;
+- collateral acceptance;
+- maturation/reset/phase boundary;
+- shock expiry;
+- Pledge/Commitment/defection;
+- public versus private coercion;
+- Church and fraud repair;
+- exact candidate evaluation opening checks;
+- secret consequences;
+- battle/casualty/Yield;
+- observer-limited threat;
+- fractional economy;
+- garrison/expiry/Uncontrolled Capital;
+- ballots, sole candidate, manual Greyfen vote, every tie-break;
+- Acclamation;
 - knowledge-safe forecast;
-- save/load determinism.
+- loan repayment/default;
+- save determinism.
 
-### Scenario
+### Scenarios
 
-- four-vote first ballot;
-- Church 3–3 win;
-- Capital 3–3 win;
-- Claim tie-break;
-- Military Acclamation;
-- Renard victory despite liking player;
-- Edric declaration/runoff;
-- player wins while dispossessed;
-- coerced vote breaks with leverage;
-- Commitment resists ordinary coercion;
-- King dies on Order-completion dawn;
-- mercenary expiry ends Capital control before death;
-- pyrrhic Capital becomes Uncontrolled;
-- exposed Forgery breaks Oswin then Penance repairs Condemnation;
-- late loan event cannot occur;
-- same seed/repeated choices reproduce result.
+Four-vote win; Church tie; Capital tie; Claim tie; Sword; Renard despite liking player; Edric runoff; landless win; coercion breaks; Commitment resists; same-dawn death; contract collapses Capital; pyrrhic Capital; Forgery/Penance; default consequences; eliminated player chooses historical winner; same seed reproduces.
 
 ### Simulation
 
-Hundreds of seeded runs with scripted policy families to detect:
+Detect unwinnable package, dominant chain, automatic Renard, impossible military route, Pledge churn, overload, softlocks, universal Mara-first and late declaration dominance.
 
-- unwinnable package;
-- dominant action chain;
-- automatic Renard win;
-- impossible military route;
-- pledge oscillation;
-- event/notification overload;
-- resource/dispossession softlock;
-- universal Mara-first coalition;
-- late-declaration dominance.
+## 18. Balance targets
 
-## 20. Balance targets
+First-time player understands loss; no deterministic skilled opener; no package Renard>75% against varied competent policies; Coalition, legitimacy/intrigue and military each≥15% targeted wins; typical12–20 initiatives,0–3 wars,4–8 direct choices; Deathbed always at least three high-value legal actions in nonterminal state.
 
-- First-time attentive player understands why they lost.
-- Skilled player lacks deterministic opening win.
-- No package gives Renard >75% against varied competent scripted policies after tuning.
-- Coalition, legitimacy/intrigue and military targeted policies each achieve at least 15% after tuning.
-- At least two private Leanings commonly move; public Pledge breaks average below two per run.
-- Typical run: 12–20 initiatives, 0–3 wars, 4–8 direct decision events.
-- Any nonterminal Deathbed position has at least three legal high-value actions.
+## 19. Four-day production
 
-## 21. Four-day production order
+Day1 state/scheduler/map/economy/Orders/declaration/succession/debug. Day2 support/bargains/Claim/Church/AI/war/save. Day3 events/art/forecast/tutorial/chronicle/ending. Day4 freeze, simulation, balance, bugs, deployment and QA.
 
-### Day 1 — complete loop
+Cut audio, event art, portrait variants, ambient events, one opening package, detection nuance and flourishes—in that order.
 
-State, scheduler, map data, economy, Orders, declaration, exact succession, debug panel. A full run must force-advance to ending.
+Never cut exact succession, support levels/maturation/collateral, one-Intent AI, Royal Authority, casualties/garrisons/threat, Capital, deterministic scheduler/save, ending explanation, pause/reactions.
 
-### Day 2 — interaction/opposition
+## 20. Definition of done
 
-Support, bargains, coercion, Claim/Church, one-Intent AI, war/occupation/Capital, save/load. A normal run must be playable end-to-end.
-
-### Day 3 — content/presentation
-
-Events, portraits/map art, forecast, onboarding, chronicle, ending. Audio only if ahead.
-
-### Day 4 — freeze
-
-No new systems. Automated simulations, full manual runs, balance, bugs, desktop responsiveness, deployment, copy/art QA.
-
-## 22. Cut order
-
-Cut first:
-
-1. optional audio;
-2. event illustrations;
-3. portrait variants;
-4. ambient events down to minimum eight plus phase events;
-5. one opening package;
-6. nuanced detection presentation while retaining Watch/Secrets;
-7. visual flourishes.
-
-Never cut:
-
-- exact succession;
-- Leaning/Pledged/Committed;
-- maturation and present collateral;
-- one-Intent AI;
-- Royal Authority;
-- casualties/garrisons/threat;
-- Capital rules including Uncontrolled;
-- deterministic save/RNG/scheduler;
-- ending explanation;
-- pause/reactions.
-
-## 23. Definition of done
-
-- No critical state undefined.
-- Every action previews and explains consequences.
-- Every ending reconstructs the constitution.
-- README non-negotiable tests pass.
-- At least ten complete runs across seeds.
-- Static-site deployment works.
-- New player can begin, finish, understand and restart without developer guidance.
+No critical undefined state; every action preview/result; every ending reconstructed; README tests pass; at least ten complete runs; static deployment; new player can start, finish, understand and replay.
