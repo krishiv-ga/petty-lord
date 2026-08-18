@@ -1,524 +1,425 @@
 # Politics and Succession
 
-## 1. Separation of political systems
+## 1. Separate political concepts
 
-The design deliberately separates four concepts that are often collapsed into one number:
+The implementation must keep these distinct:
 
-1. **Relationship** — personal trust, warmth and hostility.
-2. **Support** — whom a lord wants to become King.
-3. **Legitimacy** — public Claim and Church judgment.
-4. **Power** — military leverage, territorial control and control of the Capital.
+1. **Relationship** — personal trust/hostility.
+2. **Support** — preferred claimant.
+3. **Legitimacy** — Claim and Church judgment.
+4. **Power** — armies, occupations and Capital control.
 
-A gift can improve Relationship without changing Support. A lord can support someone they dislike because that candidate appears lawful or inevitable. A terrifying claimant can gain coerced votes while losing voluntary support. The implementation must preserve these distinctions.
+A friendly lord may still vote Renard. A coerced vote may coexist with hatred. There is no kingdom-wide succession score.
 
-There is no global succession score.
+## 2. Candidates
 
-## 2. Candidate set
+- **Renard:** declares automatically at Ailing; remains eligible unless forced to withdraw under his exact rule.
+- **Player:** becomes eligible only after completing Declare Candidacy.
+- **Edric:** may declare from Gravely Ill if his conditions pass.
+- **Ysabel, Oswin and Mara:** kingmakers only in the first release.
 
-### Renard
+Edric cannot declare while **any valid Pledge** exists, including Under Duress. If coercive leverage breaks, his Pledge releases and candidacy can be checked at the next dawn.
 
-Renard declares automatically when the King becomes Ailing and remains a candidate unless forced to withdraw under the exact rule in `world-and-actors.md`.
+## 3. Support record
 
-### Player
+Each lord has one support record:
 
-The player becomes a candidate only after completing Declare Candidacy from Ailing onward. Declaration is irreversible.
-
-### Edric
-
-Edric may declare from Gravely Ill onward if his authored conditions are met.
-
-### Other lords
-
-Ysabel, Oswin and Mara are kingmakers in the first release. They do not spontaneously declare. This keeps the ballot readable and their political identities distinct.
-
-## 3. Support states
-
-Every great lord has one support record:
-
-- `candidateId` or null;
+- `candidateId | null`;
 - `level`;
 - `basis`;
-- proof and bargain references;
-- public/private visibility;
-- active break conditions;
-- date last changed.
+- visibility;
+- Proof/bargain references;
+- break conditions;
+- date last changed;
+- maturation start;
+- accumulated relevant shock.
 
-A lord can support only one candidate at a time.
+A lord supports at most one candidate.
 
 ### Unaligned
 
-No current preference strong enough to record.
-
-Public presentation: **Undeclared**.
+No preference strong enough to record. Publicly shown as Undeclared.
 
 ### Leaning
 
-A private preference.
+Private preference.
 
-- Not visible without current intelligence.
-- Easy to change when the board changes.
-- Does not bind the death ballot.
-- Allows the candidate to Request Declaration.
+- visible only through current intelligence;
+- may change as the board changes;
+- does not bind the ballot;
+- must mature before a voluntary Pledge.
+
+Maturation required at Request resolution:
+
+- Ailing: 2 full days;
+- Gravely Ill: 3 full days;
+- Deathbed: 4 full days.
+
+The current phase's requirement applies; prior Leaning time counts. A Commitment-grade shared-risk event can waive maturation for that lord.
 
 ### Pledged
 
-A public declaration.
+Public declaration.
 
-- Visible to everyone.
-- Creates political momentum.
-- Persists through ordinary preference changes.
-- Can be voluntary or Under Duress.
-- Breaking it damages the lord's Prestige and relationships unless a recognized shock or Red Line justifies the break.
+- sticky through ordinary preference changes;
+- can be voluntary or Under Duress;
+- casts a vote while valid;
+- breaking without recognized cause harms the lord's standing.
 
 ### Committed
 
-A public or discoverable tie created by shared risk.
+Support tied to shared risk.
 
 Examples:
 
 - troops fought together;
-- the lord publicly funded the claimant;
-- the Church endorsed the claimant through Oswin's intervention;
-- the claimant enacted a costly policy central to the lord's Desire;
-- the lord publicly denounced another candidate and cannot retreat safely.
+- the lord publicly financed the candidacy;
+- Oswin tied the Synod to the claimant;
+- a costly policy central to the lord's Desire was enacted;
+- the lord publicly destroyed their safety with another candidate.
 
-Commitment is not purchased by a larger gift. It breaks only through betrayal, Red Line violation, candidate withdrawal or a catastrophic loss that makes the relationship impossible.
+Commitment cannot be bought with a larger gift. It breaks only through authored betrayal, Red Line, candidate withdrawal or catastrophic state that satisfies its breaker.
 
 ### Self
 
-A declared claimant supports themselves and casts their own vote in every ballot while eligible.
+A declared candidate votes for themselves while eligible.
 
 ## 4. Support basis
 
-The support record also stores why the lord is backing the candidate:
+Store one dominant basis:
 
-- `ideological`;
-- `legitimacy`;
-- `bargain`;
-- `opportunism`;
-- `protection`;
-- `coercion`;
-- `self`.
+- ideological;
+- legitimacy;
+- bargain;
+- opportunism;
+- protection;
+- coercion;
+- self.
 
-The basis changes behavior.
+Basis changes what can break support.
 
-Examples:
+- Opportunism reacts to visible collapse.
+- Legitimacy reacts strongly to Claim/Church scandal.
+- Bargain reacts to agreement breach.
+- Coercion reacts to leverage only.
+- Ideology reacts to policy/Red Line.
 
-- Opportunistic support is sensitive to visible collapse.
-- Ideological support is sensitive to policy betrayal.
-- Bargain support is sensitive to the agreement state.
-- Coerced support is sensitive only to credible threat and can never become Committed.
-- Legitimacy support is especially sensitive to Claim scandal or Church condemnation.
+## 5. Per-lord candidate evaluation
 
-## 5. Candidate evaluation for a specific lord
+AI may compare candidates for one lord using capped components. This is not a victory score.
 
-Rival AI may use an internal per-lord candidate utility, but this is not a kingdom-wide victory score. It exists only to compare whom one person currently prefers.
+- Relationship: -20…+20
+- Desire alignment: -25…+25
+- Legitimacy fit: -15…+15
+- Viability: -20…+20
+- Bargain value: 0…+30
+- Fear response: -20…+20, personality dependent
+- Red Line: excludes voluntary support while active
 
-The components are capped separately:
+The UI shows strongest reasons, never the total.
 
-- **Relationship:** -20 to +20
-- **Desire alignment:** -25 to +25
-- **Legitimacy fit:** -15 to +15
-- **Viability:** -20 to +20
-- **Bargain value:** 0 to +30
-- **Fear response:** -20 to +20, with sign and weight determined by personality
-- **Red Line:** candidate excluded from voluntary support while violated
+### Thresholds
 
-The UI never exposes a total. It exposes the strongest positive and negative reasons.
+- Hear bargain: evaluation ≥0.
+- Leaning: best evaluation ≥15 and lead over next ≥8.
+- Voluntary Pledge: declared candidate + Leaning + maturation + Proof + accepted present collateral + no Red Line.
+- Commitment: authored shared-risk trigger after Pledge.
 
-Examples:
+## 6. Viability
 
-> Friendly toward you  
-> Impressed by your victory over Renard  
-> Doubts your Claim  
-> Fears that Edric still controls the northern armies
+Viability is a capped individual judgment based on public facts:
 
-### Leaning rule
-
-A lord becomes Leaning when:
-
-1. no Red Line is active;
-2. one candidate's evaluation is at least 15;
-3. that candidate leads the next alternative by at least 8.
-
-A lord can remain Unaligned when all options are poor.
-
-### Negotiation rule
-
-A lord will hear a bargain when the candidate's evaluation is at least 0 and no Red Line is active.
-
-### Voluntary Pledge rule
-
-A voluntary Pledge requires all:
-
-1. candidate is formally declared;
-2. lord is Leaning toward the candidate;
-3. the lord's personal Proof is satisfied;
-4. present collateral or a concrete concession has been delivered;
-5. no incompatible Pledge or Commitment exists.
-
-A reserved future office or land grant by itself never satisfies item 4.
-
-### Commitment rule
-
-A Pledged lord becomes Committed only when an authored shared-risk trigger occurs. Each lord has at least one such trigger and no generic “pay more” route.
-
-## 6. Political viability
-
-Viability is one capped input to individual lord judgment. It prevents lords from ignoring obvious reality without making momentum the only strategy.
-
-Public facts that can contribute:
-
-- number and strength of public Pledges and Commitments;
+- public Pledges/Commitments;
 - Claim band;
 - Church stance;
-- control of the Capital;
-- major military victory or defeat;
+- Capital control;
+- recent major victory/defeat;
 - dispossession;
-- withdrawal of another candidate.
+- candidate withdrawal.
 
-The full Viability component is capped at ±20. Ysabel weights it strongly, Mara weakly, and Oswin/Edric moderately. This cap prevents automatic coalition snowballing.
+Ysabel weights it strongly, Mara weakly. The component cap prevents automatic bandwagon snowball.
 
-## 7. Pledge inertia and political shocks
+## 7. Pledge inertia and shocks
 
-Leanings may change whenever a lord selects a new Intent or a major public event occurs.
+Leanings may reevaluate after AI decisions and public events. Pledges reevaluate only after phase transition, recognized shock or direct violation.
 
-Pledges do not continuously oscillate. They reevaluate only after a recognized political shock, phase change or direct violation.
-
-### Inertia by phase
+Inertia:
 
 - Ailing: 10
 - Gravely Ill: 20
 - Deathbed: 30
 
-A voluntary Pledge breaks only when:
+A voluntary Pledge breaks when:
 
-1. the cumulative relevant shock value reaches the current inertia;
-2. an alternative candidate is at least 10 evaluation points better;
-3. no Commitment lock remains.
+1. relevant shock reaches current inertia;
+2. an alternative leads evaluation by at least 10;
+3. no valid Commitment lock remains.
 
-### Canonical shocks
+Canonical shocks:
 
-- Candidate violates the lord's Red Line: automatic break.
-- Candidate breaks the supporting bargain: automatic break.
-- Candidate withdraws: automatic release.
-- Coercive leverage disappears: automatic release of Under Duress support.
-- Candidate's seat is occupied: 12.
-- Candidate loses the Capital: 12.
-- Candidate suffers a major military defeat: 10.
-- Candidate loses all other public supporters: 10 for opportunistic basis.
-- Claim forgery is exposed: 20 for legitimacy basis, 10 otherwise.
-- Church condemns candidate: 15 for Oswin/legitimacy basis.
-- Candidate publicly becomes Oathbreaker: 10 for honorable or cautious lords.
+- Red Line or bargain breach: automatic;
+- candidate withdrawal: automatic release;
+- coercive leverage disappears: automatic release of Under Duress;
+- seat occupied: 12;
+- Capital lost: 12;
+- major defeat: 10;
+- all other public supporters lost: 10 for Opportunism;
+- Forgery exposed: 20 for Legitimacy, 10 otherwise;
+- Church Condemnation: 15 for pious/legitimacy basis;
+- Oathbreaker becomes public: 10 for honorable/cautious lord.
 
-Committed support ignores numeric inertia and breaks only for its authored breaker, a Red Line, bargain betrayal, candidate withdrawal or impossible coercion.
+Committed support ignores numeric inertia and uses its authored breaker.
 
-## 8. Agreements and collateral
+## 8. Agreements
 
-An agreement records:
+An agreement stores:
 
 - participants;
-- demanded objective;
-- immediate collateral;
-- reserved finite reward, if any;
-- expiry or duration;
-- satisfaction state;
+- demand;
+- accepted present collateral;
+- reserved future reward;
+- satisfaction/expiry;
 - support effect;
 - breach consequences.
 
+### Acceptance timing
+
+Offer Bargain costs 8 Influence at start. Collateral applies only when the target accepts at resolution. If the target becomes unavailable, collateral is not charged.
+
+Once accepted, collateral is an Agreement obligation. It cannot be cancelled as an Order; use Break Agreement.
+
 ### Finite rewards
 
-The first release contains two unique Crown offices:
+Each candidate's prospective government has one Marshal and one Chancellor reservation.
 
-- Marshal;
-- Chancellor.
+Uniqueness is **per candidate**. Renard and the player may each hypothetically offer Marshal, but the player cannot offer their one Marshalship to two lords.
 
-Each can be reserved for only one lord. The UI prevents contradictory office promises. Prospective territory grants may be discussed as flavor or Leaning modifiers but do not independently create Pledges.
+Future rewards alone create/strengthen Leaning; they do not satisfy present collateral.
 
-### Immediate collateral examples
+### Defection from an existing Pledge
 
-- Gold placed into escrow and removed from spendable funds;
-- troops locked for allied defense;
-- a public Charter that weakens Greyfen;
-- a Church endowment paid now;
-- a public denunciation that damages another relationship;
-- participation in a war.
+A voluntary defection bargain can begin only if one is true:
 
-### Escrow
+- current Pledge has at least half the phase's break-shock requirement;
+- current basis is Opportunism and challenger leads Viability by at least 10;
+- current candidate violated known agreement/Red Line;
+- challenger has valid coercive leverage.
 
-Escrowed Gold is unavailable to both sides until the agreement ends.
+A valid Commitment cannot be replaced by ordinary bargaining or ordinary coercion.
 
-- If the supporter breaks without recognized cause, 50% returns immediately and 50% remains frozen until death.
-- If the player breaks, the full escrow transfers to the supporter.
-- If the supporter remains loyal, Gold stays locked through the succession and appears as an obligation on the ending report.
+If a voluntary defection bargain succeeds:
 
-The game ends at coronation, so the relevant mechanical cost is the Gold being unusable during the crisis.
+1. old Pledge breaks publicly with its consequences;
+2. lord becomes Leaning to challenger;
+3. normal maturation applies before a new Pledge.
 
-## 9. Coercion
+## 9. Escrow
 
-Threaten can create a **Pledge — Under Duress** only when leverage is credible.
+Escrowed Gold is unavailable until agreement ends.
 
-Credible leverage exists when at least one is true:
+- supporter breaks without recognized cause: 50% returns now, 50% remains frozen until death;
+- claimant breaks: full escrow transfers to supporter;
+- loyal agreement: Gold stays locked through succession and appears in ending obligations.
 
-- the player physically occupies the target's hereditary seat;
-- the player's available adjacent military strength is at least 1.5× the target's defensive availability after Fortification;
-- the player controls a discovered secret whose authored consequence is politically devastating to that target.
+The meaningful cost is pre-death liquidity.
 
-Personality still matters. Edric is more likely to refuse military intimidation and prepare war; Ysabel is more likely to submit temporarily.
+## 10. Coercion and blackmail
 
-### Coerced support rules
+Credible leverage exists when:
 
-- Publicly counts as a Pledge and casts a vote while leverage remains.
-- Does not count as voluntary momentum for lords who value legitimacy or trust.
-- Can never become Committed.
-- Automatically breaks if the leverage condition ceases to be true.
-- Each coerced Pledge adds a severe threat reason to every other lord.
-- Two or more coerced Pledges prevent Church endorsement until at least one is released.
+- target's hereditary seat is occupied by coercer; or
+- adjacent available military meets personality threshold after defense/Fortification; or
+- coercer holds an authored devastating secret.
 
-The coercive route is viable but naturally creates containment behavior.
+Leverage must exist at Threaten start and resolution.
 
-## 10. Claim
+### Under Duress
 
-Claim is public legal credibility, not a spendable resource.
+- public Pledge and vote while leverage remains;
+- never becomes Committed;
+- breaks automatically with leverage;
+- does not count as voluntary momentum for legitimacy-minded lords;
+- adds severe threat reasons to every other lord;
+- two current coerced Pledges block Church Endorsement.
 
-### Sources
+A valid Commitment cannot be replaced by Under Duress. Coercion may extract another concession or create a shock, but support changes only if the Commitment's authored breaker occurs.
+
+### One-use blackmail
+
+A discovered secret may power one successful private blackmail agreement. Mark it used. It may still be exposed later, but cannot generate another successful Threaten concession.
+
+## 11. Claim
+
+Claim is public legal credibility.
+
+Sources:
 
 - starting lineage;
-- Research Lineage, once per run;
-- Forge Royal Descent, once per run;
-- authored event evidence;
-- exposure of false rival claims does not directly add to the player's Claim;
-- Church endorsement does not add Claim, but validates it politically.
+- Research Lineage once;
+- Forge Royal Descent once;
+- authored event evidence.
 
-### Fraud
+Destroying a rival's Claim does not directly add to the player's.
 
-Forge Royal Descent always grants its listed Claim. It also creates Forgery Evidence.
+### Forgery
 
-If exposed:
+Forge grants +25 Claim and creates Forgery Evidence.
 
-- remove 20 of the 25 fabricated Claim immediately;
-- apply -10 Prestige;
-- apply a major negative Church-conduct flag;
-- trigger pledge shocks;
-- Oswin's Red Line activates unless the player publicly confesses through a contextual event.
+Exposure:
 
-The safe Research Lineage gain is never removed by fraud exposure.
+- remove 20 fabricated Claim;
+- -10 Prestige;
+- fraud-based Church Condemnation;
+- support shocks;
+- Oswin fraud Red Line.
 
-## 11. The Church
+Confess and Seek Penance can remove the Condemnation at substantial cost but never restores Claim or trust.
 
-The Church is an institution, not a seventh noble vote and not identical to Oswin.
+## 12. Church institution
 
-Each declared candidate has one public Church stance:
+Church stance per candidate:
 
-- Condemned
-- Skeptical
-- Neutral
-- Favorable
-- Endorsed
+- Condemned;
+- Skeptical;
+- Neutral;
+- Favorable;
+- Endorsed.
 
-Only one candidate can be Endorsed at a time. Before Ailing, nobody is Endorsed.
+Only one candidate may be Endorsed. No endorsement before Ailing.
 
 ### Church case
 
-The Synod uses a separate transparent institutional case, not a succession score:
+Transparent institutional case:
 
-- Claim band: 0–5 case strength
-- Oswin support: 0 Leaning/none, +2 Pledged, +4 Committed
-- public Patronage: +1
-- lawful/pious conduct: -6 to +2
-- Renard's royal-favorite presumption: +1 while not discredited
+- Claim band: 0–5;
+- Oswin Pledged +2 or Committed +4;
+- Patronage +1;
+- lawful/pious conduct -6…+2;
+- Renard's undiscredited favorite presumption +1.
 
-Church case is recalculated only after relevant public events, not every frame.
+Recalculate only after relevant public changes.
 
-### Endorsement
+Eligibility for Endorsed:
 
-A candidate can be Endorsed when:
+1. Claim at least Plausible;
+2. not Condemned;
+3. case at least 6;
+4. fewer than two coerced Pledges.
 
-1. Claim is at least Plausible;
-2. candidate is not Condemned;
-3. Church case is at least 6;
-4. candidate has fewer than two coerced Pledges.
+Highest qualifying case wins endorsement. Tie: higher Claim, then Oswin preference; if still tied, withhold endorsement.
 
-The qualifying candidate with the strongest case is Endorsed. Ties resolve by higher Claim, then Oswin's preference. If still tied, the Church withholds endorsement.
+Condemnation sources include unconfessed exposed Forgery, unjustified attack on Abbeylands, seizure of Church wealth or authored major impiety.
 
-This allows a player with Strong Claim, Oswin's Pledge and Patronage to overcome Renard's passive presumption, while keeping Oswin influential rather than omnipotent.
+## 13. Information
 
-### Condemnation
+### Public
 
-The Church condemns a candidate for:
-
-- attacking Abbeylands without a recognized defensive cause;
-- exposed unconfessed royal-lineage fraud;
-- seizing Church wealth through an event;
-- repeated oath-breaking involving the Church;
-- another authored major impiety.
-
-Condemnation can be repaired only through an authored confession/reparation path. Gold alone cannot erase it immediately.
-
-## 12. Public and private political information
-
-### Always public
-
-- declared candidates;
-- Pledged and Committed support;
-- whether a Pledge is visibly coerced;
-- Claim ratings and bands;
+- candidates;
+- Pledged/Committed support and visible coercion;
+- exact public Claim;
 - Church stance;
-- territory control and occupations;
+- occupation/control;
 - approximate army bands;
-- public agreements and policy concessions;
-- wars, victories, defeats and withdrawals.
+- wars, conduct and public bargains.
 
-### Private unless discovered
+### Private
 
 - Leanings;
-- current AI Intent;
-- unannounced bargain negotiations;
+- AI Intent;
+- private negotiations;
 - secrets;
-- exact troop availability;
-- some proof and Red Line progress;
-- hidden preparation before a campaign becomes public.
+- exact available troops;
+- some Proof/Red Line progress.
 
-Private political intelligence becomes stale seven days after observation. Secrets do not become stale.
+Political intelligence becomes stale after 7 days. Secrets do not.
 
-## 13. Succession forecast
+## 14. Succession forecast
 
-After Ailing begins, the player can open **IF THE KING DIED TODAY**.
+**IF THE KING DIED TODAY** runs from a projection of the player's knowledge, never authoritative hidden state.
 
-The forecast uses the exact ballot rules but distinguishes knowledge from uncertainty.
-
-It displays:
+Show:
 
 - locked public votes;
-- known current intelligence with observation date;
-- undecided or unknown houses;
-- likely first-ballot leader;
-- likely runoff pair;
+- known Leanings with timestamp;
+- unknown houses;
+- likely first leader and runoff using known data;
 - active tie-break advantages;
-- a qualitative verdict: Favored, Contested, Unlikely or Constitutionally Blocked.
+- military-acclamation progress;
+- qualitative verdict: Favored, Contested, Unlikely, Constitutionally Blocked.
 
-It never displays a percentage or aggregate King score.
+Never show percentage or aggregate King score.
 
-Example:
+## 15. Military Acclamation
 
-> **You — 2 public votes**  
-> Self; Mara Pledged  
-> Ysabel privately Leaning toward you — intelligence 3 days old
->
-> **Renard — 2 public votes**  
-> Self; Oswin Pledged  
-> Church Favorable
->
-> **Forecast:** Contested. You require one additional first-ballot vote or a favorable 3–3 runoff tie-break.
+Before Council, a declared claimant wins by force only when at death they:
 
-## 14. Military acclamation
+1. physically control Capital;
+2. physically control at least three non-Capital seats;
+3. maintain at least 200 loyal/contracted troops in Capital;
+4. have not lost an earlier-resolving battle that dawn.
 
-Before the Council ballots, check whether a declared claimant has physically made the constitutional process irrelevant.
+This is control of four of seven territories including Capital. Ending: Crowned by the Sword.
 
-A claimant wins by **Military Acclamation** only if, at the instant of death, all are true:
-
-1. physically controls the Capital;
-2. physically controls at least three non-Capital seats, one of which may be their hereditary home;
-3. maintains at least 200 loyal or contracted troops in the Capital garrison;
-4. is not currently defeated in a battle resolving earlier that same dawn.
-
-This means the claimant controls four of seven territories including the Capital.
-
-Because ordinary occupations require garrisons, yield little income and create threat, this route requires real military and economic commitment.
-
-If the condition is met, the claimant is crowned before the Council can assemble. The ending is **Crowned by the Sword** and reports the hostile houses and occupied realm.
-
-Only one claimant can control the Capital, so simultaneous military acclamation is impossible.
-
-## 15. Council of Six succession procedure
-
-If nobody qualifies for Military Acclamation, the six great lords meet in Council.
+## 16. Council of Six
 
 Every legal great lord retains one vote even if dispossessed.
 
-### 15.1 Candidate eligibility
+Eligible candidates:
 
-Eligible candidates are:
+- declared player;
+- Renard unless withdrawn;
+- Edric if declared.
 
-- player, if declared;
-- Renard, unless withdrawn;
-- Edric, if declared.
+No minimum Claim removes a declared candidate.
 
-There is no minimum Claim that removes a declared candidate from the ballot. A laughable candidate can stand and be rejected.
+### Vote rules
 
-### 15.2 Vote behavior
+- candidate votes self;
+- valid Commitment/Pledge votes recorded candidate;
+- Under Duress votes only if leverage validates after all dawn state changes;
+- unpledged lords choose by current evaluation;
+- in the final two-candidate ballot every lord must choose one finalist.
 
-At each ballot:
+The ending exposes each vote's dominant reasons.
 
-- eligible candidates vote for themselves;
-- valid Committed supporters vote for their candidate;
-- valid voluntary Pledges vote for their candidate;
-- Under Duress Pledges vote for the coercer only if leverage remains credible at death;
-- unpledged lords choose according to current candidate evaluation;
-- in a final two-candidate ballot, every lord must choose one of the finalists, even if both are disliked.
+### Sole candidate
 
-The ending report exposes each vote's dominant reasons.
+If exactly one eligible candidate remains, Council conducts required acclamation and all six votes go to that candidate. Zero candidates cannot occur because Renard withdraws only under pressure from another declared claimant.
 
-### 15.3 Immediate acclamation
+### Immediate majority
 
-A candidate receiving at least **4 of 6 votes** on any ballot is crowned immediately.
+Four of six votes crowns on any ballot.
 
-### 15.4 Elimination ballots
+### Elimination
 
-If no candidate has four votes and more than two candidates remain:
+If no majority and more than two candidates:
 
-1. eliminate the candidate with the fewest votes;
-2. supporters of the eliminated candidate reevaluate among those remaining;
-3. conduct another ballot.
+1. eliminate fewest votes;
+2. released supporters reevaluate;
+3. ballot again.
 
-If multiple candidates tie for fewest votes, eliminate in this order:
+Tie for lowest eliminates by:
 
-1. fewer Committed supporters;
+1. fewer Commitments;
 2. lower exact Claim;
 3. lower Prestige;
-4. later formal declaration date.
+4. later declaration.
 
-This is a deterministic constitutional elimination rule, not an aggregate score.
-
-### 15.5 Final two-candidate ballot
-
-With two finalists, all six lords cast a final vote.
+### Final ballot
 
 - 4–2 or better wins.
-- A 3–3 result uses the constitutional tie-break chain below.
+- 3–3 uses first distinguishing condition:
+  1. sole Church Endorsement;
+  2. physical Capital control;
+  3. more valid Commitments;
+  4. higher exact Claim;
+  5. higher Prestige;
+  6. earlier declaration.
 
-### 15.6 Constitutional tie-break chain
+## 17. Candidate elimination
 
-Apply the first condition that distinguishes the finalists:
+A Pledge to an eliminated candidate releases without oath penalty for ballot purposes. The lord and eliminated claimant choose among remaining candidates by Red Lines, relationship, Desire, legitimacy, still-relevant bargains, fear and constitutional reality.
 
-1. sole Church Endorsement;
-2. physical control of the Capital;
-3. greater number of valid Committed supporters;
-4. higher exact Claim;
-5. higher Prestige;
-6. earlier formal declaration.
+## 18. No postgame promise exploit
 
-The winning condition is named explicitly on the ending screen.
-
-The Capital therefore matters sharply in a deadlock without acting as a generic bonus in every election.
-
-## 16. Support after candidate elimination
-
-A lord whose candidate is eliminated is released from their Pledge for ballot purposes without oath-breaking penalties.
-
-They then choose between remaining candidates according to:
-
-1. active Red Lines;
-2. relationships and Desire alignment;
-3. legitimacy;
-4. viable bargains that remain relevant;
-5. fear and military reality;
-6. current constitutional tie-break situation.
-
-An eliminated claimant also casts a vote under the same rule. Renard and Edric can therefore become decisive kingmakers after losing.
-
-## 17. No invisible postgame debt exploit
-
-Outstanding promises appear in the ending report, but no future promise alone can have delivered a Pledge. Every winning coalition has already paid meaningful pre-death cost through locked Gold, committed troops, policy weakness, hostile acts or shared risk.
-
-This preserves the dramatic image of a mortgaged crown without making “promise everything, win, end screen” the optimal strategy.
+Outstanding promises appear in the ending, but no future promise alone delivered a Pledge. Every coalition already paid meaningful pre-death cost through locked Gold/troops, policy weakness, public hostility, war or shared risk.
