@@ -2,123 +2,109 @@
 
 ## 1. Session structure
 
-A run represents a single royal succession crisis.
+A run is one royal succession crisis.
 
 - The simulation begins with **56 days on the crisis calendar**.
 - At normal speed, **24 in-game hours equal 60 real seconds**.
-- The player may pause at any time.
-- A 2× speed is available while no mandatory decision is open.
-- Mandatory decisions automatically pause the game.
-- Paused time never advances Orders, AI Intents, income, events or the King's condition.
+- Controls are pause, 1× and 2×.
+- A mandatory decision automatically pauses the game.
+- Hiding/backgrounding the browser tab auto-pauses; no wall-clock catch-up occurs.
 
-The King's exact death is seeded at run creation and occurs at a dawn between elapsed Day 49 and Day 56. The player is told that the King has roughly eight weeks, not the exact hidden day.
+The King's exact death dawn is selected and stored at run creation between elapsed Day 49 and Day 56. The player is told that the King has roughly eight weeks, not the hidden date. A run therefore contains 49–56 live minutes at 1× plus paused thinking time.
 
-This gives a normal-speed run a live duration of 49–56 minutes plus paused decision time.
+## 2. Deterministic scheduler
 
-## 2. Simulation clock and resolution order
+The simulation tracks hours. Most actions last whole or half days.
 
-The simulation tracks hours, but most costs and durations are expressed in half-days or whole days.
+Every scheduled item stores:
 
-At each dawn, resolve in this order:
+- due time;
+- priority class;
+- monotonically increasing `sequenceId` assigned at creation;
+- all seeded random factors needed at resolution.
 
-1. Player and AI Orders completing at that dawn.
-2. Battles, occupations and public fallout caused by those Orders.
-3. Agreement, support and Church-state changes caused by completed actions.
-4. Daily Gold income, levy recovery and timed-condition decay.
-5. King's-health phase transition, if due.
-6. King's-death check, if inside the seeded death window.
-7. If the King survives, eligible ambient event check.
-8. AI reaction checks and selection of new Intents for idle lords.
-9. Autosave and chronicle entry generation.
+Resolve by due time, then priority class, then lower sequenceId. Earlier-created work therefore resolves first when timestamps match; object iteration order never decides a political outcome.
 
-If an Order completes at the same dawn the King dies, the Order resolves first. The succession then uses the resulting state. This is consistent, learnable and fair.
+At each dawn:
 
-A mandatory decision freezes the clock before any later scheduled item resolves. The game never kills the King, completes another battle or advances an ultimatum while a decision modal is awaiting input.
+1. resolve due player Orders and AI Intents;
+2. resolve battles, occupations and public fallout created by them;
+3. update agreements, support, Church and territory control;
+4. apply contract expiry, timed-condition decay, fractional Gold income and fractional levy recovery;
+5. apply health-phase transition;
+6. check the stored King's-death dawn;
+7. if alive, check the ambient-event window;
+8. select new AI Intents for idle lords;
+9. autosave and write chronicle entries.
+
+An Order due on the death dawn resolves before death. A later Order does not. A pending mandatory decision freezes the scheduler before any later item resolves.
 
 ## 3. Royal-health phases
 
 ### Stable — Days 56–43 remaining
 
-The King is still governing.
-
-- Formal candidacy and public succession Pledges are locked.
-- Diplomacy, gifts, spying, court activity and Claim preparation are available.
-- Offensive war is possible only by openly defying the King's Peace and accepting severe sanctions.
-- The Capital cannot be marched upon.
-- AI priorities remain mixed between personal interests, rivalries and preparation.
+- Formal candidacy and public Pledges are locked.
+- Gifts, spying, court activity and Claim preparation are available.
+- Offensive war requires openly defying the King's Peace and severe sanctions.
+- The Capital cannot be attacked.
 
 ### Ailing — Days 42–29 remaining
 
-The succession question becomes public.
-
-- Renard declares automatically at phase start.
+- Renard declares automatically.
 - The player may Declare Candidacy.
-- Edric may begin considering candidacy but cannot yet declare under normal conditions.
-- Public Pledges and succession bargains unlock.
-- Offensive war is permitted but still violates the weakened King's Peace.
-- The Capital remains protected by the royal government.
+- Public bargains and Pledges unlock.
+- Offensive war is possible but still breaches the King's Peace.
+- The Capital remains protected.
 
 ### Gravely Ill — Days 28–15 remaining
 
-Succession becomes the dominant political question.
-
-- AI succession Intents receive their highest normal priority.
-- Pledges become harder to reverse.
-- Normal offensive wars no longer suffer a King's-Peace Prestige penalty.
+- Succession becomes the dominant AI priority.
+- Pledges have greater inertia.
+- Normal offensive war loses its flat King's-Peace Prestige penalty.
 - Declared claimants may March on the Capital.
-- Edric may declare if his candidacy conditions are met.
-- Diplomacy and public attacks on legitimacy resolve faster.
+- Edric may declare if his conditions are met.
 
 ### Deathbed — Days 14–0 remaining
 
-The royal government is collapsing.
+- New long preparations are locked: Find Dirt and Claim projects cannot start.
+- Existing long Orders may finish on their original schedule.
+- Diplomacy, Threaten, Expose and military Orders started now take one fewer day, minimum one day.
+- Existing Orders do not shorten retroactively.
+- Pledges have maximum inertia.
+- The Capital garrison weakens.
+- AI prioritizes the Capital, immediate votes, exposed secrets and emergency defense.
 
-- New long preparatory schemes are locked: deep Spy operations and Claim projects cannot be started.
-- Existing long schemes may finish normally.
-- Diplomacy, threats, declarations, exposures and military actions take one fewer day, to a minimum of one day.
-- Pledges have maximum inertia, but fear, betrayal and catastrophic shocks can still break them.
-- The Capital's royal garrison is weakened.
-- AI claimants prioritize the Capital, wavering votes and immediate threats.
-- Physician reports become qualitative: “perhaps a week,” then “days,” then “any hour.”
-
-The final phase must increase decision density rather than becoming a waiting period.
+The final phase must contain more urgent decisions per minute, not a waiting period.
 
 ## 4. Headline resources and ratings
 
-The top bar contains only five headline values.
-
 ### Gold
 
-Spendable wealth used for gifts, court activity, schemes, patronage, escrow, mercenaries and emergency responses.
+Spendable wealth for court, schemes, gifts, collateral, patronage, mercenaries and reactions.
 
-- Held hereditary territory produces automatic daily income.
-- Occupied enemy territory produces only 25% of its normal income.
-- Escrowed Gold is removed from the spendable pool until released.
-- Gold has no hard maximum.
+- Legal unoccupied seats produce automatic income.
+- Occupied seats produce 25% of normal Wealth for the occupier and none for the legal lord.
+- Escrow is removed from spendable Gold.
+- Fractional income accumulates internally; a whole Gold becomes spendable when the accumulator reaches 1.
+- The top bar shows whole spendable Gold; tooltips show exact daily rates.
 
 ### Levies
 
-Finite military manpower attached to a lord's hereditary seat.
+Finite hereditary manpower.
 
-- Levies recover slowly toward capacity while the seat is unoccupied.
-- Troops committed to an Order or garrison are unavailable elsewhere.
-- Battle casualties are persistent.
-- Occupied territories do not recruit for the occupier.
-- Mercenaries are tracked separately but displayed in the military breakdown.
+- Casualties persist.
+- Committed troops and garrisons are unavailable elsewhere.
+- Occupied seats recruit for nobody.
+- Recovery uses a fractional accumulator; there is no artificial one-troop-per-day minimum.
+- Mercenaries are tracked separately in the military breakdown.
 
 ### Prestige
 
-A 0–100 public rating of importance, courage and standing.
-
-Prestige is not spent. It affects candidacy credibility, intimidation, AI respect, political viability and tie-breaking only where explicitly stated.
+A public 0–100 rating. It is not spent. It affects respect, intimidation, candidate viability and only the explicit constitutional tie-break where named.
 
 ### Claim
 
-A 0–100 public rating of legal and dynastic credibility.
-
-Claim is not spent and cannot be repeatedly farmed. It changes how lords and the Church interpret the player's candidacy and serves as a late constitutional tie-break, not a generic victory score.
-
-Claim bands:
+A public 0–100 legal rating. It is not spent and cannot be farmed repeatedly.
 
 - 0–9: None
 - 10–24: Dubious
@@ -129,265 +115,257 @@ Claim bands:
 
 ### Influence
 
-Spendable political capacity used for negotiations, public declarations, threats, intrigue and elite maneuvering.
+Spendable political capacity.
 
-Influence is scarce but not permanently exhaustible. The player gains one point every two days, plus discrete rewards from political successes, court actions and events.
+- Gain **1 Influence every dawn** while not under a specific blocking condition.
+- Maximum 100.
+- Additional gains come from court, political success and events.
 
 ## 5. Baseline economy
 
-Each legally held, unoccupied territory produces daily Gold equal to its Wealth rating.
+Daily legal income equals territory Wealth plus trait modifiers, multiplied by conditions.
 
-- Greyfen therefore produces 2 Gold per day before conditions.
-- Occupation reduces income to 25% for the occupier and zero for the legal lord.
-- Tax Strain, Unrest and public concessions can further modify income.
+Levy recovery per dawn is added to a fractional accumulator:
 
-Levy recovery per dawn is:
+`levyCapacity × 0.005 × active modifiers`
 
-`floor(levyCapacity × 0.005)`, with a minimum of 1 troop while recovery is allowed.
+Whole troops become available when the accumulator crosses 1.
 
-- Tax Strain halves recovery.
-- Unrest or occupation stops recovery.
-- Troops committed to campaigns, aid or garrisons still count against capacity.
+- Tax Strain: income ×0.50 and levy recovery ×0.50.
+- Unrest: income ×0.25, levy recovery 0, Fortification -1.
+- Occupation: legal income/recovery 0; occupier income ×0.25; no occupier recovery.
+- Greyfen Charter: Greyfen income and recovery ×0.75 for the rest of the run.
 
-## 6. Order capacity
+## 6. Order capacity and reactions
 
-The player has exactly **two active Order slots**.
+The player has exactly **two active Order slots**. Each NPC has one major Intent.
 
-An Order represents a sustained initiative such as negotiation, spying, claim-building, court activity or military preparation.
+Order rules:
 
-Rules:
+- ordinary action costs are paid at start;
+- every Order validates at start and resolution;
+- duration is fixed at creation;
+- cancellation never refunds time;
+- refunds are action-specific and normally zero;
+- locked campaign troops return if cancelled before battle, but logistics Gold is lost;
+- invalidated Orders follow an explicit fallback and write a chronicle reason.
 
-- Costs are paid when an Order begins unless its definition says otherwise.
-- Cancelling an Order never refunds time.
-- Gold and Influence refunds are action-specific and normally zero.
-- Troops committed to a cancelled military Order return if battle has not begun, but logistical Gold is lost.
-- Every Order validates both when started and when resolved.
-- If external events make the original result impossible, the Order follows its documented fallback rather than silently failing or crashing.
+### Bargain exception
+
+Offer Bargain pays only its negotiation Influence at start. Gold escrow, troop locks, policy concessions and office reservations apply only if the target accepts at resolution. If the target becomes unavailable, negotiation Influence is lost but collateral is untouched.
 
 ### Reactions
 
-Reactions do not consume Order slots.
+Reactions do not use Order slots:
 
-Examples:
+- defend or yield;
+- answer ultimatum/bargain;
+- choose event response;
+- renew mercenaries;
+- break an agreement;
+- withdraw an occupation;
+- resolve a queued mandatory decision.
 
-- choosing how to defend an invasion;
-- answering an ultimatum;
-- accepting or refusing a bargain;
-- resolving an event choice;
-- breaking an agreement;
-- deciding whether to maintain a mercenary contract;
-- withdrawing an occupation.
-
-The player must never be unable to defend Greyfen merely because both Order slots contain political schemes.
+Once collateral is accepted, it belongs to an Agreement and cannot be cancelled as an Order. Ending it requires Break Agreement and its full consequences.
 
 ## 7. Player action families
 
-The first release uses eleven base action families. Contextual variants share the same underlying rules and UI.
-
 ### 7.1 Send Gift
 
-**Target:** A lord  
-**Duration:** 1 day  
-**Cost:** Choose 20, 40 or 80 Gold
+- Target: lord
+- Duration: 1 day
+- Gold: 20 / 40 / 80
+- Relationship: +4 / +8 / +12
 
-Effects:
-
-- Improves personal relationship.
-- May make negotiation thresholds easier.
-- Never directly creates a Pledge.
-- Gifts to the same target within 14 days have sharply diminishing relationship effects.
-- A third gift inside 14 days is refused and the Gold is not spent.
+A second gift to the same lord inside 14 days gives half effect. A third is refused and not charged. Gifts never directly create a Pledge.
 
 ### 7.2 Offer Bargain
 
-**Target:** A declared kingmaker lord  
-**Duration:** 2 days  
-**Cost:** 10 Influence plus any selected immediate collateral
+- Target: kingmaker
+- Duration: 2 days
+- Start cost: 8 Influence
 
-The player selects or responds to one of the target's valid bargain terms. Bargains can reserve unique offices, lock Gold, commit troops, impose public policy or demand a hostile act against another candidate.
+At resolution the target accepts, counters or refuses according to current state. Accepted present collateral is then applied. A future office or land promise can strengthen a Leaning but cannot create a Pledge without current Proof and collateral.
 
-A future reward alone can create or strengthen a Leaning. A Pledge requires that the target's proof and meaningful present collateral are satisfied.
+A voluntary defection bargain with a lord already Pledged elsewhere is legal only under the gates in `politics-and-succession.md`.
 
 ### 7.3 Request Declaration
 
-**Target:** A lord currently Leaning toward the player  
-**Duration:** 2 days; 1 in Deathbed  
-**Cost:** 12 Influence
+- Target: lord Leaning toward the player
+- Duration: 2 days; 1 in Deathbed
+- Cost: 8 Influence
 
-Attempts to convert a Leaning into a public Pledge.
+A voluntary Leaning must have persisted for:
 
-- If proof and bargain conditions are met, the target Pledges.
-- If the request is premature, it fails, damages trust slightly and applies a 7-day refusal cooldown.
-- A major political shock can clear the cooldown.
+- 2 full days in Ailing;
+- 3 full days in Gravely Ill;
+- 4 full days in Deathbed.
+
+The current phase's requirement applies; earlier Leaning time counts. A Commitment-grade shared-risk event may waive maturation for that lord.
+
+At resolution:
+
+- if Leaning, Proof, collateral and maturation still pass: Pledge;
+- if external events removed the Leaning after start: fail, -2 relationship, no cooldown;
+- if the player began prematurely: fail, -4 relationship and 7-day refusal cooldown.
 
 ### 7.4 Threaten
 
-**Target:** A lord or, contextually, a rival claimant  
-**Duration:** 2 days; 1 in Deathbed  
-**Cost:** 12 Influence
+- Duration: 2 days; 1 in Deathbed
+- Cost: 12 Influence
 
-Requires credible leverage: overwhelming adjacent force, occupation of the target's seat or a devastating secret.
+Credible leverage must exist at start and resolution: overwhelming adjacent military force, occupation of the target's seat or a devastating secret.
 
-Possible outcomes:
+Possible results include Pledge Under Duress, withdrawal, concession, refusal or counter-mobilization.
 
-- Pledge Under Duress;
-- withdrawal from a war or candidacy;
-- payment or concession;
-- refusal and counter-mobilization.
-
-Coerced support lasts only while the threat remains credible, can never become Committed, and increases containment behavior among other lords.
+- Coerced support breaks when leverage breaks.
+- It cannot become Committed.
+- A valid Commitment cannot be replaced by ordinary coercion.
+- One secret can support one successful private blackmail agreement; it may still be exposed later but cannot be reused for another Threaten success.
 
 ### 7.5 Spy
 
-Two modes share one action family.
+**Watch Court**
 
-**Watch Court**  
-Duration 3 days; cost 20 Gold and 8 Influence. Always reveals the target's current Intent, private Leaning and exact known military availability. Political-intent intelligence becomes stale after seven days.
+- 3 days
+- 20 Gold, 8 Influence
+- guaranteed current Intent, private Leaning and exact current military availability
+- political intelligence becomes stale after 7 days
 
-**Find Dirt**  
-Duration 5 days; cost 30 Gold and 12 Influence. Uses a deterministic contested check with seeded variance. Success discovers one available secret; partial failure returns lesser intelligence; detected failure damages the relationship and alerts the target.
+**Find Dirt**
 
-Deep Spy cannot begin during Deathbed.
+- 5 days
+- 30 Gold, 12 Influence
+- deterministic contested result using values snapshotted at start
+- success discovers one undiscovered secret
+- partial failure returns lesser intelligence
+- repeated attempts within 10 days increase detection risk, not discovery defense
+- cannot start in Deathbed
 
 ### 7.6 Build Claim
 
-Two once-per-run projects share one action family.
+**Research Lineage**
 
-**Research Lineage**  
-Duration 6 days; cost 35 Gold and 12 Influence; grants +12 Claim with no fraud secret.
+- 6 days
+- 35 Gold, 12 Influence
+- +12 safe Claim
+- once per run
 
-**Forge Royal Descent**  
-Duration 8 days; cost 50 Gold and 25 Influence; grants +25 Claim and creates discoverable Forgery Evidence against the player.
+**Forge Royal Descent**
 
-Neither project may begin during Deathbed. Claim gains are capped at 100.
+- 8 days
+- 50 Gold, 25 Influence
+- +25 Claim
+- creates Forgery Evidence
+- once per run
+
+Neither can start in Deathbed.
 
 ### 7.7 Expose Secret
 
-**Target:** Holder of a discovered secret  
-**Duration:** 2 days; 1 in Deathbed  
-**Cost:** 10 Influence
+- 2 days; 1 in Deathbed
+- 10 Influence
 
-Publishes the secret and applies its authored consequences to Claim, Prestige, Church standing, relationships, support shocks or military behavior.
-
-A discovered secret can be exposed once. Exposure is public and normally makes the target permanently hostile.
+Publishes one discovered secret and applies its authored consequences. A secret can be exposed once.
 
 ### 7.8 Invade Territory
 
-**Target:** An adjacent hereditary seat or occupied territory  
-**Duration:** 3 days; 2 in Deathbed  
-**Cost:** 10 Gold logistics plus committed troops and optional mercenary contract
+- 3 days; 2 in Deathbed
+- 10 Gold logistics
+- committed levies and optional mercenary contracts
 
-The defender receives an immediate reaction when the campaign becomes public. The battle resolves at Order completion. Winning occupies the target only if the attacker can supply the required garrison.
-
-Detailed battle and occupation rules are in `war-and-occupation.md`.
+The defender receives a mandatory reaction after the campaign becomes public. Victory occupies only when the required garrison can be assigned. See `war-and-occupation.md`.
 
 ### 7.9 Raise Taxes
 
-**Target:** Greyfen  
-**Duration:** 1 day
+- 1 day
+- Greyfen must be unoccupied
 
-Immediately receives 14 days of Greyfen's current gross income and applies Tax Strain for 21 days.
+First use while unstrained:
 
-If Greyfen is already under Tax Strain:
+- gain 14 days of current gross Greyfen income immediately;
+- apply Tax Strain for 21 days.
 
-- receives only 7 days of gross income;
-- upgrades the territory to Unrest for 21 days;
-- cannot be used again until Unrest ends.
+Use during Tax Strain:
 
-Tax Strain reduces income and levy recovery by 50%. Unrest reduces income by 75%, stops levy recovery and weakens Fortification by one.
-
-The action is unavailable while Greyfen is occupied.
+- gain 7 days of current gross income;
+- replace Strain with Unrest for 21 days;
+- unavailable until Unrest ends.
 
 ### 7.10 Hold Court
 
-**Duration:** 3 days; 2 in Deathbed  
-**Cost:** 60 Gold  
-**Invitees:** Up to two lords
+- 3 days; 2 in Deathbed
+- 60 Gold
+- invite up to two lords
+- +8 Prestige
+- +10 Influence
+- relationship improvement
 
-Effects:
+Second use inside 21 days gives half Prestige/Influence. Third is locked until cooldown ends.
 
-- +8 Prestige;
-- +10 Influence;
-- relationship improvement with invitees;
-- may create a contextual political opportunity.
+### 7.11 Patronize Church
 
-A second Court within 21 days grants half Prestige and Influence. A third is unavailable until the cooldown ends.
+- 4 days; 3 in Deathbed
+- 50 Gold
 
-During Deathbed the presentation becomes an emergency council rather than a feast.
-
-### 7.11 Patronize the Church
-
-**Duration:** 4 days; 3 in Deathbed  
-**Cost:** 50 Gold
-
-Effects:
-
-- records public Church Patronage;
-- improves Oswin's relationship;
-- advances the player's Church consideration by one state where legally eligible;
-- may satisfy part of Oswin's bargain.
-
-The full institutional benefit can occur only once. Repetition grants only a small relationship improvement and is unavailable within 21 days.
+Creates public Patronage, improves Oswin's relationship and adds the institutional Church modifier once. Repeated use inside 21 days is unavailable; later repetition gives only a small relationship effect.
 
 ## 8. Contextual actions
 
-These do not count as additional base systems.
-
 ### Declare Candidacy
 
-Available from Ailing onward.
+- Available from Ailing
+- 1 day
+- 15 Influence
+- irreversible
 
-- Duration: 1 day.
-- Cost: 20 Influence.
-- Irreversible.
-- Unlocks Pledges, public succession bargaining and the Capital action.
-- Renard immediately treats the player as a rival.
-- Claim below 10 produces the public condition **Laughable Pretender**, reducing initial viability and Church standing.
-
-The player cannot win without declaring, except through no hidden alternative.
+Unlocks succession bargaining, Pledges and March on the Capital. Renard treats the player as a rival. Claim below 10 creates Laughable Pretender.
 
 ### March on the Capital
 
-A specialized invasion available to declared claimants from Gravely Ill onward. It follows military rules but fights the royal or occupying garrison and creates usurpation consequences.
+Specialized invasion from Gravely Ill onward. See military rules.
 
 ### Break Agreement
 
-Immediate reaction.
-
-- Ends the agreement and releases locked resources where its terms permit.
-- Usually collapses the associated support.
-- Applies authored relationship loss, Prestige loss and the Oathbreaker history flag.
+Immediate reaction. Ends obligations according to the agreement, normally collapses associated support, applies -8 Prestige, partner relationship loss and Oathbreaker history.
 
 ### Withdraw Occupation
 
-Immediate reaction if no battle is pending.
+Immediate if no battle is pending. Garrison returns after one travel day; legal lord regains physical control.
 
-- Releases the garrison after one travel day.
-- Restores physical control to the legal lord.
-- Does not undo casualties, threat history or relationship damage.
+### Confess and Seek Penance
 
-## 9. Anti-spam rules
+Available after exposed Forgery causes Condemnation.
 
-Anti-spam is expressed through consequences and target cooldowns rather than a universal artificial cooldown layer.
+- 3 days
+- 40 Gold, 10 Influence
+- -5 Prestige
+- does not restore removed Claim
+- on completion removes the fraud-based Condemnation and sets Church stance to at most Skeptical
+- clears Oswin's fraud Red Line, but not relationship/support damage
 
-- Gifts diminish for 14 days.
-- Failed support requests lock the same target for 7 days.
-- Taxes escalate from Strain to Unrest.
-- Court activity diminishes for 21 days.
-- Church patronage has one full institutional benefit.
-- Each Claim project is once per run.
-- Repeated spying on the same target within 10 days increases detection by one band.
-- Threaten may target the same lord only once per royal-health phase unless a new leverage source is acquired.
-- Offensive wars accumulate threat and political history even after occupations end.
+## 9. Anti-spam
 
-## 10. Game-end trigger
+- gifts diminish for 14 days;
+- failed premature Declaration requests lock target 7 days;
+- taxes escalate to Unrest;
+- Court diminishes for 21 days;
+- Church Patronage gives one full institutional benefit;
+- Claim projects are once per run;
+- repeated Find Dirt raises detection;
+- Threaten may target the same lord once per phase unless a new leverage source appears;
+- a secret blackmails successfully once;
+- offensive-war history continues to affect threat after withdrawal.
 
-The instant the King dies:
+## 10. Game end
 
-1. All new Orders and reactions lock.
-2. Any effects already resolved at that dawn remain.
-3. The game checks military acclamation.
-4. If no claimant qualifies, the Council succession procedure runs.
-5. The ending report explains the route, every vote, every tie-break, outstanding obligations, wars, casualties and decisive political shocks.
+When the King dies:
 
-No post-coronation simulation occurs in the first release.
+1. lock new player/AI initiatives;
+2. keep all effects resolved earlier that dawn;
+3. validate occupations, garrisons, contracts, coercion and Church state;
+4. check Military Acclamation;
+5. otherwise run the Council procedure;
+6. produce the full ending reconstruction.
+
+There is no post-coronation simulation in the first release.
