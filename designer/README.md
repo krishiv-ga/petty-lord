@@ -1,120 +1,190 @@
 # The Petty Lord — Canonical Design Package
 
-**Status:** Design locked for first complete release  
+**Status:** Design locked after four hostile paperplay passes  
 **Target:** Desktop browser  
-**Run length:** 49–56 minutes at normal speed, plus paused decision time  
+**Run length:** 49–56 live minutes at 1×, plus paused decisions  
 **Genre:** Real-time-with-pause political strategy / succession crisis simulator
 
 > The King is dying. You are a minor lord with eight weeks to manufacture a reason the kingdom should accept you as its next ruler.
 
-This directory is the implementation contract for the game. Code, content, balancing and generated art should follow these documents. Where an older conversation, prototype or code comment conflicts with this package, this package wins.
+This directory is the implementation contract. Where a prototype, conversation or code comment conflicts with these files, this package wins. The exact amendments found through hostile testing are recorded in [`paperplay/final-amendments.md`](./paperplay/final-amendments.md).
 
 ## Canonical files
 
-1. [`game-rules.md`](./game-rules.md) — clock, phases, resources, economy, orders and player actions.
-2. [`world-and-actors.md`](./world-and-actors.md) — map, territories, rivals, relationships and opening packages.
-3. [`politics-and-succession.md`](./politics-and-succession.md) — support, bargains, Claim, Church, Capital and exact succession procedure.
-4. [`war-and-occupation.md`](./war-and-occupation.md) — Royal Authority, battles, occupations, threat and dispossession.
-5. [`ai-information-events.md`](./ai-information-events.md) — rival capacity, knowledge limits, AI intent selection, events and deterministic randomness.
-6. [`interface-content-and-production.md`](./interface-content-and-production.md) — UI, onboarding, endings, art, technical architecture, QA and production boundaries.
-7. [`balance-sheet.md`](./balance-sheet.md) — first-pass numbers for starting state, action costs, durations, thresholds and formulas.
-8. [`paperplay/`](./paperplay/) — hostile paperplay records and the amendments incorporated after them.
+1. [`game-rules.md`](./game-rules.md) — clock, health phases, resources, economy, Orders and actions.
+2. [`world-and-actors.md`](./world-and-actors.md) — fixed map, territories, rivals, bargains, openings and secrets.
+3. [`candidate-evaluation.md`](./candidate-evaluation.md) — exact per-lord political evaluation, Proof, Fear and Red Lines.
+4. [`politics-and-succession.md`](./politics-and-succession.md) — support, collateral, coercion, Church and Council constitution.
+5. [`war-and-occupation.md`](./war-and-occupation.md) — Royal Authority, battles, casualties, occupation, threat and Capital.
+6. [`ai-information-events.md`](./ai-information-events.md) — one-Intent rival AI, knowledge limits, deterministic randomness and events.
+7. [`interface-content-and-production.md`](./interface-content-and-production.md) — UI, onboarding, endings, architecture, QA and four-day production contract.
+8. [`balance-sheet.md`](./balance-sheet.md) — all starting values, costs, thresholds, formulas and exact consequences.
+9. [`paperplay/`](./paperplay/) — exploit matrix, complete runs, edge cases, final consistency pass and amendment ledger.
 
 ## High concept
 
-The old King is expected to die in roughly eight weeks. Time moves continuously at one in-game day per real minute, with pause and optional 2× speed. The player owns Greyfen, the least consequential of six great lordships. They begin with a mediocre army, little Prestige and only a dubious connection to the royal bloodline.
+The crisis begins with 56 days on the calendar. One in-game day equals one real minute. Pause and 2× speed are available. The King's exact death dawn is seeded between elapsed Days 49 and 56 and is communicated only through worsening physician reports.
 
-When the King dies, the Council of Six resolves the succession. The player can win by assembling a coalition, becoming the Church-backed legitimate heir, destroying the credibility of the favorite, coercing enough votes, or physically dominating the Capital and the kingdom. These are not separate minigames or score tracks. They are different ways of manipulating one constitutional succession system.
+The player controls Greyfen, the least consequential of six great lordships. Renard begins as the presumed heir. The player must prepare, publicly declare, construct support, become dangerous, survive the reaction and keep their position intact until death.
 
 ## Core loop
 
-**Prepare → Declare → Build support → Become dangerous → Survive the reaction → Hold the position until the King dies.**
+**Prepare → Declare → Build support → Become dangerous → Survive the counterattack → Hold until the King dies.**
 
-The player uses two simultaneous Order slots to conduct diplomacy, intrigue, military campaigns and realm actions. Rival lords each pursue one major Intent at a time and react immediately to threats and events. Every important gain has an accompanying cost or political consequence.
+The player has two simultaneous Orders. Each NPC has one major Intent plus reactions. Every meaningful gain changes multiple systems.
 
-Examples:
+Taking Westmarch can provide victory Prestige, strategic adjacency, denial of Mara's resources and coercive leverage. It also costs casualties and a 75-troop garrison, creates severe hostility and makes neighboring lords calculate the player as a threat. The occupier receives only 25% income, no levy recovery and no Free Companies trait.
 
-- Occupying Westmarch grants Prestige, strategic reach and denies Mara its income, but costs battle casualties and garrison troops while making neighboring lords fear the occupier.
-- Fabricating royal ancestry increases Claim, but creates evidence that can collapse both Claim and Church standing if exposed.
-- Mara's support requires a real decentralizing concession that weakens the player's own economy.
-- Ysabel may accept Gold as escrow, removing that Gold from the player's use until the succession is over.
-- A coerced pledge lasts only while the threat remains credible and makes other nobles more likely to contain the player.
+## The political game
 
-## Design pillars
+Support is not collectible.
 
-### Power is relational
-No major action changes only one number. Territory, military strength, legitimacy, fear, obligations and relationships must feed back into one another.
+- **Leaning:** private and fluid.
+- **Pledged:** public and sticky.
+- **Committed:** tied to shared risk and hard to break.
+- **Under Duress:** lasts only while coercive leverage remains.
 
-### Support is not collectible
-A lord can back one claimant at a time. Leanings are private and fluid; Pledges are public and sticky; Commitments require shared risk and break only under major shocks. Future promises create interest but cannot purchase loyalty alone.
+Future promises create interest. A voluntary Pledge requires continuous Leaning, personal Proof and material present collateral. Examples include locked Gold, committed troops, Church concessions and permanent weakening of Greyfen.
 
-### The opposition is active
-Renard and the other lords are not waiting to be solved. They court supporters, undermine rivals, fight wars, react to threats and make emergency moves as the King's health fails.
+Relationships, Support, Legitimacy and Power remain separate. Exact Edric/Ysabel/Oswin/Mara evaluation is authored rather than generated from arbitrary AI weights.
 
-### The rules decay with the King
-The health phases are changes to Royal Authority, not just labels on a timer. Early aggression is treasonous. Formal candidacy opens later. Private war becomes normalized. The Capital becomes contestable only as government collapses.
+## The constitutional ending
 
-### The ending is institutional
-There is no hidden KING SCORE. The great lords cast votes. Claim determines legal credibility. The Church validates legitimacy. The Capital breaks specific deadlocks and enables a narrow military override.
+There is no KING SCORE.
 
-### Complete means polished, not broad
-The first release is one deeply specified 50–60 minute scenario with an ending, tutorial, readable AI, autosave, deterministic replay, feedback and multiple viable strategies. It is not a prototype for a larger grand-strategy game.
+### Military Acclamation
 
-## Locked launch scope
+Before Council, a declared claimant wins by the sword only by controlling:
 
-- One kingdom and one succession crisis.
-- Seven territories: six hereditary seats plus the Capital.
-- Six great lords including the player.
-- Three possible claimants in normal play: the player, Renard and conditionally Edric.
-- Five headline resources/ratings: Gold, Levies, Prestige, Claim and Influence.
-- Two player Orders; one major Intent per NPC.
-- Four royal-health phases over a 56-day crisis horizon.
-- Approximately eleven base action families plus contextual reactions.
-- One abstract battle system and one occupation model.
-- One exact Council succession procedure plus one difficult military-acclamation override.
-- Sixteen authored events, of which a seeded subset appears in each run, plus systemic notifications.
-- One integrated onboarding sequence, autosave/resume and a detailed ending report.
+- the Capital;
+- three non-Capital seats;
+- at least 200 troops in the Capital.
 
-## Explicit exclusions
+### Council of Six
 
-Do not add the following during the four-day build:
+Every legal lord retains one vote, even while dispossessed.
+
+- Four of six wins any ballot.
+- With three candidates and no majority, eliminate the lowest.
+- Final 3–3 tie: sole Church Endorsement → Capital → more Commitments → exact Claim → Prestige → earlier declaration.
+- If the player is eliminated or never declared, they manually cast Greyfen's historical vote but cannot recover the Crown.
+
+Claim shapes legal credibility. The Church validates it. The Capital breaks a specific deadlock and enables military override. None is a generic additive score.
+
+## Map and cast
+
+Seven territories:
+
+- Greyfen — balanced minor homeland;
+- Northkeep — Edric's fortified military seat;
+- Westmarch — Mara's mercenary border region;
+- Eastvale — Ysabel's wealth;
+- Abbeylands — Oswin and Church influence;
+- Southmere — Renard's old blood;
+- Capital — royal government and coronation apparatus.
+
+Five rivals:
+
+- Edric, the Hawk — respects strength until it becomes existential.
+- Ysabel, the Spider — wealthy kingmaker seeking the viable winner and costly protection.
+- Renard, the Favorite — principal claimant with Excellent Claim.
+- Oswin, the Pious — lawful kingmaker and strongest individual Church voice.
+- Mara, the Rebel — demands concrete decentralization and resists central conquest.
+
+## Actions and resources
+
+Headline values: Gold, Levies, Prestige, Claim and Influence.
+
+Eleven base action families:
+
+- Gift;
+- Offer Bargain;
+- Request Declaration;
+- Threaten;
+- Watch Court / Find Dirt;
+- Research / Forge Claim;
+- Expose Secret;
+- Invade;
+- Raise Taxes;
+- Hold Court;
+- Patronize Church.
+
+Contextual actions include Declare Candidacy, March on Capital, Break Agreement, Withdraw Occupation, Confess and Seek Penance and Cast Greyfen's Vote.
+
+## Royal-health pressure
+
+- **Stable:** succession campaigning locked; war is near-treason.
+- **Ailing:** candidates and public Pledges open.
+- **Gravely Ill:** succession dominates; private war normalizes; Capital opens.
+- **Deathbed:** long preparation locks, short actions accelerate, alliances harden and death becomes uncertain.
+
+The timer is therefore a progressive collapse of the rules, not a cosmetic countdown.
+
+## Information and AI
+
+AI operates with one Intent, actual resources and observer-limited knowledge. It cannot read hidden player Orders, exact hidden armies, secrets or future RNG.
+
+Public military/occupation coercion is visible Under Duress. Secret blackmail appears voluntary to uninformed institutions. The succession forecast uses only the player's knowledge projection and timestamps stale intelligence.
+
+One seed determines opening package, secrets, event selection, battle fortune, Spy outcomes, AI near-ties and death. Refresh cannot reroll history.
+
+## Launch scope
+
+- one kingdom;
+- seven territories;
+- six great lords including player;
+- normally two or three candidates;
+- two player Orders / one NPC Intent;
+- four phases;
+- one abstract battle model;
+- one occupation model;
+- one Council constitution;
+- sixteen authored events, seeded subset per run;
+- onboarding, autosave, forecast, chronicle and ending report.
+
+Explicitly excluded:
 
 - tactical combat;
-- free movement of army pieces;
-- buildings or technology trees;
-- family trees, heirs or generational simulation;
-- assassination or character death;
-- legal annexation and title inheritance;
-- post-coronation simulation;
+- free army movement;
+- buildings/technology;
+- family trees, heirs and character death;
+- assassination;
+- title inheritance or legal annexation;
+- post-coronation play;
 - procedural maps;
-- multiplayer, accounts or cloud saves;
+- multiplayer/accounts/cloud saves;
 - meta-progression;
-- mobile-first layout;
-- a generic relationship-to-vote conversion;
-- a generic aggregate succession score.
+- mobile-first layout.
 
-## Non-negotiable experience tests
+## Non-negotiable release tests
 
-The release is not complete unless all are true:
+1. Every vote is explainable from the ending.
+2. Late declaration is risky because Leanings and Pledges require time.
+3. Future promises alone cannot win a coalition.
+4. Conquest never absorbs a full economy.
+5. Losing Greyfen is disastrous but not automatic game over.
+6. Pause gives thought, not omniscience or free cancellation.
+7. Deathbed contains more urgent decisions, not fewer.
+8. Coalition, legitimacy/intrigue and military routes can win under the same constitution.
+9. NPCs are capacity- and knowledge-bounded.
+10. Refresh preserves death, events, Spy and battle outcomes.
+11. Private blackmail remains private to uninformed actors.
+12. Every simultaneous event resolves deterministically by sequenceId.
 
-1. A player can explain why every lord voted as they did from the ending screen.
-2. Waiting to declare is risky because rival support hardens over time.
-3. Promising every lord a future reward does not produce a winning coalition.
-4. Conquest does not create exponential economic growth.
-5. Losing Greyfen is disastrous but does not automatically end the run.
-6. Pause grants thinking time, not perfect information or free cancellation.
-7. The final ten minutes contain more urgent decisions, not fewer.
-8. At least four recognizably different routes can win under the same rules.
-9. Every AI lord appears bounded by capacity and knowledge rather than cheating.
-10. Refreshing the browser cannot reroll the King's death or event outcomes.
+## Paperplay result
+
+Four hostile passes found and repaired real holes in Influence arithmetic, late bursts, Church pricing, intrigue availability, fraud repair, Yield, collateral timing, Pledge defection, Capital control, scheduler order, shock expiry, AI knowledge, private blackmail, debt default and exact candidate evaluation.
+
+No new major system is required. Remaining questions are tuning questions: win rates, demand frequency, casualty pressure, event cadence and Deathbed action density.
 
 ## Change control
 
-During implementation, a rule may be changed only when one of the following is recorded:
+During the four-day build, change a locked rule only after:
 
 - an impossible implementation dependency;
-- a failed paperplay or automated simulation;
-- a usability test showing the rule cannot be understood;
-- a balance result showing a dominant or nonviable strategy.
+- automated invariant failure;
+- complete paper/human run showing a route cannot work;
+- usability test showing the rule cannot be understood;
+- balance evidence showing dominance or nonviability.
 
-Any change to succession, support, war, Royal Authority or the clock must be reflected in the relevant design document and in `paperplay/final-amendments.md`.
+Any such change must update its canonical file and the amendment ledger.
