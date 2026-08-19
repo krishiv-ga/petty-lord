@@ -36,6 +36,8 @@ Explicitly out of scope:
 - Added Node-24-compatible GitHub Actions CI with static/browser artifacts and a manual-only,
   dry-run-default checkpoint release workflow with version/ref/tag safeguards and checksums.
 - Added command/workflow tests, PR evidence template, known-issues file and root setup/command docs.
+- Added a repository LF policy after an adversarial Windows clean clone proved that global
+  `core.autocrlf` could otherwise make Biome fail immediately after checkout.
 
 ## Decisions and assumptions
 
@@ -54,6 +56,7 @@ Explicitly out of scope:
 |---|---|---|
 | Environment (`node --version`, `pnpm --version`) | Pass | Node 24.16.0; pnpm 11.19.0 |
 | `pnpm install --frozen-lockfile` | Pass | Lock SHA-256 unchanged: `5A6E1DB3D467C1BF3A625140C0D106A5AD1F895E0081BABECE7B7CC742A3DA81` |
+| Separate Windows clone | Initially failed, fixed, rerun pending | First checkout exposed CRLF conversion; `.gitattributes` now enforces LF |
 | `pnpm peers check` | Pass | No peer dependency issues |
 | `pnpm check` | Pass | 25 supported source/config files checked; no fixes required |
 | `pnpm typecheck` | Pass | TypeScript 6.0 project references clean |
