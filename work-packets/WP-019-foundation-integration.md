@@ -24,6 +24,8 @@ Do not split merge repair, contract freeze, wiki synchronization, compacted logg
 - [`AGENTS.md`](../AGENTS.md)
 - [`TECH_STACK.md`](../TECH_STACK.md)
 - [`designer/README.md`](../designer/README.md)
+- [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md)
+- approved rival-lord masters under `assets/characters/`
 - [`RELEASES.md`](../RELEASES.md)
 - [`wiki.md`](../wiki.md)
 
@@ -103,6 +105,14 @@ Prove:
 - a missing production asset produces an explicit development placeholder/warning rather than vector fallback;
 - no UI component imports raw mutable simulation state.
 
+For character art, freeze semantic slots rather than filenames:
+
+- `character.<lord>.full`
+- `character.<lord>.bust`
+- `character.<lord>.tight`
+
+The five existing files under `assets/characters/` back the canonical `full` identity masters. `bust` and `tight` are dedicated reference-based generated portrait compositions owned by WP-034, not release crops of the side-facing full-body masters. Wave 1 fixtures may use temporary raster stand-ins with the final slot dimensions.
+
 ### 5. Cross-boundary architecture and invariants
 
 Add tests for:
@@ -125,6 +135,7 @@ Synchronize:
 - deterministic simulation and scheduler/RNG;
 - content/schema and asset contract;
 - UI foundation/visual language;
+- character `full`/`bust`/`tight` slot semantics and approved-master provenance;
 - command reference;
 - agent/work-packet flow;
 - current checkpoint status and release page.
@@ -145,7 +156,8 @@ The critic must attack:
 - inaccessible UI primitives;
 - package/CI mismatch;
 - contracts too vague for Wave 2 parallelism;
-- contracts so broad they force every packet to edit shared files.
+- contracts so broad they force every packet to edit shared files;
+- accidental treatment of generated close portraits as mechanical crops or hardcoded source filenames.
 
 Resolve all P0/P1 findings and explicitly dispose of lower-severity findings.
 
@@ -184,6 +196,7 @@ Mark WP-019 Integrated and WP-020/021/022/023 Ready. State the frozen contracts 
 - [ ] Representative Wave 2 consumers compile against frozen contracts without editing shared modules.
 - [ ] Dependency-boundary tests prevent UI/browser imports into simulation and behavior imports into content.
 - [ ] Storybook fixtures render canonical data and raster placeholders without SVG/vector fallback.
+- [ ] Character slot contract exposes `full`/`bust`/`tight` without requiring Wave 3 UI agents to hardcode files.
 - [ ] Check, typecheck, all foundation tests, game build, Storybook build, wiki check and Playwright smoke pass together.
 - [ ] Combined independent critic clears the integration.
 - [ ] `v0.1.0-alpha.1` release points to the exact integrated commit and artifacts verify.
