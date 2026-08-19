@@ -112,6 +112,17 @@ jobs:
           CI=1 pnpm exec playwright test --config tests/ui/foundation/playwright.config.ts
           pnpm test:e2e
 
+      - name: Preserve browser failure evidence
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-browser-failure-${{ github.sha }}
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Assemble release artifacts and checksums
         run: |
           set -euo pipefail
