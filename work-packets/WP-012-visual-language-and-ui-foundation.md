@@ -25,6 +25,9 @@ The result must make it difficult for later agents to produce a generic “vibe-
 - [`designer/interface-content-and-production.md`](../designer/interface-content-and-production.md)
 - [`designer/world-and-actors.md`](../designer/world-and-actors.md)
 - [`designer/README.md`](../designer/README.md)
+- [`designer/art/stained_glass_character_prompt.md`](../designer/art/stained_glass_character_prompt.md)
+- [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md)
+- approved rival-lord identity masters under `assets/characters/`
 - Storybook/tooling baseline from WP-000
 
 ## Owned paths
@@ -189,7 +192,7 @@ Verify:
 - The raster map contract is semantic DOM over raster plate, never an SVG path map.
 - Foundation components do not import game simulation rules or mutate authoritative state.
 - Stories use fixtures/projections rather than constructing hidden game state.
-- No final art is fabricated by Codex; neutral placeholders are clearly replaceable.
+- No final art is fabricated by WP-012; approved character masters are real production identity references and neutral placeholders are clearly replaceable.
 - Do not optimize texture or ornament at the expense of scanability.
 
 ## Acceptance tests
@@ -245,3 +248,25 @@ Do not edit shared status or packet index.
 ## Completion handoff
 
 Document component exports, token names, raster asset contract, placeholder inventory, Storybook URLs/stories, visual risks and any integration changes WP-019 must make. State whether integration-ready.
+
+## Active character-master amendment — 2026-08-19
+
+Five approved full-body rival-lord masters now exist on `main`:
+
+- `assets/characters/edric.png`
+- `assets/characters/ysabel.png`
+- `assets/characters/renard.png`
+- `assets/characters/oswin.png`
+- `assets/characters/mara.png`
+
+These files are **canonical production identity masters**, not placeholders. WP-012 must use them in the lord-strip/portrait visual-language spike so the foundation is evaluated against the actual cast rather than generic silhouette art.
+
+WP-012 must also freeze portrait slot semantics for later packets:
+
+- `full`: existing approved full-body master; large showcase/event/ending contexts only;
+- `bust`: dedicated generated chest-up / upper-torso portrait, front-facing or near-front three-quarter;
+- `tight`: dedicated generated neck-up / head-and-shoulders portrait, front-facing or near-front three-quarter.
+
+Production `bust` and `tight` assets are **not mechanical crops of the side-facing full figure**. They will be generated in WP-034 from the canonical identity masters using [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md). WP-012 may temporarily crop or placeholder those slots only to prove layout dimensions, and must clearly mark the fixture as temporary.
+
+The close portrait contract intentionally increases stained-glass segmentation across faces/hair while preserving identity and readable anatomy. In small-size fixtures, preserve costume cues: Oswin must retain ecclesiastical language and Edric martial armor/mantle so the two older grey-haired men remain immediately distinguishable.
