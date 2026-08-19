@@ -5,7 +5,7 @@
 - **Branch/worktree:** `wp/WP-010-deterministic-simulation-kernel` / `petty-lord-wp010`
 - **Starting revision:** `5c154a87e899e924dc6c4f0395dad960b3367578`
 - **Ending revision:** `ccadf9a` (critic-reviewed production/tests/wiki)
-- **PR:** pending
+- **PR:** https://github.com/krishiv-ga/petty-lord/pull/2
 - **Status:** Ready for integration
 
 ## Scope
