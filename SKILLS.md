@@ -2,15 +2,15 @@
 
 Project-local Codex skills live under [`.codex/skills/`](./.codex/skills/). Invoke one explicitly with `$name`, or allow Codex to select it when the task matches its description.
 
-Skills are workflows, not permission to ignore the assigned work packet. `AGENTS.md`, the packet, and canonical design remain authoritative.
+Skills are workflows, not permission to ignore the assigned work packet. `AGENTS.md`, the packet, and canonical design remain authoritative. All repository execution uses `main` only; skills do not authorize packet, feature, integration, or PR branches.
 
 ## Core execution skills
 
 | Skill | Use it for | Primary output |
 |---|---|---|
-| [`$packet`](./.codex/skills/packet/SKILL.md) | Execute one indexed work packet end to end. | Focused implementation, tests, log, critic handoff. |
+| [`$packet`](./.codex/skills/packet/SKILL.md) | Execute one indexed work packet end to end directly on `main`. | Focused implementation, tests, log, critic handoff, `main` commit. |
 | [`$critic`](./.codex/skills/critic/SKILL.md) | Independently attack a significant diff or packet result. | Findings ranked by severity, adversarial evidence, critic log. |
-| [`$integrate`](./.codex/skills/integrate/SKILL.md) | Merge or reconcile two or more packet branches and open a fan-out gate. | Integrated branch, full checks, compacted wave log, updated index. |
+| [`$integrate`](./.codex/skills/integrate/SKILL.md) | Reconcile two or more packet results already on `main` and open a fan-out gate. | Integrated `main` revision, full checks, compacted wave log, updated index. |
 | [`$bugfix`](./.codex/skills/bugfix/SKILL.md) | Fix a concrete technical defect with a known or reproducible failure. | Minimal patch, regression test, bugfix log. |
 
 ## Game-design and balance skills
@@ -31,7 +31,7 @@ Skills are workflows, not permission to ignore the assigned work packet. `AGENTS
 
 ## Required combinations
 
-- Significant implementation: `$packet` → independent `$critic` → `$integrate` when shared seams or multiple branches are involved.
+- Significant implementation: `$packet` → independent `$critic` → `$integrate` when shared seams or multiple packet results are involved.
 - Gameplay defect: `$hunt`; use `$tune` only after the cause is established.
 - Locked-rule change: `$hunt` or test evidence → `$design-guard` → implementation packet.
 - Major UI packet: `$packet` + `$ui-audit` + critic.
