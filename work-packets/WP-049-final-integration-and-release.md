@@ -3,6 +3,7 @@
 - **Status:** Blocked
 - **Wave:** 4 integration / final
 - **Execution:** **Serial integration and release gate**
+- **Git target:** `main` only
 - **Depends on:** WP-040, WP-041, WP-042 and WP-043 ready for integration with critics complete
 - **May run with:** Nothing
 - **Must not run with:** Any unfinished packet
@@ -12,15 +13,19 @@
 - **Integrator:** This packet is the final integrator
 - **Release impact:** Owns `v1.0.0-rc.1` when warranted and `v1.0.0`
 
+## Git execution
+
+Run WP-049 directly on `main`. Do not create or merge packet, feature, integration, release-candidate, or PR branches. Review the Wave 4 packet commits/diffs already on `main`, reconcile final seams serially on `main`, and freeze the exact release revision there. Synchronize with `origin/main` before starting, before shared fixes/versioning, and before every tag/release action.
+
 ## Objective
 
 Integrate the final gameplay tuning, UI/accessibility polish, technical hardening and narrative/comprehension work; prove the complete game against design, determinism, usability and release requirements; publish a release candidate when useful; then publish the complete `v1.0.0` static browser game.
 
-This is the last authority for merge order, final regression, versioning, release artifacts, deployment verification, wiki/status/index closure and residual known issues.
+This is the last authority for integration order, final regression, versioning, release artifacts, deployment verification, wiki/status/index closure and residual known issues.
 
 ## Canonical inputs
 
-- every Wave 4 branch, PR, finding matrix, seed/replay, screenshot, trace and critic log;
+- every Wave 4 commit/diff on `main`, finding matrix, seed/replay, screenshot, trace and critic log;
 - all previous compacted logs and releases;
 - canonical `/designer` package plus accepted amendments;
 - [`AGENTS.md`](../AGENTS.md);
@@ -52,15 +57,15 @@ Do not add new major systems, broad dependencies, multiplayer/backend/mobile sco
 
 ### 1. Integrate Wave 4 from evidence
 
-For each incoming packet:
+For each incoming packet result on `main`:
 
-- inspect its exact diff and owned paths;
+- inspect its exact commit/diff and owned paths;
 - confirm every P0/P1 critic finding is resolved;
 - inspect gameplay before/after seeds, visual captures, technical regressions and copy inventory;
 - reconcile handoffs between packets rather than applying both sides blindly;
 - preserve tuning/copy/UI/technical ownership distinctions;
 - reject undocumented balance/rule drift;
-- merge in a deliberate order, normally technical correctness → balance/content → copy → UI polish, rerunning targeted gates after each seam.
+- reconcile in a deliberate order, normally technical correctness → balance/content → copy → UI polish, rerunning targeted gates after each seam.
 
 ### 2. Final design and documentation reconciliation
 
@@ -158,7 +163,7 @@ On clean clones/build artifacts:
 - verify IndexedDB save/resume and update path;
 - verify production debug/truth/test code is not exposed;
 - inspect bundle/asset sizes and unbounded logs;
-- run artifact—not worktree—smoke after packaging;
+- run artifact—not checkout—smoke after packaging;
 - verify source/release/build versions and content hash align.
 
 ### 7. Independent final critic
@@ -248,7 +253,7 @@ After release:
 
 ## Required evidence
 
-- integration and finding-disposition matrix;
+- `main` integration and finding-disposition matrix;
 - final design-diff audit;
 - deterministic/save/action/scenario hashes/results;
 - ten-run gameplay report with seeds/replays;
@@ -262,7 +267,7 @@ After release:
 
 ## Agent topology
 
-One final integrator owns merge order, shared fixes, version and release. Specialized read-only reviewers may run final gameplay hunt, UI audit and artifact verification in parallel once the candidate commit is frozen. One independent critic has veto over P0/P1 issues. Release execution begins only after evidence is complete.
+One final integrator owns reconciliation order, shared fixes, version and release. Specialized read-only reviewers may run final gameplay hunt, UI audit and artifact verification in parallel once the candidate `main` commit is frozen. One independent critic has veto over P0/P1 issues. Release execution begins only after evidence is complete.
 
 ## Logging
 
