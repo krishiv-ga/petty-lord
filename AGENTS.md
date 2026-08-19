@@ -98,6 +98,16 @@ No packet is complete without its logs.
 - Do not amend or rewrite commits owned by another packet.
 - Do not merge a packet that lacks acceptance-test evidence.
 
+### GitHub CLI availability
+
+GitHub CLI is available at the machine level. On the current Windows development machine it is installed at:
+
+`C:\Program Files\GitHub CLI\gh.exe`
+
+It is currently authenticated as `krishiv-ga` with `repo` and `workflow` access. Before a write-heavy GitHub operation, run `gh auth status` (or the absolute executable path when `gh` is not on `PATH`) to verify the session is still valid.
+
+Use the machine-level CLI directly for local repository/branch/PR discovery, GitHub Actions workflow dispatch/rerun/log inspection, release operations, and verification when that is the most reliable workflow. Do **not** install or vendor GitHub CLI as a project dependency merely to make it available to agents.
+
 ## 7. Deterministic simulation rules
 
 The game is deterministic and replayable.
@@ -141,6 +151,7 @@ The project must not look like a generic AI-generated SaaS dashboard.
 - The map is not an SVG. Use a raster map plate/background plus positioned semantic DOM hotspots and CSS/DOM overlays.
 - Placeholder icons must also be raster; do not temporarily ship vector icons and promise to replace them later.
 - No color-only status. Every state needs text, shape, texture, label, or raster icon reinforcement.
+- Ordinary confirm/commit actions are **not** danger actions. Do not encode generic confirmation with danger-red simply because a wax seal or heraldic accent is red. Reserve danger/destructive styling for genuinely destructive, hostile, irreversible-loss, or critical actions. A sealing/commit control should preserve visible separation between its seal and its surrounding surface, typically through parchment/surface fill plus an intentional outline/edge treatment rather than a red-filled container.
 - Respect keyboard navigation, reduced motion, WCAG AA contrast, minimum readable type, and visible focus.
 
 Use `$ui-audit` for any significant interface packet.
