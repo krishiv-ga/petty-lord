@@ -4,9 +4,9 @@
 - **Role:** Implementer
 - **Branch/worktree:** `wp/WP-010-deterministic-simulation-kernel` / `petty-lord-wp010`
 - **Starting revision:** `5c154a87e899e924dc6c4f0395dad960b3367578`
-- **Ending revision:** pending
+- **Ending revision:** `ccadf9a` (critic-reviewed production/tests/wiki)
 - **PR:** pending
-- **Status:** Ready for critic re-review
+- **Status:** Ready for integration
 
 ## Scope
 
@@ -105,11 +105,11 @@ Explicitly out of scope:
 ## Risks and deferred work
 
 - WP-019 must reconcile/freeze the generic kernel extension seams with WP-011 content schemas.
-- Initial critic verdict was Needs fixes; remediation is complete and awaits independent re-review.
+- Independent re-review at `ccadf9a` is clear with no remaining P0–P3 finding.
 
 ## Integration notes
 
 - Shared contracts touched: New packet-owned public indices under `src/sim/{kernel,state,random,serialization,testing}`; no root/shared barrel changed
 - Merge order constraints: Integrate with WP-011 and WP-012 only through WP-019
 - Follow-up packets: WP-019, then WP-020–WP-023
-- Integration-ready: No — independent critic and final standard gates remain
+- Integration-ready: Yes
