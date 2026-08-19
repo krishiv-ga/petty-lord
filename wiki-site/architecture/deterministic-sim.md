@@ -50,7 +50,8 @@ simulation is running and does not alter ordering or outcomes.
 
 `createKernelRegistry` combines independent `DomainModule` registrations. A module may register
 scheduled resolvers, initiative starters/cancellers, decision resolvers and debug handlers. Duplicate
-module IDs or handler keys fail immediately. Resolvers return explicit scheduling, cancellation,
+module IDs or handler keys fail immediately. Registration returns frozen, closure-backed read-only
+lookup views, so consumers cannot replace resolvers after a run begins. Resolvers return explicit scheduling, cancellation,
 decision, chronicle and consumer-effect outputs; they cannot replace kernel-owned time, scheduler,
 sequence, PRNG, diagnostic or version fields.
 
@@ -59,8 +60,10 @@ are non-empty and unique, and payloads are JSON-compatible. An invalid mandatory
 whole scheduler advance atomically instead of creating an unresolvable pause.
 
 The fake module at `src/sim/testing/fake-domain.ts` proves this seam without implementing game rules.
-WP-020–WP-023 should register real domains behind it rather than adding alternate clocks or direct
-resolution paths.
+The Wave 2 contract reserves `time.*`, `politics.*`, `war.*` and `knowledge.*` message kinds and
+disjoint state namespaces. Four representative consumers compile and register non-empty modules.
+WP-020–WP-023 should register real domains behind these seams rather than adding alternate clocks or
+direct resolution paths.
 
 ## Serialization and validation
 

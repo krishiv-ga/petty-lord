@@ -4,6 +4,9 @@ storybook-static/
 coverage/
 playwright-report/
 test-results/
+release-smoke/
+release-artifacts/
+release-verify/
 blob-report/
 *.tsbuildinfo
 wiki-site/.vitepress/cache/

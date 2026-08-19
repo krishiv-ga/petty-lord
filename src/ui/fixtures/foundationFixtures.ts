@@ -37,7 +37,7 @@ export const lordStripFixtures: readonly LordStripFixture[] = [
   {
     id: 'greyfen',
     name: lordName('greyfen'),
-    title: `${lordTitle('greyfen')} · Player seat · Keeper of the Fen Roads`,
+    title: 'Player seat · Keeper of the Fen Roads',
     relationship: 'Self · exact knowledge',
     support: 'none',
     visibility: 'public',

@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:sim": "vitest run --config vitest.sim.config.ts",
     "test:e2e": "playwright test",
+    "test:release-smoke": "playwright test --config playwright.release.config.ts",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
     "wiki:dev": "vitepress dev wiki-site",

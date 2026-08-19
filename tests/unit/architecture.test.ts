@@ -17,11 +17,66 @@ const importsFrom = (rootSegment: string): string[] =>
   sourceFiles.filter((file) => file.includes(`${path.sep}${rootSegment}${path.sep}`));
 const text = (file: string): string => readFileSync(file, 'utf8');
 
+const importSpecifiers = (file: string): string[] => {
+  const source = text(file);
+  const patterns = [
+    /\b(?:import|export)\s+(?:type\s+)?(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/g,
+    /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+  ];
+  return patterns.flatMap((pattern) =>
+    [...source.matchAll(pattern)].map((match) => match[1] ?? ''),
+  );
+};
+
+const resolveSourceImport = (from: string, specifier: string): string | null => {
+  const aliases: Record<string, string> = {
+    '@app/': 'app/',
+    '@assets/': 'assets/',
+    '@content/': 'content/',
+    '@contracts/': 'contracts/',
+    '@sim/': 'sim/',
+    '@ui/': 'ui/',
+  };
+  const alias = Object.entries(aliases).find(([prefix]) => specifier.startsWith(prefix));
+  const base = specifier.startsWith('.')
+    ? path.resolve(path.dirname(from), specifier)
+    : alias
+      ? path.resolve(sourceRoot, alias[1], specifier.slice(alias[0].length))
+      : null;
+  if (!base) return null;
+  for (const candidate of [base, `${base}.ts`, `${base}.tsx`, path.join(base, 'index.ts')]) {
+    if (existsSync(candidate) && statSync(candidate).isFile()) return candidate;
+  }
+  return null;
+};
+
+const transitiveSourceDependencies = (roots: readonly string[]): string[] => {
+  const visited = new Set<string>();
+  const queue = [...roots];
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current || visited.has(current)) continue;
+    visited.add(current);
+    for (const specifier of importSpecifiers(current)) {
+      const resolved = resolveSourceImport(current, specifier);
+      if (resolved && !visited.has(resolved)) queue.push(resolved);
+    }
+  }
+  return [...visited];
+};
+
 describe('integrated architecture boundaries', () => {
   it('keeps simulation free of browser, UI, app, content and asset dependencies', () => {
-    const forbidden =
-      /from\s+['"][^'"]*(react|zustand|@ui|@app|@content|@assets|\/ui\/|\/app\/|\/content\/|\/assets\/)|\b(Math\.random|Date\.now|setTimeout|requestAnimationFrame|performance\.now)\b/;
-    expect(importsFrom('sim').filter((file) => forbidden.test(text(file)))).toEqual([]);
+    const simFiles = importsFrom('sim');
+    const dependencies = transitiveSourceDependencies(simFiles);
+    expect(
+      dependencies.filter((file) =>
+        /[\\/](app|assets|content|ui)[\\/]/.test(path.relative(sourceRoot, file)),
+      ),
+    ).toEqual([]);
+    const browserOrNondeterminism =
+      /\b(Math\.random|Date\.now|window|document|localStorage|sessionStorage|indexedDB|fetch|XMLHttpRequest|WebSocket|setTimeout|setInterval|requestAnimationFrame|performance\.now|crypto\.getRandomValues)\b/;
+    expect(simFiles.filter((file) => browserOrNondeterminism.test(text(file)))).toEqual([]);
   });
 
   it('keeps authored content declarative and independent from behavior/presentation', () => {
@@ -58,6 +113,7 @@ describe('integrated architecture boundaries', () => {
     for (const entry of [
       'src/contracts/assets.ts',
       'src/contracts/content.ts',
+      'src/contracts/domains.ts',
       'src/contracts/ids.ts',
       'src/contracts/projection.ts',
       'src/contracts/simulation.ts',
@@ -65,5 +121,12 @@ describe('integrated architecture boundaries', () => {
     ]) {
       expect(existsSync(entry), entry).toBe(true);
     }
+    const narrowConsumers = filesUnder(path.resolve('tests/unit/wave2-consumers')).filter((file) =>
+      file.endsWith('.ts'),
+    );
+    expect(narrowConsumers).toHaveLength(4);
+    expect(
+      narrowConsumers.filter((file) => importSpecifiers(file).includes('@contracts/index')),
+    ).toEqual([]);
   });
 });

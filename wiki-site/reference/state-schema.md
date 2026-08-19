@@ -64,7 +64,8 @@ interface FoundationCompatibility {
 ```
 
 The foundation checkpoint values are build `0.1.0-alpha.1`, content schema `1`, save schema `1` and
-content hash `fnv1a64-74442a9f99aadb91`. Import validates all four. Build mismatch returns
+content hash `fnv1a64-71139efd89443029`. Import validates all four plus the mirrored content fields in
+deterministic metadata. Build mismatch returns
 `BUILD_MISMATCH`; missing or different content compatibility returns `INVALID_STATE` with an exact
 field path.
 
@@ -76,9 +77,11 @@ The version-1 envelope includes conservative JSON-compatible placeholders for:
 - `church`, `agreements`, `orders` and `aiIntents`;
 - `secrets`, `knowledge` and optional `ending`.
 
-These remain conservative JSON-compatible extension points. WP-020–WP-023 supply their system-owned
-state through `FoundationDomainExtensions` and registered modules; none may replace kernel-owned
-ordering, compatibility or save fields.
+`FoundationDomainExtensions.systems` additionally reserves disjoint `time`, `politics`, `war` and
+`knowledge` namespaces. WP-020–WP-023 specialize only their owned namespace and register namespaced
+handlers; none may replace kernel-owned ordering, compatibility or save fields. Authoritative support
+never stores `under-duress` as a separate vote level: it stores `pledged` plus coercion basis and
+explicit leverage/visibility metadata.
 
 ## Import and migration seam
 

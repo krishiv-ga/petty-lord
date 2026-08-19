@@ -6,9 +6,9 @@ A real-time-with-pause political strategy game for desktop browsers. One in-game
 
 ## Current repository state
 
-The complete game design is locked, and WP-019 has integrated the deterministic kernel, canonical
-content registry and authored UI foundation behind frozen shared contracts. **Wave 2 is open:**
-WP-020, WP-021, WP-022 and WP-023 may run concurrently in separate branches/worktrees. Use
+The complete game design is locked. WP-019 has assembled the deterministic kernel, canonical content
+registry and authored UI foundation behind shared contracts, but **Wave 2 remains closed until the
+integration critic clears the candidate and the foundation release is verified**. Use
 [`logs/STATUS.md`](./logs/STATUS.md) for the authoritative gate.
 
 See [`work-packets/INDEX.md`](./work-packets/INDEX.md) for the full dependency graph and exact fan-out/serialization gates.
@@ -60,7 +60,7 @@ The maintained wiki lives under `wiki-site/`; its command and architecture docum
 
 ```text
 WP-000 serialized bootstrap
-  → integrated Wave 1 foundation at WP-019 / v0.1.0-alpha.1
+  → pending Wave 1 foundation integration at WP-019 / v0.1.0-alpha.1
   → Wave 2: time/economy | politics/succession | war/capital | AI/knowledge/events
   → serialized complete headless-game integration/release
   → Wave 3: raster map | political UI | operational shell/save | forecast/endings | raster assets

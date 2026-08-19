@@ -141,11 +141,11 @@ export interface DomainModule<E extends DomainExtensions> {
 }
 
 export interface KernelRegistry<E extends DomainExtensions> {
-  debugHandlers: Map<string, DebugHandler<E>>;
-  decisionResolvers: Map<string, DecisionResolver<E>>;
-  initiativeCancellers: Map<string, InitiativeCanceller<E>>;
-  initiativeStarters: Map<string, InitiativeStarter<E>>;
-  scheduledResolvers: Map<string, ScheduledResolver<E>>;
+  readonly debugHandlers: ReadonlyMap<string, DebugHandler<E>>;
+  readonly decisionResolvers: ReadonlyMap<string, DecisionResolver<E>>;
+  readonly initiativeCancellers: ReadonlyMap<string, InitiativeCanceller<E>>;
+  readonly initiativeStarters: ReadonlyMap<string, InitiativeStarter<E>>;
+  readonly scheduledResolvers: ReadonlyMap<string, ScheduledResolver<E>>;
 }
 
 export interface KernelErrorDetail {

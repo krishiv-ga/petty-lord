@@ -22,14 +22,14 @@ The immutable registry contains:
 | Openings / events | 4 / 16 | Seeded openings and four mandatory plus twelve ambient events |
 | Shocks / Church states | 19 / 5 | Timed inertia inputs, secret-specific selectors and institutional stance bands |
 | Endings | 6 | Route labels and reconstruction keys |
-| Raster asset slots | 81 | Portrait, crest, map, icon, seal, texture, letter and ending contracts |
+| Raster asset slots | 96 | Portrait, semantic character composition, crest, map, icon, seal, texture, letter and ending contracts |
 
 The text catalog is built separately from semantic keys. Each entry has a role, representative default
 copy and maximum length. Final prose may change in WP-043 without changing save-safe entity IDs.
 
 ## Stable IDs
 
-Entity IDs use lowercase kebab-case. Uniqueness is category-scoped because typed domains deliberately
+Entity IDs are frozen in `src/contracts/ids.ts` and use lowercase kebab-case. Uniqueness is category-scoped because typed domains deliberately
 share canonical names such as lord `greyfen` and territory `greyfen`. Display strings and translation
 keys are never used as IDs. Text keys use lowercase dot/kebab segments.
 

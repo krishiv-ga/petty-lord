@@ -47,7 +47,8 @@ technology receives one unambiguous control name.
 
 ## Character portrait slots
 
-`characterPortraits` freezes three distinct slots for each approved rival identity:
+`characterPortraits` defines three distinct slots for each approved rival identity. WP-019's manifest
+deep-clones, validates and freezes each asset and density source against a distinct canonical content slot:
 
 - `full` is the untouched canonical full-body master and is reserved for large showcase, event and
   ending contexts;

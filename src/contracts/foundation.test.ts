@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { exportState } from '../sim/serialization';
 import { createFoundationRasterManifest, resolveFoundationRasterAsset } from './assets';
 import { canonicalGameContent, validateGameContent } from './content';
+import { isValidSupportRecord } from './domains';
 import { projectFoundationContent } from './projection';
 import type { DomainModule } from './simulation';
 import { advanceScheduler, createKernelRegistry, DAWN_PRIORITY, scheduleItem } from './simulation';
@@ -63,6 +64,21 @@ describe('Wave 2 foundation contracts', () => {
       expect(rejected.error.issues).toContainEqual({
         message: `must equal ${canonicalGameContent.contentHash}`,
         path: '$.compatibility.contentHash',
+      });
+    }
+
+    const mirrored = JSON.parse(serialized) as {
+      metadata: { values: { contentHash: string } };
+    };
+    mirrored.metadata.values.contentHash = 'fnv1a64-0000000000000000';
+    const rejectedMirror = importFoundationGameState(JSON.stringify(mirrored), {
+      content: canonicalGameContent,
+    });
+    expect(rejectedMirror.ok).toBe(false);
+    if (!rejectedMirror.ok) {
+      expect(rejectedMirror.error.issues).toContainEqual({
+        message: `must equal ${canonicalGameContent.contentHash}`,
+        path: '$.metadata.values.contentHash',
       });
     }
   });
@@ -127,6 +143,14 @@ describe('Wave 2 foundation contracts', () => {
     expect(manifest['character.edric.full'].status).toBe('production-master');
     expect(manifest['character.edric.bust'].status).toBe('temporary-master-crop');
     expect(manifest['character.edric.tight'].asset.placeholder).toBe(true);
+    expect(manifest['character.edric.full'].contentSlotId).toBe('character-edric-full');
+    expect(manifest['character.edric.bust'].contentSlotId).toBe('character-edric-bust');
+    expect(manifest['character.edric.tight'].contentSlotId).toBe('character-edric-tight');
+    expect(Object.isFrozen(manifest['character.edric.full'].asset.sources)).toBe(true);
+    expect(() => {
+      (manifest['character.edric.full'].asset.sources[0] as { src: string }).src =
+        'data:image/svg+xml,<svg/>';
+    }).toThrow();
 
     const missing = resolveFoundationRasterAsset(manifest, 'character.greyfen.bust');
     expect(missing).toMatchObject({
@@ -134,5 +158,32 @@ describe('Wave 2 foundation contracts', () => {
       asset: { id: 'fixture-missing-raster', placeholder: true },
       warning: 'Missing raster manifest entry: character.greyfen.bust',
     });
+  });
+
+  it('prevents resolver replacement after registration', () => {
+    const registry = createKernelRegistry<FoundationDomainExtensions>([]);
+    expect(Object.isFrozen(registry)).toBe(true);
+    expect(Object.isFrozen(registry.scheduledResolvers)).toBe(true);
+    expect('set' in registry.scheduledResolvers).toBe(false);
+    expect(() => {
+      (registry.scheduledResolvers as Map<string, unknown>).set('time.dawn', () => undefined);
+    }).toThrow();
+  });
+
+  it('represents under duress as pledged coercion metadata, not a vote level', () => {
+    expect(
+      isValidSupportRecord({
+        basis: 'coercion',
+        duress: { leverageId: 'secret-1', visibility: 'private' },
+        level: 'pledged',
+      }),
+    ).toBe(true);
+    expect(
+      isValidSupportRecord({
+        basis: 'bargain',
+        duress: { leverageId: 'secret-1', visibility: 'public' },
+        level: 'committed',
+      }),
+    ).toBe(false);
   });
 });

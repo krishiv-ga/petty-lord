@@ -62,6 +62,25 @@ const portraits = ['greyfen', 'edric', 'ysabel', 'renard', 'oswin', 'mara'].map(
   }),
 );
 
+const characterPortraits = ['edric', 'ysabel', 'renard', 'oswin', 'mara'].flatMap((id) => {
+  const fullSize = id === 'oswin' ? ([1086, 1448] as const) : ([1024, 1536] as const);
+  return [
+    slot(`character-${id}-full`, 'portrait', 'fallback-portrait', {
+      densities: [1],
+      logicalHeight: fullSize[1],
+      logicalWidth: fullSize[0],
+    }),
+    slot(`character-${id}-bust`, 'portrait', 'fallback-portrait', {
+      logicalHeight: 80,
+      logicalWidth: 80,
+    }),
+    slot(`character-${id}-tight`, 'portrait', 'fallback-portrait', {
+      logicalHeight: 64,
+      logicalWidth: 64,
+    }),
+  ];
+});
+
 const kingPortraits = ['stable', 'ailing', 'gravely-ill', 'deathbed'].map((id) =>
   slot(`portrait-king-${id}`, 'portrait', 'fallback-portrait', {
     logicalWidth: 180,
@@ -219,6 +238,7 @@ const titleSlots = [
 export const assets: AssetSlot[] = [
   ...fallbacks,
   ...portraits,
+  ...characterPortraits,
   ...kingPortraits,
   ...crests,
   ...territoryEmblems,

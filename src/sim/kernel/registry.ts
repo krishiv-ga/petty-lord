@@ -14,10 +14,29 @@ function registerUnique<T>(
   }
 }
 
+function readonlyMap<K, V>(source: Map<K, V>): ReadonlyMap<K, V> {
+  const view: ReadonlyMap<K, V> = {
+    get size() {
+      return source.size;
+    },
+    entries: () => source.entries(),
+    forEach: (callback, thisArg) =>
+      source.forEach((value, key) => {
+        callback.call(thisArg, value, key, view);
+      }),
+    get: (key) => source.get(key),
+    has: (key) => source.has(key),
+    keys: () => source.keys(),
+    values: () => source.values(),
+    [Symbol.iterator]: () => source[Symbol.iterator](),
+  };
+  return Object.freeze(view);
+}
+
 export function createKernelRegistry<E extends DomainExtensions>(
   modules: readonly DomainModule<E>[],
 ): KernelRegistry<E> {
-  const registry: KernelRegistry<E> = {
+  const mutable = {
     debugHandlers: new Map(),
     decisionResolvers: new Map(),
     initiativeCancellers: new Map(),
@@ -30,23 +49,29 @@ export function createKernelRegistry<E extends DomainExtensions>(
       throw new Error(`Duplicate domain module id ${module.id}`);
     }
     moduleIds.add(module.id);
-    registerUnique(registry.debugHandlers, module.debugHandlers ?? {}, 'debug handler');
-    registerUnique(registry.decisionResolvers, module.decisionResolvers ?? {}, 'decision resolver');
+    registerUnique(mutable.debugHandlers, module.debugHandlers ?? {}, 'debug handler');
+    registerUnique(mutable.decisionResolvers, module.decisionResolvers ?? {}, 'decision resolver');
     registerUnique(
-      registry.initiativeCancellers,
+      mutable.initiativeCancellers,
       module.initiativeCancellers ?? {},
       'initiative canceller',
     );
     registerUnique(
-      registry.initiativeStarters,
+      mutable.initiativeStarters,
       module.initiativeStarters ?? {},
       'initiative starter',
     );
     registerUnique(
-      registry.scheduledResolvers,
+      mutable.scheduledResolvers,
       module.scheduledResolvers ?? {},
       'scheduled resolver',
     );
   }
-  return registry;
+  return Object.freeze({
+    debugHandlers: readonlyMap(mutable.debugHandlers),
+    decisionResolvers: readonlyMap(mutable.decisionResolvers),
+    initiativeCancellers: readonlyMap(mutable.initiativeCancellers),
+    initiativeStarters: readonlyMap(mutable.initiativeStarters),
+    scheduledResolvers: readonlyMap(mutable.scheduledResolvers),
+  });
 }

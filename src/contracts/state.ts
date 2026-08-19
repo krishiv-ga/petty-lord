@@ -1,11 +1,13 @@
+import packageMetadata from '../../package.json';
 import type { ImportResult, ValidationFailure } from '../sim/serialization';
 import { importState } from '../sim/serialization';
 import type { DomainExtensions, GameState } from '../sim/state';
 import { CURRENT_KERNEL_SCHEMA_VERSION, createGameState } from '../sim/state';
 import type { GameContent } from './content';
 import { requireGameContent } from './content';
+import type { FoundationSystemNamespaces } from './domains';
 
-export const FOUNDATION_BUILD_VERSION = '0.1.0-alpha.1';
+export const FOUNDATION_BUILD_VERSION = packageMetadata.version;
 export const FOUNDATION_SAVE_SCHEMA_VERSION = CURRENT_KERNEL_SCHEMA_VERSION;
 
 export interface FoundationCompatibility {
@@ -17,6 +19,7 @@ export interface FoundationCompatibility {
 
 export interface FoundationDomainExtensions extends DomainExtensions {
   compatibility: FoundationCompatibility;
+  systems: FoundationSystemNamespaces;
 }
 
 export type FoundationGameState = GameState<FoundationDomainExtensions>;
@@ -46,6 +49,12 @@ export function createFoundationGameState(
       contentHash: content.contentHash,
       contentSchemaVersion: content.schemaVersion,
       saveSchemaVersion: FOUNDATION_SAVE_SCHEMA_VERSION,
+    },
+    systems: {
+      knowledge: {},
+      politics: {},
+      time: {},
+      war: {},
     },
     metadata: {
       createdBy: 'petty-lord-foundation',
@@ -79,7 +88,7 @@ function compatibilityIssues(
     saveSchemaVersion: FOUNDATION_SAVE_SCHEMA_VERSION,
   } as const;
 
-  return Object.entries(expected).flatMap(([key, expectedValue]) =>
+  const issues = Object.entries(expected).flatMap(([key, expectedValue]) =>
     metadata[key] === expectedValue
       ? []
       : [
@@ -89,6 +98,25 @@ function compatibilityIssues(
           },
         ],
   );
+  const mirrored = state.metadata;
+  if (mirrored === null || typeof mirrored !== 'object' || Array.isArray(mirrored)) {
+    return [...issues, { message: 'metadata is required', path: '$.metadata' }];
+  }
+  const values = (mirrored as Record<string, unknown>).values;
+  if (values === null || typeof values !== 'object' || Array.isArray(values)) {
+    return [...issues, { message: 'metadata values are required', path: '$.metadata.values' }];
+  }
+  const metadataValues = values as Record<string, unknown>;
+  for (const key of ['contentHash', 'contentSchemaVersion'] as const) {
+    const expectedValue = expected[key];
+    if (metadataValues[key] !== expectedValue) {
+      issues.push({
+        message: `must equal ${String(expectedValue)}`,
+        path: `$.metadata.values.${key}`,
+      });
+    }
+  }
+  return issues;
 }
 
 export function importFoundationGameState(

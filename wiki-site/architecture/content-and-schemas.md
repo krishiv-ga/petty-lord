@@ -9,7 +9,7 @@ arbitrary behavior closures.
 
 The modules form one acyclic pipeline:
 
-1. `ids.ts` defines category-scoped, lowercase-kebab stable IDs.
+1. `src/contracts/ids.ts` defines category-scoped, lowercase-kebab stable IDs; content imports them.
 2. `schemas.ts` composes small Zod schemas for the authored boundary.
 3. `world.ts`, `actions.ts`, `rules.ts`, `narrative.ts` and `assets.ts` contain data only.
 4. `pack.ts` assembles the raw pack and its separate text catalog.
@@ -42,7 +42,7 @@ Successful loading produces a recursively frozen registry plus a deterministic `
 hash. The hash uses stable object-key ordering and authored array order, so it is suitable for save and
 build diagnostics. It is not a security signature.
 
-The foundation checkpoint hash is `fnv1a64-74442a9f99aadb91`. Saves record it in their compatibility
+The foundation checkpoint hash is `fnv1a64-71139efd89443029`. Saves record it in their compatibility
 metadata. A changed registry must produce a new hash and either a compatible migration/policy or an
 explicit import failure; consumers may not silently substitute different authored data.
 
