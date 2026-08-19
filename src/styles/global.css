@@ -1,0 +1,47 @@
+:root {
+  color: #241b16;
+  background: #291f18;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --ink: #241b16;
+  --ink-soft: #4b392e;
+  --ink-muted: #755c49;
+  --vellum: #e7d4ac;
+  --burgundy: #6f1f2b;
+  --focus: #0f6573;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: #291f18;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(rgb(28 20 15 / 55%), rgb(28 20 15 / 92%)),
+    repeating-linear-gradient(90deg, #49362a 0 1px, #34261e 1px 5px);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}

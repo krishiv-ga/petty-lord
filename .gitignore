@@ -1,0 +1,12 @@
+node_modules/
+dist/
+storybook-static/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+*.tsbuildinfo
+wiki-site/.vitepress/cache/
+wiki-site/.vitepress/dist/
+.DS_Store
+Thumbs.db
