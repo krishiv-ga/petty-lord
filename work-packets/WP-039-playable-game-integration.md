@@ -3,6 +3,7 @@
 - **Status:** Blocked
 - **Wave:** 3 integration
 - **Execution:** **Serial integration gate**
+- **Git target:** `main` only
 - **Depends on:** WP-030, WP-031, WP-032, WP-033 and WP-034 ready for integration with critics complete
 - **May run with:** Nothing
 - **Must not run with:** Any Wave 4 packet
@@ -12,6 +13,10 @@
 - **Integrator:** This packet is the mandatory playable-game integrator
 - **Release impact:** Owns `v0.3.0-beta.1`
 
+## Git execution
+
+Run WP-039 directly on `main`. Do not create or merge packet, feature, integration, or PR branches. Review the Wave 3 packet commits/diffs already on `main`, reconcile global UI/application seams serially on `main`, and freeze the resulting `main` revision. Synchronize with `origin/main` before starting, before shared fixes, and before final beta/release work.
+
 ## Objective
 
 Integrate the complete headless game, application shell, raster map, political/action interface, forecast/onboarding/ending and production raster asset pack into one browser game that a new player can start, understand, play through, lose or win, inspect, resume and replay.
@@ -20,7 +25,7 @@ This packet owns global composition and seams. Do not fragment layout integratio
 
 ## Canonical inputs
 
-- all Wave 3 branches, PRs, screenshots, logs, audits and critic dispositions;
+- all Wave 3 commits/diffs on `main`, screenshots, logs, audits and critic dispositions;
 - frozen simulation/projection/save/ending/asset contracts from WP-029;
 - canonical design package;
 - [`TECH_STACK.md`](../TECH_STACK.md);
@@ -48,9 +53,9 @@ Do not change canonical gameplay/balance rules without `$design-guard` and evide
 
 ## Deliverables
 
-### 1. Integrate feature branches from evidence
+### 1. Integrate feature work from evidence
 
-For every incoming packet:
+For every incoming packet result on `main`:
 
 - confirm owned-path discipline;
 - review implementer/auditor/critic logs;
@@ -60,7 +65,7 @@ For every incoming packet:
 - inventory callbacks/contracts and shared layout assumptions;
 - validate WP-034 production pack and regeneration closure.
 
-Merge feature branches into one integration branch and resolve semantic—not merely textual—conflicts.
+Reconcile feature work already committed on `main` into one coherent playable revision and resolve semantic—not merely textual—conflicts. Shared seam edits remain serialized under WP-039 ownership.
 
 ### 2. Global screen composition
 
@@ -241,7 +246,7 @@ Freeze for polish:
 
 ## Required evidence
 
-- branch integration map and finding matrix;
+- `main` integration map and finding matrix;
 - integrated screenshots before/after audit;
 - full browser run traces/videos/screenshots;
 - save/reload state hashes;
@@ -253,7 +258,7 @@ Freeze for polish:
 
 ## Agent topology
 
-One integrator owns global composition and cross-feature callbacks. Original implementers may make targeted packet-local fixes under coordination.
+One integrator owns global composition and cross-feature callbacks. Original implementers may make targeted packet-local fixes under coordination on `main`.
 
 Use an integrated UI auditor and a separate independent critic/playtester. A release specialist acts only after all blockers clear.
 
@@ -270,4 +275,4 @@ Create:
 
 ## Completion handoff
 
-State beta URL/tag/SHA, integrated screen/command/save/asset contracts, reproducible Wave 4 findings/seeds, and exact legal parallel polish packets. Open the final fan-out gate only in the committed status/index update.
+State beta URL/tag/SHA, integrated screen/command/save/asset contracts, reproducible Wave 4 findings/seeds, and exact legal parallel polish packets. Open the final fan-out gate only in the committed `main` status/index update.
