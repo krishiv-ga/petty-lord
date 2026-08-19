@@ -238,3 +238,65 @@ Create:
 ## Completion handoff
 
 Document pack version/hash, manifest API, production/placeholder status, map dimensions, size report, regeneration status and feature-screen integration notes. State integration readiness.
+
+## Active character-generation amendment — 2026-08-19
+
+**This section supersedes any conflicting statement above that WP-034/Codex may not use ImageGen or may only mechanically crop supplied character art.** Codex still must not build custom generation infrastructure or independently redesign characters; however, the approved ImageGen skill/tool is now part of the intended art workflow for **reference-based character variants**.
+
+### Canonical rival-lord masters already approved
+
+The following files on `main` are locked identity masters:
+
+- `assets/characters/edric.png`
+- `assets/characters/ysabel.png`
+- `assets/characters/renard.png`
+- `assets/characters/oswin.png`
+- `assets/characters/mara.png`
+
+They are production assets and the identity/style source of truth for those five lords. Preserve them non-destructively.
+
+### Mandatory portrait family
+
+For each rival, the production manifest must expose:
+
+- `character.<lord>.full` — existing approved full-body master/optimized derivative;
+- `character.<lord>.bust` — **new generated** chest-up / upper-torso portrait;
+- `character.<lord>.tight` — **new generated** neck-up / head-and-shoulders portrait.
+
+The `bust` and `tight` assets must be front-facing or near-front three-quarter compositions and must **not** be satisfied by mechanically cropping the current side-facing full figure in the release pack.
+
+Use [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md) verbatim as the shared generation grammar, plus its character-specific block. Supply the corresponding `assets/characters/<lord>.png` to the ImageGen skill/tool as the identity reference for every generated variant.
+
+Close portraits should deliberately push the visible stained-glass/faceted construction harder across faces and hair than the current full-body art while keeping facial anatomy attractive and immediately recognizable.
+
+### ImageGen workflow
+
+WP-034 is authorized to:
+
+1. invoke the available ImageGen skill/tool for these derivative slots;
+2. generate one lord/slot at a time from the canonical master;
+3. reject/regenerate identity drift rather than repairing faces with code or paint scripts;
+4. retain prompt/provenance/reference mapping in the asset inventory;
+5. generate an additional character composition later **only if a named UI/narrative slot proves necessary**.
+
+WP-034 is not authorized to:
+
+- regenerate the five approved full-body masters merely to standardize them;
+- generate speculative emotion/state variants with no consumer;
+- use another lord as identity reference;
+- vectorize, trace or runtime-rasterize character art;
+- create a home-grown image generation pipeline.
+
+If ImageGen is unavailable to the executing agent, the exact generation prompt, reference path and slot become a blocking regeneration request rather than permission to ship a cropped or generic replacement.
+
+### Consumption and QA
+
+Expected default use:
+
+- `full`: major character showcase, selected large event/ending composition where space justifies it;
+- `bust`: lord rail at generous sizes, inspector identity header, political/action conversations, onboarding character introductions;
+- `tight`: succession forecast, chronicle/list contexts and other compact identity uses.
+
+Actual-size contact sheets must include all three variants for all five lords. Run explicit small/grayscale confusion review for Edric versus Oswin: Oswin's close portraits retain ecclesiastical cues; Edric's retain armor/martial mantle cues.
+
+Any future required version of an established character should follow the same reference-based generation method rather than assuming the side-facing full-body art can be cropped into every composition.
