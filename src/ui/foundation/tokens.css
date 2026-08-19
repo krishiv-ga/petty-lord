@@ -1,0 +1,100 @@
+@font-face {
+  font-family: "PL Cormorant Garamond";
+  src: url("./fonts/cormorant-garamond-latin-wght-normal.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PL Source Serif 4";
+  src: url("./fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PL Source Serif 4";
+  src: url("./fonts/source-serif-4-latin-wght-italic.woff2") format("woff2-variations");
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --pl-vellum-bright: #f3e6c7;
+  --pl-vellum: #dfc99a;
+  --pl-vellum-shadow: #bda272;
+  --pl-ink: #211814;
+  --pl-ink-soft: #49372c;
+  --pl-smoke: #514b44;
+  --pl-smoke-deep: #2b2927;
+  --pl-brass: #8b6a2f;
+  --pl-iron: #484744;
+  --pl-burgundy: #6f1f2b;
+  --pl-burgundy-deep: #42141c;
+  --pl-bluegreen: #496d68;
+  --pl-warning: #8e2e24;
+  --pl-church-gold: #9a741d;
+  --pl-ash: #969087;
+  --pl-private: #5d4a75;
+  --pl-occupied: #6b3927;
+  --pl-focus: #0b6172;
+  --pl-focus-contrast: #f8edcf;
+
+  --pl-font-display: "PL Cormorant Garamond", Georgia, "Palatino Linotype", Palatino, serif;
+  --pl-font-body: "PL Source Serif 4", "Palatino Linotype", Palatino, Georgia, serif;
+  --pl-font-ledger: "PL Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --pl-space-quill: 0.25rem;
+  --pl-space-seal: 0.5rem;
+  --pl-space-ribbon: 0.75rem;
+  --pl-space-letter: 1rem;
+  --pl-space-ledger: 1.5rem;
+  --pl-space-dais: 2rem;
+
+  --pl-edge-hairline: 1px solid rgb(73 55 44 / 52%);
+  --pl-edge-inked: 2px solid var(--pl-ink-soft);
+  --pl-edge-brass: 3px double var(--pl-brass);
+  --pl-shadow-letter: 0 0.8rem 1.8rem rgb(22 14 9 / 28%);
+  --pl-shadow-raised: 0 0.25rem 0.7rem rgb(22 14 9 / 25%);
+  --pl-focus-ring: 3px solid var(--pl-focus);
+
+  --pl-motion-quick: 120ms;
+  --pl-motion-letter: 220ms;
+  --pl-density-y: 1;
+  --pl-frame-gutter: clamp(0.75rem, 1.8vw, 1.5rem);
+}
+
+@media (min-width: 1440px) and (min-height: 850px) {
+  :root {
+    --pl-density-y: 1.12;
+    --pl-frame-gutter: 1.75rem;
+  }
+}
+
+@media (max-height: 760px) {
+  :root {
+    --pl-density-y: 0.82;
+    --pl-frame-gutter: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pl-motion-quick: 0.01ms;
+    --pl-motion-letter: 0.01ms;
+  }
+}
+
+@media (forced-colors: active) {
+  :root {
+    --pl-focus: Highlight;
+    --pl-focus-contrast: HighlightText;
+    --pl-edge-hairline: 1px solid CanvasText;
+    --pl-edge-inked: 2px solid CanvasText;
+    --pl-edge-brass: 3px double CanvasText;
+  }
+}
