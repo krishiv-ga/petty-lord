@@ -10,7 +10,9 @@ export default defineConfig({
   testMatch: 'foundation.spec.ts',
   outputDir: path.join(repositoryRoot, 'test-results/wp-012-foundation'),
   snapshotDir: path.join(currentDirectory, 'baselines'),
-  snapshotPathTemplate: '{snapshotDir}/{arg}{ext}',
+  // Text rendering differs by operating system, so visual evidence must never
+  // compare a Linux capture against a Windows-authored baseline.
+  snapshotPathTemplate: '{snapshotDir}/{platform}/{arg}{ext}',
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,

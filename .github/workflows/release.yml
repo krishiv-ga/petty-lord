@@ -104,13 +104,31 @@ jobs:
           pnpm build:storybook
           pnpm wiki:check
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install chromium
 
       - name: Run browser smoke
         run: |
           CI=1 pnpm exec playwright test --config tests/ui/foundation/playwright.config.ts
           pnpm test:e2e
+
+      - name: Preserve browser failure evidence
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-browser-failure-${{ github.sha }}
+          path: |
+            test-results/
+            playwright-report/
+            tests/ui/foundation/baselines/linux/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Assemble release artifacts and checksums
         run: |
