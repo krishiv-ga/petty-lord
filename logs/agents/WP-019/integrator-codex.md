@@ -4,9 +4,9 @@
 - **Role:** Integrator
 - **Branch/worktree:** `wp/WP-019-foundation-integration` / `petty-lord-wp019`
 - **Starting revision:** `8a213c56abf33c066fa0545d32c3ef486cd5b944`
-- **Ending revision:** pending
-- **PR:** pending
-- **Status:** Remediated — ready for critic re-review
+- **Ending revision:** `4fb1fb4a64f3817b4e2b8c1fe0c6e55fc8068af2` reviewed production candidate; evidence commit follows
+- **PR:** https://github.com/krishiv-ga/petty-lord/pull/4
+- **Status:** Critic-cleared — ready to merge and release
 
 ## Scope
 
@@ -110,5 +110,5 @@ Explicitly out of scope:
   `@contracts/*` alias, application smoke projection and release version metadata
 - Merge order constraints: WP-010 → WP-011 → WP-012 → seam reconciliation
 - Follow-up packets: WP-020, WP-021, WP-022, WP-023 after the gate is formally opened
-- Integration-ready: No — same independent critic re-review, release publication/verification and
-  atomic gate-opening status commit remain
+- Integration-ready: Yes for merge/release — independent critic has no residual findings. Release
+  publication/verification and the atomic gate-opening status commit remain.

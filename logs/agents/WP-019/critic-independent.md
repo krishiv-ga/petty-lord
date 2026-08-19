@@ -6,7 +6,8 @@
 - **Starting revision:** `8a213c56abf33c066fa0545d32c3ef486cd5b944` (`origin/main`)
 - **Initial reviewed candidate:** `6e6c435c22d829809a7bf8c1e2bd23cb1511325f`
 - **Remediation candidate:** `67f258ef6921e0b07995f4b8ab5fc1fe2b3c2ce3`
-- **Ending revision:** `67f258ef6921e0b07995f4b8ab5fc1fe2b3c2ce3` plus this critic-log update only
+- **Post-clearance hardening candidate:** `4fb1fb4a64f3817b4e2b8c1fe0c6e55fc8068af2`
+- **Ending revision:** `4fb1fb4a64f3817b4e2b8c1fe0c6e55fc8068af2` plus this critic-log update only
 - **PR:** pending
 - **Status:** Complete — clear for integration; release and gate transition remain pending
 
@@ -235,3 +236,31 @@ mandatory release/integrator actions, not residual implementation failures.
 workflow. Gate 2 must remain closed until `v0.1.0-alpha.1` is published and verified at that exact
 integrated SHA and the compacted log, status, index, README and wiki are updated atomically. The P3
 forged-manifest hardening note does not block integration or the foundation checkpoint.
+
+## Narrow post-clearance hardening verification — `4fb1fb4`
+
+This verification carries the clear verdict from `67f258e` to exact candidate
+`4fb1fb4a64f3817b4e2b8c1fe0c6e55fc8068af2`. The only production delta changes
+`validateRasterAsset` to reject `data:`, `blob:` and `javascript:` schemes before accepting a
+`.png`/`.webp` suffix. Its regression uses the exact prior exploit,
+`data:image/svg+xml,<svg/>.png`, and now receives the expected invalid-raster error. The check is
+case-insensitive and tolerates leading whitespace only to reject the disguised scheme as well.
+
+Focused independent evidence:
+
+| Check | Result |
+|---|---|
+| `git diff --check 67f258e..4fb1fb4` | Pass |
+| `pnpm exec biome check src/assets/raster/contracts.ts src/assets/raster/contracts.test.ts` | Pass; 2 files |
+| `pnpm exec vitest run src/assets/raster/contracts.test.ts src/contracts/foundation.test.ts` | Pass; 2 files / 13 tests |
+| Exact forged SVG data-URI suffix regression | Pass; rejected as `source must be PNG or WebP` |
+
+The former P3 is **resolved**. No P0, P1, P2 or P3 finding remains. Unrelated full gates were not
+repeated because this four-file hardening delta changes only the raster-source predicate, its focused
+test, and evidence logs; the complete checkpoint gate at `67f258e` remains applicable, while the
+integrator separately reported check, typecheck and the full 46-test unit suite green at `4fb1fb4`.
+
+**Final carried verdict: Clear for integration.** Candidate
+`4fb1fb4a64f3817b4e2b8c1fe0c6e55fc8068af2` is the critic-cleared WP-019 revision. Release and Gate 2
+remain correctly closed until this exact candidate is integrated to `main`, the checkpoint is
+published and verified, and the status/index/onboarding transition is committed atomically.

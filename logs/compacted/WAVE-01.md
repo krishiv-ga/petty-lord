@@ -2,8 +2,8 @@
 
 - **Integration candidate:** `wp/WP-019-foundation-integration` (exact revision recorded at merge)
 - **Source packet revisions:** WP-010 `944e824`, WP-011 `88e0f34`, WP-012 `719c5f4`
-- **Release/tag:** `v0.1.0-alpha.1` pending critic clearance and verified publication
-- **Critic verdict:** First review blocked; all findings remediated; independent re-review pending
+- **Release/tag:** `v0.1.0-alpha.1` pending verified publication from integrated `main`
+- **Critic verdict:** **Clear for integration** at `4fb1fb4`; no residual findings
 - **Fan-out gate:** **Closed** until this log, status and packet index are updated atomically
 
 ## Repository capability assembled
@@ -49,11 +49,12 @@ Canonical snapshot: 6 lords, 7 territories, 19 actions, 12 bargains, 8 secrets, 
 
 ## Independent critic disposition
 
-The first combined review identified five P1 and three P2 findings. The candidate now has regression
+The first combined review identified five P1 and three P2 findings. The cleared candidate has regression
 evidence for immutable registries, immutable/vector-safe raster descriptors, complete domain/ID
 contracts, consistent closed-gate docs, self-verifying release mechanics, save-mirror rejection,
 restored UI evidence and transitive dependency guards. The same independent critic must clear these
-remediations before publication.
+remediations. A final defense-in-depth SVG suffix-spoof probe was also closed and independently
+verified. No critic finding remains.
 
 ## Known risks and deferred work
 
