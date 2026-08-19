@@ -3,6 +3,7 @@
 - **Status:** Blocked
 - **Wave:** 1 integration
 - **Execution:** **Serial integration gate**
+- **Git target:** `main` only
 - **Depends on:** WP-010, WP-011, WP-012 ready for integration with critics complete
 - **May run with:** Nothing
 - **Must not run with:** Any Wave 2 packet
@@ -12,15 +13,19 @@
 - **Integrator:** This packet is the mandatory wave integrator
 - **Release impact:** Owns `v0.1.0-alpha.1`
 
+## Git execution
+
+Run this integration packet directly on `main`. Do not create or merge packet, feature, integration, or PR branches. WP-019 reviews the Wave 1 commits/diffs already present on `main`, repairs shared seams serially on `main`, and freezes the resulting `main` revision. Synchronize with `origin/main` before starting, before committing shared fixes, and before the final push/release handoff.
+
 ## Objective
 
 Integrate the deterministic kernel, canonical content pack and visual/UI foundation into one coherent repository; repair their seams; freeze the contracts that allow four gameplay-system agents to begin in parallel; and publish the foundation checkpoint when all evidence is green.
 
-Do not split merge repair, contract freeze, wiki synchronization, compacted logging and release into separate packets. They share the same authoritative files and must remain serialized.
+Do not split seam repair, contract freeze, wiki synchronization, compacted logging and release into separate packets. They share the same authoritative files and must remain serialized.
 
 ## Canonical inputs
 
-- all Wave 1 branches, PRs, implementer logs and critic logs;
+- all Wave 1 commits/diffs on `main`, implementer logs and critic logs;
 - [`AGENTS.md`](../AGENTS.md)
 - [`TECH_STACK.md`](../TECH_STACK.md)
 - [`designer/README.md`](../designer/README.md)
@@ -51,18 +56,18 @@ Avoid feature work belonging to WP-020–023.
 
 ## Deliverables
 
-### 1. Evidence-first branch integration
+### 1. Evidence-first `main` integration
 
-Before merging:
+Before reconciliation/checkpoint work:
 
-- inspect each packet against its owned paths;
+- inspect each packet against its owned paths and identify its exact `main` commit/diff;
 - verify implementer and independent critic logs;
 - reject or repair unresolved P0/P1 findings;
-- confirm no branch modified prohibited shared files without explanation;
+- confirm no packet commit modified prohibited shared files without explanation;
 - compare toolchain/lockfile drift;
-- preserve meaningful history and do not squash away evidence unless the release strategy explicitly requires a clean integration commit.
+- preserve meaningful commit history and evidence; do not rewrite already-pushed packet commits.
 
-Integrate in the order that minimizes contract churn, normally kernel → content → UI, while treating all three as peers rather than forcing one branch’s assumptions onto the others.
+Reconcile in the order that minimizes contract churn, normally kernel → content → UI, while treating all three as peers rather than forcing one packet’s assumptions onto the others.
 
 ### 2. Shared contract freeze
 
@@ -204,7 +209,7 @@ Mark WP-019 Integrated and WP-020/021/022/023 Ready. State the frozen contracts 
 
 ## Required evidence
 
-- branch/commit integration map;
+- `main` commit integration map;
 - critic finding matrix from all Wave 1 packets and combined review;
 - public contract inventory;
 - dependency graph/boundary test output;
@@ -215,9 +220,9 @@ Mark WP-019 Integrated and WP-020/021/022/023 Ready. State the frozen contracts 
 
 ## Agent topology
 
-One integrator owns all shared seams. It may ask original implementers to explain or patch packet-local defects, but they do not independently edit the integration branch without coordination.
+One integrator owns all shared seams. It may ask original implementers to explain or patch packet-local defects, but they do not independently edit shared `main` seams without coordination.
 
-Use a fresh independent critic after the combined suite passes. A release specialist may execute `$release` only after the integrator and critic agree the commit is checkpoint-ready.
+Use a fresh independent critic after the combined suite passes. A release specialist may execute `$release` only after the integrator and critic agree the `main` commit is checkpoint-ready.
 
 ## Logging
 
@@ -232,4 +237,4 @@ WP-019 alone updates shared status/index.
 
 ## Completion handoff
 
-State the exact frozen imports/contracts, release tag/SHA, known risks, and the four legal Wave 2 branches. The next fan-out gate is open only after those statements are committed.
+State the exact frozen imports/contracts, release tag/SHA, known risks, and the four legal Wave 2 packets. The next fan-out gate is open only after those statements are committed to `main`.
