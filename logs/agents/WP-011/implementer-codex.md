@@ -4,8 +4,8 @@
 - **Role:** Implementer
 - **Branch/worktree:** `wp/WP-011-content-schema-and-canonical-data`
 - **Starting revision:** `5c154a87e899e924dc6c4f0395dad960b3367578`
-- **Ending revision:** pending
-- **PR:** pending
+- **Ending revision:** `d8b4529b221704346cdf216653c7f7d811956e51`
+- **PR:** [#3 — WP-011 Canonical content schema and data pack](https://github.com/krishiv-ga/petty-lord/pull/3)
 - **Status:** Critic-cleared; integration-ready
 
 ## Scope
