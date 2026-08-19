@@ -3,6 +3,7 @@
 - **Status:** Planned | Ready | In progress | In critic | Ready for integration | Integrated | Blocked | Superseded
 - **Wave:** `<wave>`
 - **Execution:** Serial | Parallel-safe within wave | Integration gate
+- **Git target:** `main` only
 - **Depends on:** `<packet IDs>`
 - **May run with:** `<packet IDs>`
 - **Must not run with:** `<packet IDs or conditions>`
@@ -11,6 +12,10 @@
 - **Critic:** Required | Conditional | Optional
 - **Integrator:** Required | Conditional | Not expected
 - **Release impact:** None | Checkpoint candidate | Release owner
+
+## Git execution
+
+This packet runs directly on `main`. Do not create, switch to, or push a packet/feature/integration/PR branch. Synchronize with `origin/main` before starting, before committing, and before pushing. `Parallel-safe` means only that path-disjoint work may proceed concurrently against `main`; it never authorizes separate branches. If `main` advances in an owned or shared path, reconcile against latest `origin/main` before continuing and coordinate with the packet integrator where required.
 
 ## Objective
 
@@ -58,7 +63,7 @@ State the important architecture, deterministic, content, UI, asset, or tooling 
 - screenshots/traces/simulation output where relevant;
 - deterministic or save/reload proof where relevant;
 - critic log;
-- PR and commit.
+- commit SHA(s) on `main`.
 
 ## Agent topology
 
@@ -80,6 +85,6 @@ State:
 
 - interfaces produced or changed;
 - known risks;
-- merge order;
+- commit/reconciliation order on `main` when relevant;
 - downstream packets unblocked;
 - whether integration-ready.
