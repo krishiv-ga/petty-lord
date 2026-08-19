@@ -251,3 +251,17 @@ Use these defaults:
 Because WP-031 and WP-034 run in parallel, WP-031 may use temporary raster fixtures that match the frozen `full`/`bust`/`tight` slot dimensions. It must not take ownership of production generation or manifest filenames. WP-039 replaces fixtures through the manifest contract.
 
 Add visual QA specifically proving that the lord rail remains immediately legible with the actual generated cast, and that Edric/Oswin remain distinct at the smallest portrait treatment through visible martial versus ecclesiastical costume cues.
+
+## Confirmation visual-semantics amendment — 2026-08-19
+
+A normal confirmation control must not visually collapse into the same red field as its wax-seal icon.
+
+Specific regression case: **“Seal and begin the three-day offer”** is an ordinary commit/confirm action unless WP-029 explicitly classifies the underlying action as destructive/danger. The wax seal may remain red; the surrounding control should normally use the page/vellum/surface family with a clearly authored outline, inset edge, brass/ink/burgundy border, press state and visible keyboard focus so the seal remains immediately legible.
+
+Rules:
+
+- do not use a red-filled CTA for ordinary seal/commit merely because the seal is red;
+- reserve destructive/danger styling for the semantic intent frozen by WP-029;
+- confirmation versus danger must also be distinguishable through wording, edge/shape/treatment and iconography, not color alone;
+- add one Storybook/visual-regression fixture showing a normal sealed confirmation beside a genuinely destructive/breach confirmation;
+- this is a required ambiguity fix, not a mandate for the broad 1.0 visual-polish pass owned by WP-041.
