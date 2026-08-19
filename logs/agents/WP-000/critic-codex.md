@@ -5,7 +5,7 @@
 - **Branch/worktree:** `wp/WP-000-repository-bootstrap`
 - **Starting revision:** `ddadd01b89c4a7c956fdc6bb3ec8df403b2fafcb`
 - **Ending revision:** `15e5263241315ce8ca09ae9651703a278e10ccd8`
-- **PR:** Pending
+- **PR:** https://github.com/krishiv-ga/petty-lord/pull/1
 - **Status:** Complete
 
 ## Scope
