@@ -104,7 +104,13 @@ jobs:
           pnpm build:storybook
           pnpm wiki:check
 
-      - name: Install Chromium
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium system dependencies
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run browser smoke
@@ -120,6 +126,7 @@ jobs:
           path: |
             test-results/
             playwright-report/
+            tests/ui/foundation/baselines/linux/
           if-no-files-found: warn
           retention-days: 14
 
