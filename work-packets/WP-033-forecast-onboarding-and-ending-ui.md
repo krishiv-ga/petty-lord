@@ -22,6 +22,7 @@ Build the interfaces that teach and resolve the game: knowledge-safe “If the K
 - [`designer/politics-and-succession.md`](../designer/politics-and-succession.md)
 - [`designer/game-rules.md`](../designer/game-rules.md)
 - [`designer/ai-information-events.md`](../designer/ai-information-events.md)
+- [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md)
 - frozen knowledge-safe forecast and ending projections from WP-029
 - UI foundation from WP-012/WP-019
 
@@ -244,3 +245,21 @@ Create:
 ## Completion handoff
 
 Document forecast/ending input contracts, onboarding milestones/preferences, replay callbacks, screenshots and integration risks. State integration readiness.
+
+## Character portrait consumption amendment — 2026-08-19
+
+The five rival full-body masters under `assets/characters/` are canonical production identity art. WP-034 generates the dedicated close portrait family from those masters using [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md).
+
+Use these default semantic slots:
+
+- **Succession forecast candidate/house rows:** `tight`.
+- **Compact ballot/reconstruction rows:** `tight`.
+- **Onboarding cast introductions and character teaching moments:** `bust`.
+- **Ending header / major winner-loser character emphasis:** `bust` by default.
+- **Large ending tableau or deliberate showcase moment:** `full` only where the composition has enough space and the side-facing full figure adds value.
+
+Do not mechanically crop the existing side-facing full-body masters into release closeups. `bust` and `tight` are dedicated front-facing/near-front generated images with stronger stained-glass construction across face/hair and preserved identity/costume cues.
+
+Because WP-033 may run before WP-034 is integrated, build against semantic `full`/`bust`/`tight` asset slots and approved raster fixtures. WP-039 connects those slots to the production manifest. Do not hardcode source filenames.
+
+Ending and onboarding screenshots must be re-run with the production generated portraits before WP-039 closes so portrait density, stained-glass facial detail and character recognition are proven in the real layouts.
