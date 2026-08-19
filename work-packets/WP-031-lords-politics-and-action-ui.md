@@ -24,6 +24,7 @@ The UI must make people and obligations—not abstract points—the center of pl
 - [`designer/candidate-evaluation.md`](../designer/candidate-evaluation.md)
 - [`designer/game-rules.md`](../designer/game-rules.md)
 - [`designer/interface-content-and-production.md`](../designer/interface-content-and-production.md)
+- [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md)
 - UI foundation and raster contract from WP-012/WP-019
 - commands/projections/action preview contract frozen by WP-029
 
@@ -232,3 +233,21 @@ Create:
 ## Completion handoff
 
 Document component/action workflow APIs, required shell/map callbacks, projection assumptions, screenshots and known integration risks. State integration readiness.
+
+## Character portrait consumption amendment — 2026-08-19
+
+The five rival identity masters under `assets/characters/` are approved production full-body art. WP-034 owns their generated portrait family. WP-031 must consume semantic character slots rather than hardcoded files or arbitrary CSS crops.
+
+Use these defaults:
+
+- **Lord rail:** `bust` where the composition has enough space; `tight` only in genuinely compact/low-height states.
+- **Lord inspector identity header:** `bust`.
+- **Political conversation / bargain / threat presentation:** `bust`.
+- **Very compact list/inline identity treatment:** `tight`.
+- **Full figure:** reserved for an intentionally large showcase composition; never jam a side-facing full-body image into a small card.
+
+`bust` and `tight` are dedicated generated front-facing/near-front portraits defined by [`designer/art/stained_glass_character_variant_prompt.md`](../designer/art/stained_glass_character_variant_prompt.md), with stronger facial stained-glass construction than the full-body masters. Do not manufacture production variants by cropping the side-facing master.
+
+Because WP-031 and WP-034 run in parallel, WP-031 may use temporary raster fixtures that match the frozen `full`/`bust`/`tight` slot dimensions. It must not take ownership of production generation or manifest filenames. WP-039 replaces fixtures through the manifest contract.
+
+Add visual QA specifically proving that the lord rail remains immediately legible with the actual generated cast, and that Edric/Oswin remain distinct at the smallest portrait treatment through visible martial versus ecclesiastical costume cues.
