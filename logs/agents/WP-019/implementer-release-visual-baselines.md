@@ -4,9 +4,9 @@
 - **Role:** Implementer
 - **Branch/worktree:** `codex/wp019-release-visual-baselines` / `petty-lord-assets-main`
 - **Starting revision:** `f294ad9aa81f5e3822bd87b61dfdc6cd0ddce532`
-- **Ending revision:** `pending`
+- **Ending revision:** `a63887091ff81eebde6bada1b46ee7d4c410b1c3` plus this evidence update
 - **PR:** `pending`
-- **Status:** In progress
+- **Status:** Ready for critic
 
 ## Scope
 
@@ -26,7 +26,9 @@ Explicitly out of scope:
 - Reproduced release dry-run failure at integrated SHA `f294ad9`: five visual assertions compared Linux Chromium captures with Windows-authored baselines.
 - Segregated visual baselines by Playwright platform while preserving the accepted Windows evidence.
 - Added failure-only artifact preservation for release browser traces, reports, and captures.
-- Linux baseline capture, exact-run verification, critic review, and final evidence are pending.
+- Captured the nine Linux baselines from GitHub run `32268752985`, visually reviewed the representative lord, crisis, mandatory-dialog and focused-map states, and committed the complete platform set.
+- Replaced the repeatedly stalled `--with-deps` helper with the pinned Chromium-only install after the same Ubuntu runner/dependency set had already passed CI. The cache remains keyed to the lockfile.
+- Verified the complete release dry run at exact candidate `a638870` in GitHub run `32269131464`.
 
 ## Decisions and assumptions
 
@@ -42,10 +44,13 @@ Explicitly out of scope:
 | Release workflow dry run `32234857248` | Fail (reproduction) | Quality gate passed; Linux visual comparison failed 5/11 because the baseline path was platform-neutral. |
 | `pnpm build:storybook` | Pass | Windows Storybook production build completed. |
 | `pnpm exec playwright test --config tests/ui/foundation/playwright.config.ts` | Pass | Windows platform suite 11/11 after baseline relocation. |
+| Release workflow evidence run `32268752985` | Expected fail | Quality gate and Chromium install passed; missing Linux baselines were generated and retained as a 31.7 MB Actions artifact. |
+| Manual review of Linux captures | Pass | Nine captures present; representative lord, crisis, mandatory-dialog and focused-map images preserve authored layout, text, focus and raster identity. |
+| Release workflow dry run `32269131464` | Pass | Exact `a638870`; quality gate, Linux foundation/browser smoke, packaging/checksums, extracted-game smoke and artifact upload passed in 1m29s. |
 
 ## Critic findings and resolution
 
-None yet — critic pending.
+None yet — independent critic pending on the focused `f294ad9..a638870` release fix.
 
 ## Design, balance, or schema impact
 
@@ -57,7 +62,7 @@ None yet — critic pending.
 
 ## Risks and deferred work
 
-- Linux captures must be generated and reviewed on the same Playwright image used by GitHub Actions before release publication.
+- The real release must be dispatched from merged `main`, then its tag, release metadata, downloads and checksums must be verified before Wave 2 opens.
 - No released build or save was affected; the defect blocked only the unpublished checkpoint workflow.
 
 ## Integration notes
@@ -65,4 +70,4 @@ None yet — critic pending.
 - Shared contracts touched: release workflow and visual-test evidence layout only.
 - Merge order constraints: merge before publishing `v0.1.0-alpha.1`.
 - Follow-up packets: none.
-- Integration-ready: No
+- Integration-ready: Pending independent critic
