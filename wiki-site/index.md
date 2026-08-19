@@ -11,4 +11,6 @@ development, operations and reference sections in the sidebar. Sections whose im
 to later packets say so explicitly rather than speculating.
 
 The current integrated state is summarized in the repository's
-[status log](https://github.com/krishiv-ga/petty-lord/blob/main/logs/STATUS.md).
+[status log](https://github.com/krishiv-ga/petty-lord/blob/main/logs/STATUS.md), with the current
+[compacted Wave 00 handoff](https://github.com/krishiv-ga/petty-lord/blob/main/logs/compacted/WAVE-00.md)
+providing the bounded implementation and verification record.

@@ -6,8 +6,9 @@ A real-time-with-pause political strategy game for desktop browsers. One in-game
 
 ## Current repository state
 
-The complete game design is locked. WP-000 is establishing the reproducible application, test, wiki,
-CI and release baseline; use [`logs/STATUS.md`](./logs/STATUS.md) for the integrated fan-out gate.
+The complete game design is locked, and WP-000 has integrated the reproducible application, test,
+wiki, CI and release baseline. **Wave 1 is open:** WP-010, WP-011 and WP-012 may run concurrently in
+separate branches/worktrees. Use [`logs/STATUS.md`](./logs/STATUS.md) for the authoritative gate.
 
 See [`work-packets/INDEX.md`](./work-packets/INDEX.md) for the full dependency graph and exact fan-out/serialization gates.
 

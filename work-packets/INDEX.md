@@ -4,11 +4,13 @@ This is the delivery control plane for The Petty Lord. Agents must follow [`AGEN
 
 ## Current gate
 
-> **SERIALIZE NOW: execute WP-000 only. Do not fan out yet.**
+> **WAVE 1 OPEN: fan out WP-010, WP-011 and WP-012 in separate branches/worktrees.**
 
-The repository does not yet have an integrated toolchain, frozen code contracts, lockfile, or CI baseline. Parallel implementation before WP-000 lands would create incompatible foundations.
+WP-000 is integrated at reviewed revision `aa11d6b2379f1d3563e4aeb787dc1a73c090e2a9` with a frozen
+toolchain, lockfile, CI/release baseline, wiki and path contracts. Do not change shared root seams in
+parallel packets; WP-019 owns foundation integration.
 
-After WP-000 is integrated and its status/logs mark the gate open, the work can fan out exactly as described below.
+Do not begin WP-020 or later until WP-019 integrates Wave 1 and explicitly opens Gate 2.
 
 ## Dependency graph
 
@@ -52,11 +54,11 @@ Hunt→tune        UI/a11y audit    Tech hardening   Narrative clarity
 
 ## Exact fan-out and serialization rules
 
-### Gate 0 — now
+### Gate 0 — completed
 
-- **Run:** [`WP-000`](./WP-000-repository-bootstrap.md)
+- **Integrated:** [`WP-000`](./WP-000-repository-bootstrap.md)
 - **Parallel work:** none
-- **Why serialized:** all later packets depend on the same package/toolchain/contracts/CI/wiki foundation.
+- **Result:** shared package/toolchain/contracts/CI/wiki foundation is green and critic-cleared.
 
 ### Gate 1 — after WP-000 is integrated
 
@@ -126,10 +128,10 @@ Then serialize final integration, full regression, and release into:
 
 | Packet | Title | Execution | Depends on | Critic | Status |
 |---|---|---|---|---|---|
-| WP-000 | Repository bootstrap, tooling, wiki, CI and releases | **Serial** | None | Required | **Ready — only legal packet** |
-| WP-010 | Deterministic simulation kernel | Parallel Wave 1 | WP-000 | Required | Blocked by WP-000 |
-| WP-011 | Content schema and canonical data | Parallel Wave 1 | WP-000 | Required | Blocked by WP-000 |
-| WP-012 | Visual language and UI foundation | Parallel Wave 1 | WP-000 | Required + `$ui-audit` | Blocked by WP-000 |
+| WP-000 | Repository bootstrap, tooling, wiki, CI and releases | **Serial** | None | Required | **Integrated** |
+| WP-010 | Deterministic simulation kernel | Parallel Wave 1 | WP-000 | Required | **Ready** |
+| WP-011 | Content schema and canonical data | Parallel Wave 1 | WP-000 | Required | **Ready** |
+| WP-012 | Visual language and UI foundation | Parallel Wave 1 | WP-000 | Required + `$ui-audit` | **Ready** |
 | WP-019 | Foundation integration and checkpoint | **Serial integration** | WP-010–012 | Required | Blocked |
 | WP-020 | Time, economy, Orders and action infrastructure | Parallel Wave 2 | WP-019 | Required | Blocked |
 | WP-021 | Politics, support, Claim, Church and succession | Parallel Wave 2 | WP-019 | Required | Blocked |
