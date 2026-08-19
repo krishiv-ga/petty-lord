@@ -20,7 +20,7 @@ on:
       compacted_log:
         description: Repository-relative compacted log to attach
         required: true
-        default: logs/compacted/WAVE-00.md
+        default: logs/compacted/WAVE-01.md
         type: string
 
 permissions:

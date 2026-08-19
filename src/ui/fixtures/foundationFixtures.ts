@@ -1,3 +1,5 @@
+import { canonicalGameContent } from '../../contracts/content';
+import { projectFoundationContent } from '../../contracts/projection';
 import type { AllegianceRibbonProps, IntelligenceAgeProps } from '../foundation/PoliticalObjects';
 
 export type LordStripFixture = {
@@ -13,11 +15,29 @@ export type LordStripFixture = {
   readonly unread?: boolean;
 };
 
+const canonicalProjection = projectFoundationContent(canonicalGameContent);
+const lordIdentity = new Map(canonicalProjection.lords.map((lord) => [lord.id, lord]));
+const territoryIdentity = new Map(
+  canonicalProjection.territories.map((territory) => [territory.id, territory]),
+);
+const lordName = (id: LordStripFixture['id']): string => {
+  const identity = lordIdentity.get(id as never);
+  if (!identity) return `[missing lord: ${id}]`;
+  if (id === 'greyfen') return `The ${identity.name}`;
+  return identity.epithet === 'The Petty Lord'
+    ? identity.name
+    : `${identity.name} ${identity.epithet.replace(/^The /, 'the ')}`;
+};
+const lordTitle = (id: LordStripFixture['id']): string =>
+  lordIdentity.get(id as never)?.title ?? `[missing lord title: ${id}]`;
+const territoryName = (id: string): string =>
+  territoryIdentity.get(id as never)?.name ?? `[missing territory: ${id}]`;
+
 export const lordStripFixtures: readonly LordStripFixture[] = [
   {
     id: 'greyfen',
-    name: 'The Lord of Greyfen',
-    title: 'Player seat · Keeper of the Fen Roads',
+    name: lordName('greyfen'),
+    title: `${lordTitle('greyfen')} · Player seat · Keeper of the Fen Roads`,
     relationship: 'Self · exact knowledge',
     support: 'none',
     visibility: 'public',
@@ -27,8 +47,8 @@ export const lordStripFixtures: readonly LordStripFixture[] = [
   },
   {
     id: 'edric',
-    name: 'Edric the Hawk',
-    title: 'Lord of Northkeep',
+    name: lordName('edric'),
+    title: lordTitle('edric'),
     relationship: 'Cordial · +22',
     support: 'pledged',
     visibility: 'public',
@@ -37,8 +57,8 @@ export const lordStripFixtures: readonly LordStripFixture[] = [
   },
   {
     id: 'ysabel',
-    name: 'Ysabel the Spider',
-    title: 'Lady of Eastvale and Keeper of the Golden Vale',
+    name: lordName('ysabel'),
+    title: `${lordTitle('ysabel')} and Keeper of the Golden Vale`,
     relationship: 'Warm · +44',
     support: 'leaning',
     visibility: 'private',
@@ -49,8 +69,8 @@ export const lordStripFixtures: readonly LordStripFixture[] = [
   },
   {
     id: 'oswin',
-    name: 'Oswin the Pious',
-    title: 'Lord of Abbeylands',
+    name: lordName('oswin'),
+    title: lordTitle('oswin'),
     relationship: 'Neutral · +8',
     support: 'duress',
     visibility: 'public',
@@ -59,8 +79,8 @@ export const lordStripFixtures: readonly LordStripFixture[] = [
   },
   {
     id: 'mara',
-    name: 'Mara the Rebel',
-    title: 'Dispossessed Lady of Westmarch',
+    name: lordName('mara'),
+    title: `Dispossessed ${lordTitle('mara')}`,
     relationship: 'Cold · −28',
     support: 'none',
     visibility: 'public',
@@ -70,8 +90,8 @@ export const lordStripFixtures: readonly LordStripFixture[] = [
   },
   {
     id: 'renard',
-    name: 'Renard the Favorite with a Deliberately Long Ceremonial Style',
-    title: 'Lord of Southmere, First Cousin to His Failing Majesty',
+    name: `${lordName('renard')} with a Deliberately Long Ceremonial Style`,
+    title: `${lordTitle('renard')}, First Cousin to His Failing Majesty`,
     relationship: 'Hostile · −63',
     support: 'committed',
     visibility: 'public',
@@ -114,11 +134,35 @@ export const chronicleFixtures = [
 ] as const;
 
 export const mapHotspots = [
-  { id: 'northkeep', label: 'Northkeep', x: 49, y: 18, state: 'Edric · 620 known levies' },
-  { id: 'westmarch', label: 'Westmarch', x: 24, y: 36, state: 'Mara · dispossessed' },
-  { id: 'eastvale', label: 'Eastvale', x: 75, y: 35, state: 'Ysabel · public control' },
-  { id: 'capital', label: 'Capital', x: 50, y: 50, state: 'Uncontrolled · urgent' },
-  { id: 'greyfen', label: 'Greyfen', x: 27, y: 68, state: 'Player seat · selected' },
-  { id: 'abbeylands', label: 'Abbeylands', x: 50, y: 76, state: 'Oswin · holy seat' },
-  { id: 'southmere', label: 'Southmere', x: 75, y: 68, state: 'Renard · occupied' },
+  {
+    id: 'northkeep',
+    label: territoryName('northkeep'),
+    x: 49,
+    y: 18,
+    state: 'Edric · 620 known levies',
+  },
+  {
+    id: 'westmarch',
+    label: territoryName('westmarch'),
+    x: 24,
+    y: 36,
+    state: 'Mara · dispossessed',
+  },
+  {
+    id: 'eastvale',
+    label: territoryName('eastvale'),
+    x: 75,
+    y: 35,
+    state: 'Ysabel · public control',
+  },
+  { id: 'capital', label: territoryName('capital'), x: 50, y: 50, state: 'Uncontrolled · urgent' },
+  { id: 'greyfen', label: territoryName('greyfen'), x: 27, y: 68, state: 'Player seat · selected' },
+  {
+    id: 'abbeylands',
+    label: territoryName('abbeylands'),
+    x: 50,
+    y: 76,
+    state: 'Oswin · holy seat',
+  },
+  { id: 'southmere', label: territoryName('southmere'), x: 75, y: 68, state: 'Renard · occupied' },
 ] as const;

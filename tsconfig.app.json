@@ -24,6 +24,7 @@
       "@app/*": ["./src/app/*"],
       "@sim/*": ["./src/sim/*"],
       "@content/*": ["./src/content/*"],
+      "@contracts/*": ["./src/contracts/*"],
       "@ui/*": ["./src/ui/*"],
       "@assets/*": ["./src/assets/*"],
       "@tests/*": ["./tests/*"]

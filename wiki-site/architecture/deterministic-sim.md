@@ -13,8 +13,9 @@ No failure path mutates the caller's state.
 - `src/sim/serialization/index.ts` exports/imports stable JSON and checkpoint pairs.
 - `src/sim/testing/index.ts` exposes invariants, round-trip assertions and normalized hashes.
 
-There is deliberately no shared `src/sim/index.ts` barrel in Wave 1. WP-019 owns that cross-packet
-seam and freezes imports after reconciling WP-010 with canonical content schemas.
+Wave 2 consumers use `src/contracts/simulation.ts` for the registered command/resolver protocol and
+`src/contracts/state.ts` for the content-compatible state envelope. Kernel-internal modules remain
+available for kernel tests, but later systems must not create alternate public protocols.
 
 ## State and extension points
 
@@ -67,8 +68,13 @@ resolution paths.
 required kernel fields, finite/canonical time, scheduler order and IDs, complete decision and bounded
 diagnostic shapes, game status and every serialized PRNG state, then optionally calls a domain
 validator. An invalid import returns an error code plus paths and does not modify current state.
-Explicit one-way migration hooks and an external-validator interface are ready for WP-019 to connect
-to Zod schemas.
+Explicit one-way migration hooks and an external-validator interface are connected by
+`importFoundationGameState`. It requires the expected build, save schema, content schema and exact
+content hash before returning state.
+
+`createFoundationGameState` requires a recursively immutable, hash-verified `GameContent` registry.
+It records `compatibility` at the top level and mirrors the content hash/schema in deterministic
+metadata. Invalid or mutable content fails before a new state is created.
 
 `checkpointState` creates a `{ current, previous }` data shape only. IndexedDB orchestration remains a
 later application packet.

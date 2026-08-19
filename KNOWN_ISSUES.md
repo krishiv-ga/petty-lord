@@ -1,6 +1,9 @@
 # Known issues
 
-- WP-000 provides a non-gameplay smoke screen only. Gameplay, authored content and the reusable
-  visual language remain intentionally assigned to WP-010, WP-011 and WP-012.
-- The approved production raster asset pack is not yet available; WP-034 remains gated on that
-  versioned asset drop.
+- The foundation checkpoint initializes metadata and proves one fake canonical-ID event, but it does
+  not yet implement economy, politics, war, AI, events or succession; those are Wave 2 work.
+- Rival `full` portraits are production masters. Dedicated production `bust`/`tight` compositions,
+  final map art and the remaining raster pack remain WP-034 work; current close portraits are visibly
+  inventoried temporary raster stand-ins.
+- Foundation browser/visual evidence is Chromium-only. The final supported-browser decision remains a
+  later hardening/release concern.

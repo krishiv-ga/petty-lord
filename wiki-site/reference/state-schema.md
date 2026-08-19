@@ -49,6 +49,25 @@ A pending decision has a unique `id`, registered resolver `kind`, explicit `choi
 the triggering scheduled sequence ID when applicable and a JSON payload. Any nonempty decision queue
 requires `speed: 0`. Only the first decision can be chosen.
 
+## Foundation compatibility
+
+The Wave 2 state type is `FoundationGameState` from `src/contracts/state.ts`. In addition to the
+kernel fields, it requires:
+
+```ts
+interface FoundationCompatibility {
+  buildVersion: string;
+  contentHash: string;
+  contentSchemaVersion: number;
+  saveSchemaVersion: number;
+}
+```
+
+The foundation checkpoint values are build `0.1.0-alpha.1`, content schema `1`, save schema `1` and
+content hash `fnv1a64-74442a9f99aadb91`. Import validates all four. Build mismatch returns
+`BUILD_MISMATCH`; missing or different content compatibility returns `INVALID_STATE` with an exact
+field path.
+
 ## Domain extension fields
 
 The version-1 envelope includes conservative JSON-compatible placeholders for:
@@ -57,13 +76,14 @@ The version-1 envelope includes conservative JSON-compatible placeholders for:
 - `church`, `agreements`, `orders` and `aiIntents`;
 - `secrets`, `knowledge` and optional `ending`.
 
-These are generic `DomainExtensions`, not invented gameplay schemas. WP-019 will reconcile and freeze
-them with WP-011. WP-020–WP-023 then supply system-owned state through the frozen extension contract.
+These remain conservative JSON-compatible extension points. WP-020–WP-023 supply their system-owned
+state through `FoundationDomainExtensions` and registered modules; none may replace kernel-owned
+ordering, compatibility or save fields.
 
 ## Import and migration seam
 
 `importState` validates the kernel structure and accepts an optional external validator compatible
-with a Zod adapter. A save with a different schema version needs an explicit registered one-way
-migration. Build-version matching is optional policy controlled by the application. Invalid data is
+with a Zod adapter. `importFoundationGameState` applies the checkpoint compatibility policy. A save
+with a different schema version needs an explicit registered one-way migration. Invalid data is
 reported as `INVALID_JSON`, `INVALID_STATE`, `BUILD_MISMATCH` or `MIGRATION_MISSING`; import never
 repairs or mutates the current authoritative state silently.

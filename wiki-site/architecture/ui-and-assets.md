@@ -1,8 +1,8 @@
 # UI and raster assets
 
-React presentation remains separate from simulation. Foundation stories consume fixture projections,
-not hidden or authoritative game state, and components expose callbacks rather than mutating the
-simulation.
+React presentation remains separate from simulation. Foundation stories consume read-only identity
+projections derived from `canonicalGameContent`, not hidden or authoritative game state, and
+components expose callbacks rather than mutating the simulation.
 
 ## Source layout
 
@@ -16,7 +16,8 @@ simulation.
 | `public/assets/placeholders/ui/` | Clearly temporary PNG fixtures with inventory |
 | `tests/ui/foundation/` | Storybook browser, axe, keyboard, motion and screenshot evidence |
 
-No foundation component imports `src/sim/` or `src/content/`.
+No foundation component imports `src/sim/` or raw mutable state. Fixture assembly may consume the
+read-only `src/contracts/projection.ts` boundary to prove real names and copy lengths.
 
 Foundation fonts are local WOFF2 variable assets under `src/ui/foundation/fonts/`: Cormorant
 Garamond for display and Source Serif 4 for body/ledger. The directory includes Fontsource 5.3.0
@@ -61,6 +62,13 @@ must generate dedicated bust/tight portraits from the masters using the canonica
 Small portraits must preserve costume identity—especially Edric’s armor and red mantle versus
 Oswin’s ecclesiastical robes and cross—and increase stained-glass segmentation without obscuring
 facial anatomy.
+
+`src/contracts/assets.ts` reconciles the content asset registry and raster descriptors under stable
+semantic keys: `character.<lord>.full`, `character.<lord>.bust` and
+`character.<lord>.tight`. The five rival `full` keys resolve to production masters; `bust` and
+`tight` resolve to explicitly temporary raster assets until WP-034. Unknown slots resolve to the
+development missing-raster descriptor with a warning string, which `RasterIcon` turns into a visible
+text fallback and development console warning rather than an SVG/vector substitute.
 
 ## Vector prohibition
 
@@ -110,8 +118,7 @@ coordinates are fixture data, focus is visibly outlined, and selection/urgency u
 shape as well as color. Geography never becomes SVG, canvas or an inaccessible image map.
 
 WP-030 will consume validated territory projections and production coordinates; WP-034 replaces the
-neutral plate/icon slots and temporary bust/tight crops. WP-019 may freeze shared barrels after
-integrating content asset slots.
+neutral plate/icon slots and temporary bust/tight crops without changing the semantic keys.
 
 ## Live announcements
 

@@ -14,7 +14,8 @@ The modules form one acyclic pipeline:
 3. `world.ts`, `actions.ts`, `rules.ts`, `narrative.ts` and `assets.ts` contain data only.
 4. `pack.ts` assembles the raw pack and its separate text catalog.
 5. `loader.ts` validates references and returns the frozen registry.
-6. Simulation and UI consumers import through `src/content/index.ts`.
+6. WP-019 exposes the validated singleton to consumers as `canonicalGameContent` through
+   `src/contracts/content.ts`.
 
 Content modules do not import React, Zustand, browser APIs, UI components, simulation reducers or
 asset-rendering code. Category data does not import another category, preventing circular definitions.
@@ -41,11 +42,15 @@ Successful loading produces a recursively frozen registry plus a deterministic `
 hash. The hash uses stable object-key ordering and authored array order, so it is suitable for save and
 build diagnostics. It is not a security signature.
 
+The foundation checkpoint hash is `fnv1a64-74442a9f99aadb91`. Saves record it in their compatibility
+metadata. A changed registry must produce a new hash and either a compatible migration/policy or an
+explicit import failure; consumers may not silently substitute different authored data.
+
 ## Content ownership
 
 The registry owns authored facts: IDs, starting values, lookup tables, prerequisites, structured
 effects, preview contracts and asset/text slots. Domain handlers remain authoritative for state
-transitions. WP-019 reconciles this registry with the simulation contracts; later packets must not
-duplicate canonical values in reducers.
+transitions. Later packets import stable entity IDs and `GameContent` through `src/contracts` and must
+not duplicate canonical values in reducers.
 
 See the [schema reference](../reference/content-schema.md) and [action catalog](../reference/action-catalog.md).
