@@ -1,0 +1,63 @@
+{
+  "name": "petty-lord",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.16.0 <25",
+    "pnpm": "11.19.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "check": "biome check .",
+    "check:write": "biome check --write .",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:sim": "vitest run --config vitest.sim.config.ts",
+    "test:e2e": "playwright test",
+    "storybook": "storybook dev -p 6006",
+    "build:storybook": "storybook build",
+    "wiki:dev": "vitepress dev wiki-site",
+    "wiki:build": "vitepress build wiki-site",
+    "wiki:check": "vitepress build wiki-site"
+  },
+  "dependencies": {
+    "@radix-ui/react-alert-dialog": "1.1.23",
+    "@radix-ui/react-dialog": "1.1.23",
+    "@radix-ui/react-popover": "1.1.23",
+    "@radix-ui/react-scroll-area": "1.2.18",
+    "@radix-ui/react-select": "2.3.7",
+    "@radix-ui/react-tabs": "1.1.21",
+    "@radix-ui/react-tooltip": "1.2.16",
+    "@radix-ui/react-visually-hidden": "1.2.11",
+    "idb-keyval": "6.3.0",
+    "motion": "13.1.0",
+    "pure-rand": "8.4.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "4.4.3",
+    "zustand": "5.0.15"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@biomejs/biome": "2.5.9",
+    "@playwright/test": "1.62.1",
+    "@storybook/addon-a11y": "10.5.9",
+    "@storybook/addon-vitest": "10.5.9",
+    "@storybook/react-vite": "10.5.9",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.0.5",
+    "@vitest/browser": "4.1.11",
+    "@vitest/browser-playwright": "4.1.11",
+    "@vitest/coverage-v8": "4.1.11",
+    "storybook": "10.5.9",
+    "typescript": "6.0.3",
+    "vite": "8.2.1",
+    "vitepress": "1.6.4",
+    "vitest": "4.1.11"
+  }
+}

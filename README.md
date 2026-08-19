@@ -6,9 +6,8 @@ A real-time-with-pause political strategy game for desktop browsers. One in-game
 
 ## Current repository state
 
-The complete game design is locked and the Codex execution system is authored. Implementation has **not** been bootstrapped yet.
-
-> **Current gate: run [`WP-000`](./work-packets/WP-000-repository-bootstrap.md) only. Do not fan out until its integration log opens Wave 1.**
+The complete game design is locked. WP-000 is establishing the reproducible application, test, wiki,
+CI and release baseline; use [`logs/STATUS.md`](./logs/STATUS.md) for the integrated fan-out gate.
 
 See [`work-packets/INDEX.md`](./work-packets/INDEX.md) for the full dependency graph and exact fan-out/serialization gates.
 
@@ -23,6 +22,37 @@ See [`work-packets/INDEX.md`](./work-packets/INDEX.md) for the full dependency g
 - [Agent logging contract](./logs/README.md)
 - [Current execution status](./logs/STATUS.md)
 - [Checkpoint release policy](./RELEASES.md)
+
+## Local setup
+
+Requirements: Node 24 LTS and pnpm 11.19.0. The verified Node revision is pinned in `.node-version`,
+and the package manager is pinned through Corepack metadata.
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+The maintained wiki lives under `wiki-site/`; its command and architecture documentation begins at
+[`wiki-site/index.md`](./wiki-site/index.md).
+
+## Stable commands
+
+| Command | Gate |
+|---|---|
+| `pnpm dev` | Vite development server |
+| `pnpm build` | TypeScript plus production game build |
+| `pnpm check` | Biome formatting/import/lint check |
+| `pnpm typecheck` | Strict TypeScript projects |
+| `pnpm test` | Unit and configuration tests |
+| `pnpm test:sim` | Headless simulation suite |
+| `pnpm test:e2e` | Chromium browser and accessibility smoke |
+| `pnpm storybook` | Storybook development server |
+| `pnpm build:storybook` | Static Storybook build |
+| `pnpm wiki:dev` | VitePress wiki server |
+| `pnpm wiki:build` | Static wiki build |
+| `pnpm wiki:check` | Wiki build with internal-link validation |
 
 ## Execution shape
 
