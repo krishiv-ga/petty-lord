@@ -53,6 +53,10 @@ module IDs or handler keys fail immediately. Resolvers return explicit schedulin
 decision, chronicle and consumer-effect outputs; they cannot replace kernel-owned time, scheduler,
 sequence, PRNG, diagnostic or version fields.
 
+Resolver-created decisions are validated before entering state: IDs and kinds are non-empty, choices
+are non-empty and unique, and payloads are JSON-compatible. An invalid mandatory decision fails the
+whole scheduler advance atomically instead of creating an unresolvable pause.
+
 The fake module at `src/sim/testing/fake-domain.ts` proves this seam without implementing game rules.
 WP-020–WP-023 should register real domains behind it rather than adding alternate clocks or direct
 resolution paths.

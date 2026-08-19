@@ -146,6 +146,10 @@ export const fakeDomainModule: DomainModule<FakeExtensions> = {
         },
       };
     },
+    'fake.invalid-decision': ({ state }) => ({
+      decision: { choiceIds: [], id: 'no-way-out', kind: 'fake.choice' },
+      state,
+    }),
     'fake.random': ({ item, random, state }) => {
       const payload = payloadObject(item.payload);
       const result = random.integer(

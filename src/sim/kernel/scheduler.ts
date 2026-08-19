@@ -119,6 +119,23 @@ function openDecision<E extends DomainExtensions>(
   input: DecisionInput,
   openedBySequenceId: number | null,
 ): GameState<E> {
+  if (typeof input.id !== 'string' || input.id.length === 0) {
+    throw new TypeError('decision id must be a non-empty string');
+  }
+  if (typeof input.kind !== 'string' || input.kind.length === 0) {
+    throw new TypeError('decision kind must be a non-empty string');
+  }
+  if (
+    !Array.isArray(input.choiceIds) ||
+    input.choiceIds.length === 0 ||
+    !input.choiceIds.every((choiceId) => typeof choiceId === 'string' && choiceId.length > 0) ||
+    new Set(input.choiceIds).size !== input.choiceIds.length
+  ) {
+    throw new TypeError('decision choices must be unique non-empty strings');
+  }
+  if (inspectJsonValue(input.payload ?? null).length > 0) {
+    throw new TypeError('decision payload must be JSON-compatible');
+  }
   if (state.pendingDecisions.some((decision) => decision.id === input.id)) {
     throw new Error(`Decision id ${input.id} is already pending`);
   }

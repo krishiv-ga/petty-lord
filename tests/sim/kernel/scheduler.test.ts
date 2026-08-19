@@ -82,6 +82,22 @@ describe('deterministic scheduler', () => {
     expect(result.state.fake.counter).toBe(0);
   });
 
+  it('rejects an unresolvable resolver-created decision atomically', () => {
+    const state = scheduleItem(createFakeState(), {
+      dueTimeHours: 1,
+      kind: 'fake.invalid-decision',
+      priority: 100,
+    }).state;
+    const result = advanceScheduler(state, 1, registry);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.code).toBe('RESOLVER_FAILURE');
+    expect(result.error.message).toMatch(/decision choices/);
+    expect(result.state).toBe(state);
+    expect(result.state.pendingDecisions).toEqual([]);
+    expect(result.state.speed).toBe(1);
+  });
+
   it('schedules, cancels and replaces without reusing sequence ids', () => {
     let state = createFakeState();
     const first = scheduleItem(state, {

@@ -46,7 +46,7 @@ Explicitly out of scope:
   seams and current/previous checkpoint data without persistence orchestration.
 - Added invariant/hash/round-trip helpers plus a fake domain proving later registration without kernel
   edits.
-- Added 27 headless tests across scheduler, commands, replay determinism, serialization, PRNG and
+- Added 28 headless tests across scheduler, commands, replay determinism, serialization, PRNG and
   invariant failure paths; updated all three owned wiki pages.
 - Resolved the initial critic's two P1 and four P2 findings with canonical micro-hour time,
   terminal/succession stopping and initiative locks, full public-command runtime validation, nested
@@ -71,7 +71,7 @@ Explicitly out of scope:
 |---|---|---|
 | Gate/dependency/worktree inspection | Pass | WP-000 integrated on `main`; Wave 1 open; clean worktree; no competing WP-010 worktree |
 | Owned isolated strict TypeScript compilation | Pass | Strict, exact-optional and unchecked-index checks over all WP-010 source/tests |
-| `pnpm test:sim` | Pass | 7 files, 27 tests; adds fractional chunks, terminal stop/lock, runtime enums/payloads, hostile nested imports, seed collision and aliasing regressions |
+| `pnpm test:sim` | Pass | 7 files, 28 tests; adds fractional chunks, terminal stop/lock, runtime enums/payloads, hostile nested imports, seed collision, invalid resolver decisions and aliasing regressions |
 | `pnpm test` | Pass | Existing 2 files, 3 unit/workflow tests |
 | Owned `pnpm exec biome check ...` | Pass | 23 owned TypeScript files; no fixes required |
 | `pnpm wiki:check` | Pass | VitePress rendered owned contract documentation and all repository wiki links |
@@ -92,6 +92,7 @@ Explicitly out of scope:
 | P2 | Import accepted malformed decisions and diagnostics | Fixed complete kernel-owned nested validation and hostile import regression |
 | P2 | String seed collapsed to 32 bits | Fixed version-1 mapping with stable 64-bit FNV-1a expansion; reported collision pair is a regression |
 | P2 | Instant advancement bypassed pause | Fixed; all public advancement modes respect pause, while instant skips pacing only during active play |
+| P1 (re-review) | Resolver could open a mandatory decision with no valid choices | Fixed at decision creation; invalid IDs/kinds/choices/payloads fail the entire scheduler advance atomically |
 
 ## Design, balance, or schema impact
 
