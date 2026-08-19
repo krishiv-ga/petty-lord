@@ -53,6 +53,14 @@ describe('raster asset contract', () => {
       'bad-vector requires a 1x fallback source.',
       'bad-vector source must be PNG or WebP: /bad/icon.svg',
     ]);
+    expect(
+      validateRasterAsset({
+        id: 'spoofed-vector',
+        width: 16,
+        height: 16,
+        sources: [{ src: 'data:image/svg+xml,<svg/>.png', density: 1 }],
+      }),
+    ).toEqual(['spoofed-vector source must be PNG or WebP: data:image/svg+xml,<svg/>.png']);
   });
 
   it('freezes production full, temporary bust, and temporary tight portrait slots', () => {

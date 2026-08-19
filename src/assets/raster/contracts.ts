@@ -36,7 +36,7 @@ export function validateRasterAsset(asset: RasterAsset): readonly string[] {
     errors.push(`${asset.id || 'Raster asset'} requires a 1x fallback source.`);
   }
   for (const { src } of asset.sources) {
-    if (!/\.(png|webp)(?:\?.*)?$/i.test(src)) {
+    if (/^\s*(data|blob|javascript):/i.test(src) || !/\.(png|webp)(?:\?.*)?$/i.test(src)) {
       errors.push(`${asset.id || 'Raster asset'} source must be PNG or WebP: ${src}`);
     }
   }

@@ -4,10 +4,11 @@
 - **Role:** Critic
 - **Branch/worktree:** `wp/WP-019-foundation-integration` / `petty-lord-wp019`
 - **Starting revision:** `8a213c56abf33c066fa0545d32c3ef486cd5b944` (`origin/main`)
-- **Reviewed candidate:** `6e6c435c22d829809a7bf8c1e2bd23cb1511325f`
-- **Ending revision:** `6e6c435c22d829809a7bf8c1e2bd23cb1511325f` plus this critic log only
+- **Initial reviewed candidate:** `6e6c435c22d829809a7bf8c1e2bd23cb1511325f`
+- **Remediation candidate:** `67f258ef6921e0b07995f4b8ab5fc1fe2b3c2ce3`
+- **Ending revision:** `67f258ef6921e0b07995f4b8ab5fc1fe2b3c2ce3` plus this critic-log update only
 - **PR:** pending
-- **Status:** Complete — blocked pending fixes and re-review
+- **Status:** Complete — clear for integration; release and gate transition remain pending
 
 ## Scope
 
@@ -167,3 +168,70 @@ skeleton compile tests, the complete standard gate, foundation Playwright, a rel
 fresh independent re-review. WP-019 is **not integration-ready**, `v0.1.0-alpha.1` must not be tagged,
 and Gate 2 must remain closed.
 
+## Independent remediation re-review — `67f258e`
+
+This section supersedes the initial blocked verdict above for candidate
+`67f258ef6921e0b07995f4b8ab5fc1fe2b3c2ce3`. I inspected the complete remediation diff from
+`6e6c435` through `67f258e`, reran the prior runtime exploits, added a forged-manifest adversarial
+case, reran the full local checkpoint gate and verified an exact-SHA GitHub CI success. No production
+or other evidence file was edited during this re-review; only this critic log changed.
+
+### Prior finding disposition
+
+| Prior severity | Prior finding | Independent re-review evidence | Disposition |
+|---|---|---|---|
+| P1 | Wave 2 freeze incomplete/stringly | `src/contracts/ids.ts` now owns all 23 stable ID families. `src/contracts/domains.ts` reserves disjoint `time`/`politics`/`war`/`knowledge` state namespaces, typed source-domain messages/transitions and the canonical Pledged-plus-coercion duress representation. Four narrow-import consumer modules register distinct namespaced resolvers together. Concrete system payload unions remain packet-owned, avoiding shared-file edits. | **Resolved** |
+| P1 | Kernel registry mutable after validation | Runtime probe found the registry and each read-only view frozen, no exposed `set`, and the registered resolver identity unchanged after a replacement attempt (`TypeError`). Closure-held writable maps are not reachable. Duplicate-registration tests remain green. | **Resolved** |
+| P1 | Raster manifest mutable/vector-bypass and aliased slots | Canonical content now has 15 distinct `character-<lord>-<full|bust|tight>` slots with real logical sizes/densities. Both the source portrait registry and factory output are recursively frozen through each density source; the attempted SVG mutation left the canonical PNG unchanged. Manifest construction validates descriptors against content dimensions/densities. | **Resolved for every supported/canonical construction path** |
+| P1 | README/wiki opened Gate 2 prematurely | README, wiki and work-packet documentation consistently say review/release is pending; authoritative `logs/STATUS.md` and `work-packets/INDEX.md` remain closed. `logs/compacted/WAVE-01.md` is explicitly provisional. The atomic claim regression passes. | **Resolved** |
+| P1 | Release workflow incomplete | Build version derives from `package.json`; the manual workflow packages game/Storybook/wiki, attaches structured notes and evidence, generates checksums, smoke-tests the extracted game, verifies tag/SHA/prerelease state, downloads the published files and verifies checksums/archive readability. It now runs the maintained 11-test foundation Playwright suite before app smoke. | **Resolved; live publication correctly remains pending until merge to `main`** |
+| P2 | Save accepted contradictory metadata mirrors | Runtime tampering of both mirrored content hash and schema is rejected with exact paths `$.metadata.values.contentHash` and `$.metadata.values.contentSchemaVersion`; top-level and compatibility build/save fields remain covered by import validation. | **Resolved** |
+| P2 | Greyfen visual regression | The redundant title was removed without refreshing away the reviewed expectation. Foundation Playwright passes 11/11, including the 1280x720 baseline, constrained/reduced-motion views, keyboard, focus, reflow and axe checks. | **Resolved** |
+| P2 | Dependency guard incomplete | The guard now parses static, side-effect and literal dynamic imports, walks local dependencies transitively, rejects forbidden transitive app/UI/content/asset directions and checks the simulation browser/nondeterminism surface. Four consumers use narrow contract submodules rather than `@contracts/index`. | **Resolved** |
+
+### Residual finding
+
+| Severity | Location | Finding/evidence | Impact and disposition |
+|---|---|---|---|
+| **P3** | `src/assets/raster/contracts.ts:27-30`; `src/contracts/assets.ts:75-90` | A new forged-input probe passed an independently constructed manifest whose source was `data:image/svg+xml,<svg/>.png`. `validateRasterAsset` checks only the trailing extension, so `resolveFoundationRasterAsset` reported `available: true`. | This cannot affect the shipped/canonical path: the source portrait registry and generated manifest are now deeply frozen, no external manifest is loaded, static scans reject SVG text, and `dist/` contains zero SVG. Harden later by rejecting every `data:`/SVG/icon-font scheme in `validateRasterAsset` or accepting only a branded factory product. **Non-blocking defense-in-depth gap.** |
+
+No P0, P1 or P2 finding remains on the reviewed candidate.
+
+### Re-review gates and evidence
+
+| Check | Result |
+|---|---|
+| `pnpm install --frozen-lockfile` | Pass; already current and no lockfile diff |
+| `pnpm check` | Pass; 107 files |
+| `pnpm typecheck` | Pass |
+| `pnpm test` | Pass; 8 files / 46 tests |
+| `pnpm test:sim` | Pass; 7 files / 28 tests |
+| `pnpm build` | Pass; 130 modules, 367.57 kB JS / 107.22 kB gzip; zero SVG in `dist`; only the intended temporary bust/tight rasters, not the five multi-megabyte full masters, ship in the smoke app |
+| `pnpm build:storybook` | Pass; 241 modules; canonical masters remain Storybook/development evidence |
+| `pnpm wiki:check` | Pass |
+| `CI=1 pnpm exec playwright test --config tests/ui/foundation/playwright.config.ts` | Pass; 11/11 |
+| `CI=1 pnpm test:e2e` | Pass; 1/1 Chromium, axe-clean |
+| Extracted tarball `pnpm test:release-smoke` | Pass; 1/1, correct checkpoint identity and no SVG element |
+| Exact-SHA GitHub CI | Pass; run `32231497920` completed successfully for `67f258e` |
+| Registry/save/portrait mutation runtime probe | Pass; resolver replacement impossible, contradictory mirrors rejected, portrait source unchanged and deeply frozen |
+| New forged-manifest probe | Exposed the non-blocking P3 suffix-validation gap above |
+| `git diff --check origin/main...67f258e` | No production warning; the command reported only this critic log's prior trailing blank line, which the working-tree log update removes |
+| Local/remote `v0.1.0-alpha.1` tag | Absent as required before critic clearance and merge |
+
+### Re-review acceptance verdict
+
+All pre-release WP-019 acceptance items are independently satisfied at `67f258e`: incoming histories
+and critic dispositions are attributable; install is frozen; state creation/import is deterministic
+and compatibility-safe; four packet consumers compile against nonoverlapping narrow contracts;
+dependency and raster boundaries are enforced on supported paths; game, Storybook, wiki, simulation,
+visual/accessibility and extracted-artifact gates pass together.
+
+The release/tag URL and the final atomic `WAVE-01`/status/index gate transition are intentionally not
+present yet because the packet orders them after critic clearance and merge to `main`. They remain
+mandatory release/integrator actions, not residual implementation failures.
+
+**Final re-review verdict: Clear for integration.** Candidate
+`67f258ef6921e0b07995f4b8ab5fc1fe2b3c2ce3` may be merged to `main` and passed to the `$release`
+workflow. Gate 2 must remain closed until `v0.1.0-alpha.1` is published and verified at that exact
+integrated SHA and the compacted log, status, index, README and wiki are updated atomically. The P3
+forged-manifest hardening note does not block integration or the foundation checkpoint.

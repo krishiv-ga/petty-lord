@@ -87,6 +87,7 @@ Explicitly out of scope:
 | P2 | Save accepts contradictory metadata mirror | Fixed: both mirror fields validate with exact paths and tamper regression |
 | P2 | Greyfen title duplication/visual diff | Fixed: nonduplicated player detail restored; foundation Playwright 11/11 without baseline refresh |
 | P2 | Dependency guard misses dynamic/transitive/browser imports | Fixed: local dependency walk covers static/side-effect/dynamic imports and broad browser/nondeterminism globals; Wave 2 consumers use narrow modules |
+| P3 | Forged raster manifest can suffix-spoof an SVG data URI as `.png` | Fixed after clearance: runtime validation rejects data/blob/javascript schemes with regression evidence |
 
 ## Design, balance, or schema impact
 
