@@ -1,0 +1,59 @@
+.pl-foundation-scope {
+  min-width: 0;
+  color: var(--pl-ink);
+  font-family: var(--pl-font-body);
+  font-size: 1rem;
+  line-height: 1.45;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+.pl-foundation-scope *,
+.pl-foundation-scope *::before,
+.pl-foundation-scope *::after {
+  box-sizing: border-box;
+}
+
+.pl-foundation-scope :where(button, input, select, textarea) {
+  font: inherit;
+}
+
+.pl-foundation-scope :where(button, [href], input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--pl-focus-ring);
+  outline-offset: 3px;
+}
+
+.pl-foundation-scope :where(button, [href], input, select, textarea):disabled {
+  cursor: not-allowed;
+}
+
+.pl-number {
+  font-family: var(--pl-font-ledger);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.pl-caps-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.pl-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (forced-colors: active) {
+  .pl-foundation-scope :where(button, [href], input, select, textarea, [tabindex]):focus-visible {
+    outline-color: Highlight;
+  }
+}
