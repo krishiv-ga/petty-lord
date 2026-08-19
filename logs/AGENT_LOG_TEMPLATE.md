@@ -2,10 +2,9 @@
 
 - **Packet:** `<WP-### packet title>`
 - **Role:** Implementer | Critic | Integrator | Auditor | Tuner
-- **Branch/worktree:** `<branch>`
-- **Starting revision:** `<sha>`
-- **Ending revision:** `<sha or pending>`
-- **PR:** `<url or pending>`
+- **Git target:** `main`
+- **Starting revision:** `<main sha>`
+- **Ending revision:** `<main sha or pending>`
 - **Status:** In progress | Blocked | Ready for critic | Ready for integration | Complete
 
 ## Scope
@@ -58,6 +57,6 @@ Use `None yet — critic pending` before review. Critics use this section for fi
 ## Integration notes
 
 - Shared contracts touched: `<list or none>`
-- Merge order constraints: `<details or none>`
+- Reconciliation/order constraints on `main`: `<details or none>`
 - Follow-up packets: `<IDs or none>`
 - Integration-ready: Yes/No
