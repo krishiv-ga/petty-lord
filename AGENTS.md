@@ -1,6 +1,8 @@
 # AGENTS.md
 
-This file governs the entire repository. A nested `AGENTS.md` may narrow rules for its own subtree, but may not weaken determinism, testing, logging, review, visual-direction, or design-authority requirements.
+This file governs the entire repository. A nested `AGENTS.md` may narrow rules for its own subtree, but may not weaken determinism, testing, logging, review, visual-direction, design-authority, or **main-only Git execution** requirements.
+
+**Repository Git policy:** agent work happens directly on `main`. Agents must not create, switch to, push, or require packet/feature/integration/PR branches. Any older branch/PR wording elsewhere in the repository is superseded by this rule and must be interpreted as commit/diff review on `main` until that wording is corrected.
 
 ## 1. Read order before doing work
 
@@ -26,25 +28,28 @@ Implementation begins from [`work-packets/INDEX.md`](./work-packets/INDEX.md).
 - Do not opportunistically implement later packets.
 - Do not change a locked design rule merely because a different implementation is easier.
 - When a packet reveals a genuine design defect, record evidence in the packet log and use `$design-guard`; do not improvise a new rule in code.
-- Parallel agents must use separate branches/worktrees and must not edit the same authoritative files.
+- All packet work targets `main`. Parallel agents may proceed only when their owned paths are disjoint; branch isolation is not permitted.
+- Before starting, before committing, and before pushing, synchronize with `origin/main` and re-check whether another agent changed an owned or shared path.
 - The wave integrator, not parallel implementers, updates `work-packets/INDEX.md`, shared compacted logs, shared dependency versions, and cross-packet seams.
 
-## 3. Parallelism is the default
+## 3. Parallelism on `main`
 
-Use the fan-out gates in the packet index aggressively.
+Use the fan-out gates in the packet index aggressively, but keep Git execution single-branch.
 
-- One packet = one isolated branch/worktree.
-- Branch naming: `wp/WP-###-short-slug`.
+- `main` is the only working and push branch for agents.
+- Do not run `git checkout -b`, `git switch -c`, create packet branches, create integration branches, or push any non-`main` ref.
+- Separate clones/processes are allowed when useful for concurrent agents, but every checkout must remain on `main`; do not use branch-backed worktrees to simulate packet isolation.
 - A packet may spawn sub-agents for independent subproblems if their file ownership is disjoint.
-- Never parallelize two tasks that mutate the same state contract, lockfile, root configuration, wiki index, release configuration, or shared barrel file.
+- Never parallelize two tasks that mutate the same state contract, lockfile, root configuration, wiki index, release configuration, shared barrel file, packet index, compacted log, or other shared seam.
 - When several sequential changes share the same seam, keep them inside one packet rather than creating a chain of micro-packets.
-- Do not begin a later wave until its integration packet is merged and the index explicitly marks the fan-out gate open.
+- If `origin/main` advances while an agent has local commits, rebase those local commits onto the latest `origin/main`, rerun affected checks, and push `main`; do not create a conflict-resolution branch or merge branch.
+- Do not begin a later wave until its integration packet is committed to `main` and the index explicitly marks the fan-out gate open.
 
 ## 4. Implementer, critic, and integrator roles
 
 ### Implementer
 
-Owns the packet, makes the change, writes tests, runs required checks, and writes an agent log.
+Owns the packet, makes the change, writes tests, runs required checks, commits the packet result to `main`, and writes an agent log.
 
 ### Critic
 
@@ -56,13 +61,13 @@ Any significant change must receive an independent critic pass. A change is sign
 - touches more than roughly 200 meaningful lines or more than five production files;
 - creates a new abstraction that later packets will depend on.
 
-The critic must inspect the actual diff and test evidence, try to falsify the implementation, and write a separate critic log. Self-review does not count. The critic may propose patches; the implementer remains responsible for resolving or explicitly rejecting every finding with evidence.
+The critic must inspect the actual `main` commit/diff and test evidence, try to falsify the implementation, and write a separate critic log. Self-review does not count. The critic may propose patches; the implementer remains responsible for resolving or explicitly rejecting every finding with evidence. Critic review does not require a pull request.
 
 ### Integrator
 
-Use an integrator when changes cross packet boundaries, alter shared seams, combine two or more parallel branches, change dependency versions, or create merge/conflict risk. The lead agent decides whether an extra integrator is useful inside a packet; wave-level integration packets are always mandatory.
+Use an integrator when changes cross packet boundaries, alter shared seams, change dependency versions, require reconciliation among multiple packet results already on `main`, or create conflict risk. The lead agent decides whether an extra integrator is useful inside a packet; wave-level integration packets are always mandatory.
 
-An integrator must not merely merge green branches. It must verify contracts together, run the combined suite, resolve semantic conflicts, compact logs, update the packet index, and state whether the next fan-out gate is open.
+An integrator does not merge feature branches. It verifies the combined `main` state, checks packet commits and evidence together, resolves semantic conflicts directly on `main`, runs the combined suite, compacts logs, updates the packet index, and states whether the next fan-out gate is open.
 
 ## 5. Mandatory logging
 
@@ -78,7 +83,7 @@ Use the format in [`logs/AGENT_LOG_TEMPLATE.md`](./logs/AGENT_LOG_TEMPLATE.md). 
 - tests/checks with outcomes;
 - critic findings and resolutions;
 - known risks, deferred work, and follow-up packet IDs;
-- commit SHA and PR URL when available.
+- starting and ending commit SHA(s) on `main`.
 
 Do not paste enormous raw terminal output. Summarize it and point to CI artifacts or traces.
 
@@ -86,17 +91,19 @@ At the end of each wave, the integrator writes a compact ChatGPT-facing log unde
 
 No packet is complete without its logs.
 
-## 6. Git and review discipline
+## 6. Git and review discipline — `main` only
 
-- Start from the current integrated default branch.
-- Keep packet branches focused; do not mix unrelated cleanup.
-- Commit all intended changes and leave the worktree clean.
-- Open a draft PR for significant work unless the packet explicitly says otherwise.
-- PR title begins with the packet ID.
-- PR body links the packet, agent log, critic log, tests, screenshots/traces where relevant, and any design amendment.
-- Do not force-push over another agent's work.
-- Do not amend or rewrite commits owned by another packet.
-- Do not merge a packet that lacks acceptance-test evidence.
+- Start from the current `origin/main`; `main` is the only branch agents may use for repository work.
+- At the start of work, run `git switch main` and `git pull --ff-only origin main` (or an equivalent safe synchronization).
+- Before committing or pushing, fetch/synchronize `origin/main` again and inspect changes to owned/shared paths.
+- Keep packet commits focused; do not mix unrelated cleanup.
+- Commit all intended changes and leave the checkout clean.
+- Significant work requires an independent critic, but **does not require a PR**. Review the relevant `main` commit(s), diff, logs, tests, screenshots/traces, and design amendments directly.
+- If remote `main` advanced while local commits exist, rebase local commits onto latest `origin/main`; do not create a temporary branch to resolve it.
+- Do not force-push `main`.
+- Do not rewrite or amend commits that another packet/agent has already pushed to `main`.
+- Do not push a packet result that lacks its required acceptance-test evidence.
+- Integration packets reconcile and verify the accumulated `main` history; they do not merge packet branches.
 
 ### GitHub CLI availability
 
@@ -106,7 +113,7 @@ GitHub CLI is available at the machine level. On the current Windows development
 
 It is currently authenticated as `krishiv-ga` with `repo` and `workflow` access. Before a write-heavy GitHub operation, run `gh auth status` (or the absolute executable path when `gh` is not on `PATH`) to verify the session is still valid.
 
-Use the machine-level CLI directly for local repository/branch/PR discovery, GitHub Actions workflow dispatch/rerun/log inspection, release operations, and verification when that is the most reliable workflow. Do **not** install or vendor GitHub CLI as a project dependency merely to make it available to agents.
+Use the machine-level CLI directly for repository/`main` state discovery, GitHub Actions workflow dispatch/rerun/log inspection, release operations, and verification when that is the most reliable workflow. Do **not** install or vendor GitHub CLI as a project dependency merely to make it available to agents.
 
 ## 7. Deterministic simulation rules
 
@@ -187,7 +194,7 @@ Canonical design changes must update `/designer` first, then the wiki summary. T
 
 ## 12. Releases
 
-Major checkpoints use GitHub Releases according to [`RELEASES.md`](./RELEASES.md). Releases are manual, deliberate integration events—not automatic on every merge.
+Major checkpoints use GitHub Releases according to [`RELEASES.md`](./RELEASES.md). Releases are manual, deliberate integration events—not automatic on every commit or push to `main`.
 
 Only a release/integration packet may create a tag or GitHub Release. It must include green gates, a compacted log, known issues, build artifact, version consistency, and exact commit SHA.
 
@@ -199,7 +206,7 @@ Use repository-local skills when their trigger matches. The index is [`SKILLS.md
 
 - `$packet` — execute a work packet;
 - `$critic` — adversarially review significant work;
-- `$integrate` — combine parallel packets;
+- `$integrate` — reconcile multiple packet results on `main`;
 - `$hunt` — find gameplay/design exploits rather than technical bugs;
 - `$tune` — tune gameplay values with simulation evidence;
 - `$bugfix` — make a direct technical bugfix with reproduction and regression test;
@@ -215,7 +222,7 @@ A packet completion report must state:
 1. what changed;
 2. acceptance tests and results;
 3. critic status and unresolved findings;
-4. files/logs/PR produced;
+4. files/logs/`main` commit SHA(s) produced;
 5. risks and deferred items;
 6. whether the packet is integration-ready;
 7. whether the next fan-out gate is open (integrators only).
