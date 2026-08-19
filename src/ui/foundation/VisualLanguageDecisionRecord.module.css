@@ -1,0 +1,239 @@
+.record {
+  min-height: 100vh;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  background:
+    linear-gradient(rgb(29 21 17 / 95%), rgb(29 21 17 / 98%)),
+    repeating-linear-gradient(90deg, #4a392e 0 2px, #2f241e 2px 7px);
+}
+
+.hero,
+.section,
+.split {
+  max-width: 76rem;
+  margin-inline: auto;
+}
+
+.hero {
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border-block: 4px double var(--pl-brass);
+  background: var(--pl-vellum-bright);
+  box-shadow: var(--pl-shadow-letter);
+}
+
+.hero > p:first-child,
+.sectionHeading > p,
+.typeSpecimen > p:first-child,
+.edgeSpecimen > p:first-child,
+.principles > p,
+.rejected > p {
+  margin: 0 0 0.35rem;
+  color: var(--pl-burgundy);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 48rem;
+  margin: 0;
+  font-family: var(--pl-font-display);
+  font-size: clamp(2.35rem, 6vw, 5.2rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.9;
+}
+
+.hero > p:last-child {
+  max-width: 50rem;
+  margin: 1.25rem 0 0;
+  color: var(--pl-ink-soft);
+  font-size: 1.08rem;
+}
+
+.section {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #8e744d;
+  background: #d9c194;
+}
+
+.sectionHeading {
+  margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: var(--pl-edge-hairline);
+}
+
+.sectionHeading h2,
+.typeSpecimen h2 {
+  margin: 0;
+  font-family: var(--pl-font-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.palette {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+}
+
+.palette article {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.45rem;
+  border-bottom: 1px dotted var(--pl-ink-soft);
+}
+
+.palette p,
+.palette strong {
+  display: block;
+  margin: 0;
+}
+
+.palette p {
+  color: var(--pl-ink-soft);
+  font-size: 0.82rem;
+}
+
+.swatch {
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid var(--pl-ink-soft);
+}
+
+.swatch[data-token="vellum"] {
+  background: var(--pl-vellum);
+}
+.swatch[data-token="ink"] {
+  background: var(--pl-ink);
+}
+.swatch[data-token="smoke"] {
+  background: var(--pl-smoke);
+}
+.swatch[data-token="metal"] {
+  background: linear-gradient(90deg, var(--pl-brass) 50%, var(--pl-iron) 50%);
+}
+.swatch[data-token="burgundy"] {
+  background: var(--pl-burgundy);
+}
+.swatch[data-token="bluegreen"] {
+  background: var(--pl-bluegreen);
+}
+.swatch[data-token="warning"] {
+  background: var(--pl-warning);
+}
+.swatch[data-token="gold"] {
+  background: var(--pl-church-gold);
+}
+.swatch[data-token="ash"] {
+  background: var(--pl-ash);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.typeSpecimen,
+.edgeSpecimen,
+.principles,
+.rejected {
+  padding: 1.25rem;
+  border: 1px solid var(--pl-vellum-shadow);
+  background: var(--pl-vellum-bright);
+  box-shadow: var(--pl-shadow-raised);
+}
+
+.typeSpecimen > p:not(:first-child) {
+  line-height: 1.55;
+}
+
+.typeSpecimen small {
+  display: block;
+  padding-top: 0.65rem;
+  border-top: 1px dotted var(--pl-smoke);
+  color: var(--pl-ink-soft);
+}
+
+.edgeSpecimen {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+}
+
+.edgeSpecimen > div {
+  padding: 0.7rem;
+}
+
+.edgeSpecimen [data-edge="letter"] {
+  border: 1px solid var(--pl-vellum-shadow);
+  box-shadow: var(--pl-shadow-letter);
+}
+
+.edgeSpecimen [data-edge="institution"] {
+  border: var(--pl-edge-brass);
+}
+
+.edgeSpecimen [data-edge="invalid"] {
+  border: 2px dashed var(--pl-warning);
+  color: var(--pl-warning);
+  font-weight: 800;
+}
+
+.states,
+.intelligenceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.intelligenceRow {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dotted var(--pl-ink-soft);
+}
+
+.principles ul,
+.rejected ul {
+  margin: 0;
+  padding-inline-start: 1.25rem;
+}
+
+.principles li,
+.rejected li {
+  margin-block: 0.42rem;
+}
+
+.rejected {
+  border: 2px dashed var(--pl-warning);
+}
+
+.rejected li::marker {
+  color: var(--pl-warning);
+}
+
+@media (max-width: 760px) {
+  .palette,
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (forced-colors: active) {
+  .record,
+  .hero,
+  .section,
+  .typeSpecimen,
+  .edgeSpecimen,
+  .principles,
+  .rejected {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+}

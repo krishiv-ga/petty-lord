@@ -1,0 +1,109 @@
+.frame {
+  position: relative;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  vertical-align: middle;
+  isolation: isolate;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.frame[data-load-state="loading"]::before {
+  position: absolute;
+  inset: 12%;
+  z-index: -1;
+  border: 1px dashed var(--pl-ash);
+  background: repeating-linear-gradient(135deg, rgb(72 71 68 / 8%) 0 3px, transparent 3px 7px);
+  content: "";
+}
+
+.fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-content: center;
+  border: 2px dashed currentcolor;
+  background: var(--pl-vellum-bright);
+  color: var(--pl-warning);
+  font-size: max(0.55rem, min(0.72rem, 18%));
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.visibilityLabel,
+.stateLabel {
+  position: absolute;
+  z-index: 2;
+  padding: 0.1rem 0.28rem;
+  border: 1px solid currentcolor;
+  background: var(--pl-vellum-bright);
+  color: var(--pl-ink);
+  font-family: var(--pl-font-ledger);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.visibilityLabel {
+  inset: -0.2rem auto auto -0.35rem;
+  transform: rotate(-4deg);
+}
+
+.stateLabel {
+  inset: auto -0.45rem -0.2rem auto;
+  transform: rotate(3deg);
+}
+
+.frame[data-visibility="private"] .visibilityLabel {
+  background: var(--pl-private);
+  color: white;
+}
+
+.frame[data-visibility="public"] .visibilityLabel {
+  background: var(--pl-bluegreen);
+  color: white;
+}
+
+.frame[data-raster-state="selected"] {
+  filter: drop-shadow(0 0 0.25rem rgb(11 97 114 / 65%));
+}
+
+.frame[data-raster-state="selected"] .stateLabel {
+  background: var(--pl-focus);
+  color: var(--pl-focus-contrast);
+}
+
+.frame[data-raster-state="warning"] .stateLabel {
+  background: var(--pl-warning);
+  color: white;
+}
+
+.frame[data-raster-state="disabled"] {
+  filter: grayscale(1) contrast(0.72);
+  opacity: 0.62;
+}
+
+@media (forced-colors: active) {
+  .image {
+    forced-color-adjust: none;
+  }
+
+  .visibilityLabel,
+  .stateLabel,
+  .fallback {
+    background: Canvas;
+    color: CanvasText;
+  }
+}

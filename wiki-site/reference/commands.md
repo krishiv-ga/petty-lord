@@ -14,3 +14,7 @@
 | `pnpm wiki:dev` | Run the VitePress wiki locally. |
 | `pnpm wiki:build` | Build the static wiki. |
 | `pnpm wiki:check` | Build the wiki and fail on broken internal links. |
+
+The full checkpoint gate is the same finite surface used by CI and the manual release workflow:
+frozen install, check, typecheck, unit contracts, headless simulation, production build, Storybook,
+wiki and Chromium smoke. WP-019 additionally runs the focused foundation Storybook Playwright suite.

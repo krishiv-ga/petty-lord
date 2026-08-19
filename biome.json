@@ -9,6 +9,9 @@
       "!coverage",
       "!playwright-report",
       "!test-results",
+      "!release-smoke",
+      "!release-artifacts",
+      "!release-verify",
       "!wiki-site/.vitepress/cache",
       "!wiki-site/.vitepress/dist",
       "!pnpm-lock.yaml"
