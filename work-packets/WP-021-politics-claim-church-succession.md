@@ -153,7 +153,19 @@ Implement or register typed handlers for:
 
 Where an external system owns the fact—army leverage, battle shared risk, secret discovery—accept a typed query/effect rather than importing its private state.
 
-### 8. Exact succession constitution
+### 8. Political action presentation semantics
+
+Political actions must expose their **meaning**, never literal UI colors.
+
+- **Offer Bargain**, **Request Declaration**, **Patronize Church**, and ordinary **Declare Candidacy** confirmation are normal commit/confirm semantics even when the fiction represents confirmation by pressing a red wax seal.
+- A red wax seal is an in-world object/identity cue, not automatic evidence that the surrounding action is dangerous.
+- **Break Agreement** may be classified as destructive/danger when its projection includes material breach/loss consequences; **Threaten** may be hostile/warning/danger according to the actual projected consequence. These classifications must follow gameplay meaning rather than palette.
+- Do not place color names or CSS-oriented button variants in political simulation/content. Emit semantic facts/reasons and, when supported by the frozen projection contract, a neutral intent/severity category.
+- If a shared semantic intent field is not available after WP-019, document the exact proposed addition for WP-029 rather than changing shared contracts independently.
+
+Add fixtures distinguishing an ordinary sealed bargain confirmation from a destructive agreement break. Wave 3 will render the normal seal confirmation with a surface that keeps the seal visibly separate rather than a red-filled button.
+
+### 9. Exact succession constitution
 
 Implement the full end procedure:
 
@@ -172,7 +184,7 @@ Implement the full end procedure:
 
 Every ballot, released vote, reason and tie-break must be reconstructed in structured ending data.
 
-### 9. Constitutional exploit scenarios
+### 10. Constitutional exploit scenarios
 
 Use `$hunt` or an equivalent adversarial critic pass to test:
 
@@ -198,6 +210,7 @@ Do not tune values inside this packet unless a canonical arithmetic defect block
 - Public/private knowledge is supplied by WP-023 projections; politics must not read omniscient secrets unless resolving authoritative consequences.
 - External military facts arrive through narrow queries/hooks.
 - No generic additive victory total.
+- Political presentation metadata describes semantic intent/severity only; it never encodes literal colors or assumes that a wax-seal color determines button danger styling.
 
 ## Acceptance tests
 
@@ -211,6 +224,7 @@ Do not tune values inside this packet unless a canonical arithmetic defect block
 - [ ] A dispossessed lord retains title/vote.
 - [ ] Player historical vote cannot reverse loss.
 - [ ] Ending reconstruction explains every vote and decisive rule.
+- [ ] Ordinary sealed bargain confirmation is semantically distinct from destructive agreement-breaking behavior, with no literal color coupling.
 - [ ] No hidden KING SCORE or relationship shortcut exists.
 - [ ] Independent critic and hostile constitutional pass clear severe exploits.
 - [ ] Standard gates and wiki sync pass.
@@ -220,6 +234,7 @@ Do not tune values inside this packet unless a canonical arithmetic defect block
 - support-transition matrix;
 - exact opening evaluation output;
 - bargain/collateral lifecycle traces;
+- political action semantic-intent fixture;
 - full ballot reconstructions for coalition, Church tie, Capital tie, Claim tie, three-candidate runoff, dispossessed win and player-eliminated vote;
 - hostile exploit report;
 - implementer and critic logs.
@@ -228,7 +243,7 @@ Do not tune values inside this packet unless a canonical arithmetic defect block
 
 A lead implementer owns state-machine and constitution APIs. Disjoint sub-agents may work on Claim/Church tests and ballot scenario fixtures, but one owner must reconcile all political reasons and tie-break order.
 
-The critic should act as an adversarial political player, not merely inspect types. Use `$hunt` against the completed packet and record balance-only findings separately for WP-040.
+The critic should act as an adversarial political player, not merely inspect types. Use `$hunt` against the completed packet and record balance-only findings separately for WP-040. The critic should also reject accidental presentation semantics that classify ordinary agreement confirmation as destructive merely because the UI fiction uses a red wax seal.
 
 WP-029 integrates military leverage, secret discovery, AI choices, resource charging and death trigger.
 
@@ -242,4 +257,4 @@ Create:
 
 ## Completion handoff
 
-Document public political queries/effects, required WP-022/WP-023 hooks, succession input/output structures, hostile findings and integration risks. State integration readiness.
+Document public political queries/effects, required WP-022/WP-023 hooks, succession input/output structures, action semantic-intent assumptions, hostile findings and integration risks. State integration readiness.
