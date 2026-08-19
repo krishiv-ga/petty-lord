@@ -120,7 +120,22 @@ Prove every canonical action can be started, previewed, serialized, resolved, ca
 
 Build a machine-readable action contract test from the canonical content registry.
 
-### 5. New-game initialization
+### 5. Freeze UI-facing action intent semantics
+
+Reconcile WP-020/WP-021 presentation-semantic handoffs into one shared Wave 3 contract.
+
+The final preview/decision shape must distinguish gameplay meaning without embedding presentation colors:
+
+- normal **confirm/commit**;
+- caution/warning where appropriate;
+- destructive/danger only when the action itself carries genuinely destructive, hostile, irreversible-loss or critical meaning;
+- disabled/blocked as a separate legality state.
+
+Specific regression requirement: **“Seal and begin the offer” is a normal commit/confirm action, not danger-red by semantic default.** A red wax seal is an in-world art cue and must remain independently legible from the surrounding clickable surface. The Wave 3 UI is expected to use a parchment/surface-colored confirmation control with an intentional outline/edge or equivalent authored treatment rather than a red-filled container when the seal itself is red.
+
+Do not expose `red`, `burgundy`, CSS class names, or other literal palette decisions through simulation/content projections. Freeze the semantic contract here so WP-031 can render it correctly without reinterpreting gameplay intent.
+
+### 6. New-game initialization
 
 Implement one public deterministic new-game function:
 
@@ -133,7 +148,7 @@ Implement one public deterministic new-game function:
 - produces the first chronicle/onboarding-safe projection;
 - passes opening invariants and exact candidate tests.
 
-### 6. Headless player-policy and debug runner
+### 7. Headless player-policy and debug runner
 
 Provide a documented headless runner capable of:
 
@@ -148,7 +163,7 @@ Provide a documented headless runner capable of:
 
 Include sample policies representing passive, coalition, legitimacy/intrigue and military attempts. They are test policies, not claimed optimal bots.
 
-### 7. Persistence and replay contract
+### 8. Persistence and replay contract
 
 Finalize save codec/migrations sufficiently for UI integration:
 
@@ -162,7 +177,7 @@ Finalize save codec/migrations sufficiently for UI integration:
 
 IndexedDB orchestration remains WP-032, but the pure save contract must be complete.
 
-### 8. Cross-system scenarios
+### 9. Cross-system scenarios
 
 Implement canonical end-to-end headless tests for at least:
 
@@ -184,7 +199,7 @@ Implement canonical end-to-end headless tests for at least:
 - every opening includes a Renard vulnerability;
 - same seed/replay/save reproduces exactly.
 
-### 9. Whole-game hostile pass
+### 10. Whole-game hostile pass
 
 Use `$hunt` against the integrated headless game. Attack:
 
@@ -205,7 +220,7 @@ Use `$hunt` against the integrated headless game. Attack:
 
 Correct rule/implementation defects now. Record tuning questions with reproducible seeds for WP-040.
 
-### 10. Combined critic and release
+### 11. Combined critic and release
 
 Run an independent combined critic focused on state correctness, cross-domain double effects, constitution, AI knowledge and save determinism.
 
@@ -220,7 +235,7 @@ After clearance, release `v0.2.0-alpha.1` with:
 
 This checkpoint means “the complete game rules run headlessly,” not “the player-facing game is finished.”
 
-### 11. Open Wave 3
+### 12. Open Wave 3
 
 Last, update status/index and mark WP-030/031/032/033 Ready. Mark WP-034 Ready only when the approved raster asset drop exists; otherwise state its prerequisite explicitly.
 
@@ -229,7 +244,7 @@ Freeze:
 - simulation command API;
 - projection boundaries;
 - save codec/schema version;
-- action preview/result shapes;
+- action preview/result shapes, including semantic confirm/warning/danger intent without literal color coupling;
 - decision queue;
 - knowledge-safe forecast input;
 - ending reconstruction;
@@ -239,6 +254,7 @@ Freeze:
 
 - [ ] A fresh seed can run from initialization through death and a legal winner without React.
 - [ ] Every action contract has preview/start/resolve/cancel-or-invalidate/serialization coverage.
+- [ ] Normal sealed bargain confirmation is a normal confirm/commit semantic; destructive actions are classified separately; no UI-facing gameplay projection contains literal color styling.
 - [ ] Every end-to-end scenario above passes and reconstructs reasons.
 - [ ] AI uses one Intent, actual resources and observer-limited knowledge in the combined game.
 - [ ] Same seed + command script is identical across uninterrupted, save/reload and chunked advancement.
@@ -252,7 +268,7 @@ Freeze:
 
 - integration/effect-routing map;
 - final GameState/schema inventory;
-- full action-contract report;
+- full action-contract report including semantic-intent cases;
 - end-to-end scenario output and ending reconstructions;
 - same-seed/save/replay hashes;
 - batch sample across multiple seeds/policies;
@@ -278,4 +294,4 @@ Create:
 
 ## Completion handoff
 
-State exact frozen UI-facing commands/projections/save/ending/assets contracts, release tag/SHA, balance seeds deferred to WP-040, and legal Wave 3 fan-out. The next gate opens only after the compacted log/status/index commit.
+State exact frozen UI-facing commands/projections/save/ending/assets contracts, including action-intent semantics, release tag/SHA, balance seeds deferred to WP-040, and legal Wave 3 fan-out. The next gate opens only after the compacted log/status/index commit.
