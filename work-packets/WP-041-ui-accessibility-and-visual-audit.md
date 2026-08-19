@@ -158,6 +158,21 @@ Curate a compact high-value screenshot suite covering the canonical states above
 
 After fixes, use an independent critic unfamiliar with the implementation to navigate the production build at minimum viewport and keyboard-only. The critic should actively look for one remaining “AI dashboard” region or inaccessible path.
 
+## Specific 1.0 regression: sealed confirmation versus danger
+
+Carry forward the Storybook finding recorded before Wave 2: a red wax-seal icon becomes visually ambiguous when placed inside a solid red confirmation button.
+
+Audit every action-preview and political-confirmation control for the following:
+
+- ordinary **confirm/commit/seal** actions must not default to a solid danger-red container;
+- a red wax seal must remain visually distinct from its surrounding clickable surface;
+- preferred normal treatment is the vellum/page/surface family with an authored outline, inset edge, brass/ink/burgundy border, pressed state and visible focus, or an equally clear bespoke solution;
+- red-filled/danger treatment is reserved for genuinely destructive, hostile, irreversible-loss or critical actions according to the semantic intent frozen by WP-029;
+- normal commit versus danger must remain distinguishable in grayscale/high-contrast review and without relying on color alone;
+- include a before/after regression capture of **“Seal and begin…”** beside a genuine destructive/breach action.
+
+This specific ambiguity must already be fixed by the playable beta through WP-031. WP-041 owns the broader 1.0 visual-improvement pass: hierarchy, materials, density, polish and consistency across the whole game rather than redesigning the rules.
+
 ## Implementation contract
 
 - UI fixes do not change authoritative gameplay outcomes.
@@ -174,6 +189,7 @@ After fixes, use an independent critic unfamiliar with the implementation to nav
 - [ ] 1280×720 contains every critical control without clipping or hover-only dependency.
 - [ ] Dense Deathbed state remains scannable and map/political priorities are clear.
 - [ ] No primary region resembles a generic SaaS dashboard/card template after review.
+- [ ] Ordinary sealed confirmation keeps a red seal legible on a non-danger surface and is visibly distinct from genuine destructive action styling.
 - [ ] Production UI/assets/imports contain no SVG/icon-font/prohibited icon library.
 - [ ] Raster assets are legible at actual sizes or have explicit blocking regeneration requests.
 - [ ] Curated visual regression suite passes.
@@ -182,7 +198,7 @@ After fixes, use an independent critic unfamiliar with the implementation to nav
 
 ## Required evidence
 
-- before/after screenshot matrix;
+- before/after screenshot matrix, including sealed-confirmation versus destructive-action regression;
 - keyboard path and focus-order evidence;
 - axe/manual accessibility report;
 - raster audit/contact excerpts and regeneration requests;
