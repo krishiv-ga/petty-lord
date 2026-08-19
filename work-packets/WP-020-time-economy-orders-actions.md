@@ -145,6 +145,21 @@ Expose knowledge-safe, UI-ready projections for:
 
 These projections reveal only player-owned exact resources; later observer projections remain WP-023 territory.
 
+### 8. Presentation-semantic handoff
+
+Wave 2 owns gameplay meaning, not literal presentation colors. Action/decision projections must therefore preserve **semantic intent** without encoding CSS/color names.
+
+Rules:
+
+- ordinary affirmative confirmation or commitment—such as **Seal and begin the offer**—is a normal `confirm`/`commit` intent, **not** a danger intent merely because the fiction uses a red wax seal;
+- destructive/danger intent is reserved for actions with genuinely destructive, hostile, irreversible-loss or critical consequences, such as abandoning a binding agreement, knowingly accepting a catastrophic loss, or an explicitly dangerous act;
+- warning and irreversible metadata remain independent of the visual color chosen later;
+- no projection/content field should say `redButton`, `dangerColor`, `burgundyCTA` or otherwise encode literal styling;
+- the decorative/semantic identity of a wax seal is independent from the surrounding control surface;
+- if the WP-019 frozen contracts lack a suitable semantic intent/severity field, document the exact proposed seam for WP-029 rather than independently editing shared contracts in this parallel packet.
+
+Add a contract fixture proving a normal bargain/offer confirmation is not classified as destructive/danger merely because the action is “sealed.” This is a semantic handoff only; the full visual correction belongs to Wave 3 and the final WP-041 UI audit.
+
 ## Implementation contract
 
 - All changes run through deterministic scheduler transitions.
@@ -153,6 +168,7 @@ These projections reveal only player-owned exact resources; later observer proje
 - No imports from UI/browser storage.
 - No politics/war/AI behavior smuggled into common code.
 - No silent clamping except where the canonical bounded rating rule explicitly requires it; invalid negative costs/state fail invariants.
+- UI-facing projections express intent/severity semantically and never hardcode visual colors.
 
 ## Acceptance tests
 
@@ -165,6 +181,7 @@ These projections reveal only player-owned exact resources; later observer proje
 - [ ] Raise Taxes escalates Strain→Unrest exactly and cannot be spammed through save/reload.
 - [ ] Gift and Court diminishing/refusal rules use timestamps and survive save/load.
 - [ ] Action preview reports every required commitment/cancellation field.
+- [ ] Normal confirm/commit actions are semantically distinct from genuine destructive/danger actions, with no literal color coupling in projections/content.
 - [ ] No wall-clock/browser dependency enters owned modules.
 - [ ] Standard gates and independent critic pass.
 - [ ] Wiki page is synchronized.
@@ -176,13 +193,14 @@ These projections reveal only player-owned exact resources; later observer proje
 - same-dawn completion-before-death test;
 - order cancellation/invalidation matrix;
 - hand-calculated anti-spam examples;
+- action semantic-intent fixture showing normal commit versus destructive action;
 - implementer and critic logs.
 
 ## Agent topology
 
 One implementer owns shared economy/Order APIs. Internal sub-agents may independently test clock/death and economy arithmetic, but must not fork the same lifecycle code.
 
-The critic should target off-by-one dawn behavior, fractional drift, phase-boundary durations, double charging, cancellation refunds, Order slot softlocks, unresolved decisions and leakage of domain logic.
+The critic should target off-by-one dawn behavior, fractional drift, phase-boundary durations, double charging, cancellation refunds, Order slot softlocks, unresolved decisions, leakage of domain logic, and accidental presentation/color coupling in action projections.
 
 WP-029 owns integration with relationships, war, AI and succession.
 
@@ -195,4 +213,4 @@ Create:
 
 ## Completion handoff
 
-Document public handlers/effects, exact phase/death semantics, economy fixtures, Order/reaction registration APIs and proposed WP-029 seam changes. State integration readiness.
+Document public handlers/effects, exact phase/death semantics, economy fixtures, Order/reaction registration APIs, action semantic-intent assumptions, and proposed WP-029 seam changes. State integration readiness.
