@@ -25,6 +25,9 @@ describe('GitHub Actions safety contracts', () => {
     expect(release).toMatch(/release-notes\/\$\{RELEASE_VERSION\}\.md/);
     expect(release).toMatch(/petty-lord-storybook-\$\{RELEASE_VERSION\}\.tar\.gz/);
     expect(release).toContain('pnpm test:release-smoke');
+    expect(release).toContain(
+      'pnpm exec playwright test --config tests/ui/foundation/playwright.config.ts',
+    );
     expect(release).toContain('--notes-file release-artifacts/release-notes.md');
     expect(release).toContain('gh release download');
     expect(release).toContain('sha256sum -c checksums.sha256');

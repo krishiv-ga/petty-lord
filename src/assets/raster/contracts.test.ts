@@ -59,6 +59,13 @@ describe('raster asset contract', () => {
     expect(Object.keys(characterPortraits)).toEqual(['edric', 'ysabel', 'renard', 'oswin', 'mara']);
 
     for (const [id, portraits] of Object.entries(characterPortraits)) {
+      expect(Object.isFrozen(portraits)).toBe(true);
+      expect(Object.isFrozen(portraits.full.asset)).toBe(true);
+      expect(Object.isFrozen(portraits.full.asset.sources)).toBe(true);
+      expect(Object.isFrozen(portraits.full.asset.sources[0])).toBe(true);
+      expect(() => {
+        (portraits.full.asset.sources[0] as { src: string }).src = 'data:image/svg+xml,<svg/>';
+      }).toThrow();
       expect(portraits.full).toMatchObject({ slot: 'full', status: 'production-master' });
       expect(portraits.full.asset.placeholder).not.toBe(true);
       expect(rasterFallbackSource(portraits.full.asset)).toMatch(

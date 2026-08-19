@@ -62,7 +62,7 @@ function temporaryCrop(
   };
 }
 
-export const characterPortraits = {
+const characterPortraitRegistry = {
   edric: {
     full: fullMaster('edric', edricMasterUrl, 1024, 1536),
     bust: temporaryCrop('edric', 'bust', 80),
@@ -89,6 +89,18 @@ export const characterPortraits = {
     tight: temporaryCrop('mara', 'tight', 64),
   },
 } as const satisfies Record<RivalPortraitId, CharacterPortraitSet>;
+
+for (const portraits of Object.values(characterPortraitRegistry)) {
+  for (const portrait of Object.values(portraits)) {
+    for (const source of portrait.asset.sources) Object.freeze(source);
+    Object.freeze(portrait.asset.sources);
+    Object.freeze(portrait.asset);
+    Object.freeze(portrait);
+  }
+  Object.freeze(portraits);
+}
+
+export const characterPortraits = Object.freeze(characterPortraitRegistry);
 
 export function isRivalPortraitId(id: string): id is RivalPortraitId {
   return Object.hasOwn(characterPortraits, id);

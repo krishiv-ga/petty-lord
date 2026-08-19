@@ -108,7 +108,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run browser smoke
-        run: pnpm test:e2e
+        run: |
+          CI=1 pnpm exec playwright test --config tests/ui/foundation/playwright.config.ts
+          pnpm test:e2e
 
       - name: Assemble release artifacts and checksums
         run: |
