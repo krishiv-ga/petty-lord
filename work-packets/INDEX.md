@@ -2,9 +2,20 @@
 
 This is the delivery control plane for The Petty Lord. Agents must follow [`AGENTS.md`](../AGENTS.md), execute one packet at a time through `$packet`, and write mandatory logs.
 
+## Git execution — `main` only
+
+All work packets execute directly on `main`.
+
+- Do not create, switch to, push, or require packet, feature, integration, or PR branches.
+- Before starting work, before committing, and before pushing, synchronize with `origin/main` and re-check owned/shared paths for concurrent changes.
+- `Parallel-safe` means agents may work concurrently only when ownership is path-disjoint. It never authorizes separate branches.
+- If `main` advances while local commits exist, rebase those local commits onto latest `origin/main`, rerun affected checks, and push `main`; never create a temporary conflict branch.
+- Critics review the relevant `main` commit/diff, logs, and evidence. A PR is not required.
+- Integration packets validate and reconcile the combined state already on `main`; they do not merge packet branches.
+
 ## Current gate
 
-> **WAVE 1 OPEN: fan out WP-010, WP-011 and WP-012 in separate branches/worktrees.**
+> **WAVE 1 fan-out uses shared `main`: WP-010, WP-011 and WP-012 may run concurrently only on disjoint owned paths. No packet branches/worktrees.**
 
 WP-000 is integrated at reviewed revision `aa11d6b2379f1d3563e4aeb787dc1a73c090e2a9` with a frozen
 toolchain, lockfile, CI/release baseline, wiki and path contracts. Do not change shared root seams in
@@ -62,7 +73,7 @@ Hunt→tune        UI/a11y audit    Tech hardening   Narrative clarity
 
 ### Gate 1 — after WP-000 is integrated
 
-Fan out in separate branches/worktrees:
+Fan out on `main` with disjoint owned paths:
 
 - [`WP-010`](./WP-010-deterministic-simulation-kernel.md)
 - [`WP-011`](./WP-011-content-schema-and-canonical-data.md)
@@ -74,18 +85,18 @@ Then serialize all Wave 1 integration and seam repair into:
 
 - [`WP-019`](./WP-019-foundation-integration.md)
 
-Do not create separate merge-fix packets. WP-019 is deliberately broad enough to combine the three foundations, freeze contracts, compact logs, and create the foundation checkpoint release.
+Do not create branch/merge-fix packets. WP-019 is deliberately broad enough to reconcile the three foundations on `main`, freeze contracts, compact logs, and create the foundation checkpoint release.
 
 ### Gate 2 — after WP-019 is integrated
 
-Fan out:
+Fan out on `main`:
 
 - [`WP-020`](./WP-020-time-economy-orders-actions.md)
 - [`WP-021`](./WP-021-politics-claim-church-succession.md)
 - [`WP-022`](./WP-022-war-occupation-threat-capital.md)
 - [`WP-023`](./WP-023-ai-knowledge-events.md)
 
-Each system packet implements behind contracts frozen by WP-019. Shared contract changes require an integration note and must not be independently merged into four different shapes.
+Each system packet implements behind contracts frozen by WP-019. Shared contract changes require an integration note and must not be independently committed by multiple packet agents into incompatible shapes.
 
 Then serialize all game-system integration into:
 
@@ -95,7 +106,7 @@ WP-029 must produce a complete deterministic headless run before any full-screen
 
 ### Gate 3 — after WP-029 is integrated
 
-Fan out:
+Fan out on `main`:
 
 - [`WP-030`](./WP-030-raster-map-and-territory-ui.md)
 - [`WP-031`](./WP-031-lords-politics-and-action-ui.md)
@@ -111,7 +122,7 @@ Then serialize playable integration into:
 
 ### Gate 4 — after WP-039 is integrated
 
-Fan out:
+Fan out on `main`:
 
 - [`WP-040`](./WP-040-gameplay-hunt-and-tune.md)
 - [`WP-041`](./WP-041-ui-accessibility-and-visual-audit.md)
@@ -164,7 +175,7 @@ Parallel packet agents must not edit these unless their packet explicitly owns t
 - `logs/STATUS.md` and `logs/compacted/**`;
 - `CHANGELOG.md`, version fields, tags and release notes.
 
-Integration packets own these seams. An implementer that discovers a necessary shared change records the exact proposed diff in its log and coordinates with the integrator rather than editing around another packet.
+Integration packets own these seams. An implementer that discovers a necessary shared change records the exact proposed diff in its log and coordinates with the integrator rather than editing around another packet. On `main`, shared-file edits remain serialized even when other packet work is concurrent.
 
 ## Status transitions
 
@@ -180,6 +191,6 @@ A significant packet cannot become `Ready for integration` until:
 - all P0/P1 findings are resolved;
 - P2/P3 findings have explicit disposition;
 - required wiki pages are updated;
-- branch/PR is current with its wave base.
+- its packet commits are current with latest `origin/main` and the checkout has no non-`main` branch dependency.
 
 Only an integration packet changes this index, opens the next gate, updates `logs/STATUS.md`, or creates a compacted wave log.
