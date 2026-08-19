@@ -1,6 +1,6 @@
 import { uniformFloat64 } from 'pure-rand/distribution/uniformFloat64';
 import { uniformInt } from 'pure-rand/distribution/uniformInt';
-import { xoroshiro128plus, xoroshiro128plusFromState } from 'pure-rand/generator/xoroshiro128plus';
+import { xoroshiro128plusFromState } from 'pure-rand/generator/xoroshiro128plus';
 import type { JsonValue } from '../state/json';
 import { cloneJson } from '../state/json';
 import type { RandomDrawTrace } from '../state/types';
@@ -14,13 +14,23 @@ interface SerializedRandomState {
   version: typeof RANDOM_STATE_VERSION;
 }
 
-function hashSeed(seed: string): number {
-  let hash = 0x811c9dc5;
+function hashSeed64(seed: string): bigint {
+  let hash = 0xcbf29ce484222325n;
   for (let index = 0; index < seed.length; index += 1) {
-    hash ^= seed.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193);
+    const codeUnit = seed.charCodeAt(index);
+    hash ^= BigInt(codeUnit & 0xff);
+    hash = BigInt.asUintN(64, hash * 0x100000001b3n);
+    hash ^= BigInt(codeUnit >>> 8);
+    hash = BigInt.asUintN(64, hash * 0x100000001b3n);
   }
-  return hash | 0;
+  return hash;
+}
+
+function stateFromSeed(seed: string): number[] {
+  const hash = hashSeed64(seed);
+  const low = Number(hash & 0xffff_ffffn) | 0;
+  const high = Number((hash >> 32n) & 0xffff_ffffn) | 0;
+  return [high, low, ~high, ~low];
 }
 
 function encodeState(state: readonly number[]): string {
@@ -56,7 +66,7 @@ function decodeState(serialized: string): SerializedRandomState {
 }
 
 export function createRandomState(seed: string): string {
-  return encodeState(xoroshiro128plus(hashSeed(seed)).getState());
+  return encodeState(xoroshiro128plusFromState(stateFromSeed(seed)).getState());
 }
 
 export function validateRandomState(serialized: string): void {

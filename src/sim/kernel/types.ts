@@ -158,6 +158,7 @@ export interface SchedulerTrace {
   nextScheduled: ScheduledItem | null;
   resolved: ScheduledItem[];
   stoppedForDecision: string | null;
+  stoppedForStatus: string | null;
   targetTimeHours: number;
 }
 

@@ -160,5 +160,13 @@ export const fakeDomainModule: DomainModule<FakeExtensions> = {
         },
       };
     },
+    'fake.terminal': ({ item, state }) => {
+      const payload = payloadObject(item.payload);
+      const requestedStatus = payloadString(payload, 'status', 'won');
+      const status = ['lost', 'succession', 'won'].includes(requestedStatus)
+        ? (requestedStatus as 'lost' | 'succession' | 'won')
+        : 'won';
+      return { state: { ...state, status } };
+    },
   },
 };

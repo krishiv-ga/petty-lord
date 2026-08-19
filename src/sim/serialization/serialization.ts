@@ -1,6 +1,8 @@
+import { isCanonicalSimulationHours } from '../kernel/time';
 import { validateRandomState } from '../random/random';
 import { cloneJson, inspectJsonValue, stableJson } from '../state/json';
 import type { DomainExtensions, GameState } from '../state/types';
+import { MAX_DIAGNOSTIC_LIMIT } from '../state/types';
 
 export interface ValidationFailure {
   message: string;
@@ -83,6 +85,9 @@ function structuralValidation(value: unknown): ValidationFailure[] {
   if (typeof value.timeHours === 'number' && value.timeHours < 0) {
     issues.push({ message: 'must not be negative', path: '$.timeHours' });
   }
+  if (typeof value.timeHours === 'number' && !isCanonicalSimulationHours(value.timeHours)) {
+    issues.push({ message: 'must use canonical micro-hour precision', path: '$.timeHours' });
+  }
   for (const field of ['scheduledEvents', 'pendingDecisions', 'chronicle']) {
     if (!Array.isArray(value[field])) {
       issues.push({ message: 'must be an array', path: `$.${field}` });
@@ -101,6 +106,7 @@ function structuralValidation(value: unknown): ValidationFailure[] {
       if (
         typeof item.dueTimeHours !== 'number' ||
         !Number.isFinite(item.dueTimeHours) ||
+        !isCanonicalSimulationHours(item.dueTimeHours) ||
         (typeof value.timeHours === 'number' && item.dueTimeHours < value.timeHours)
       ) {
         issues.push({
@@ -177,13 +183,68 @@ function structuralValidation(value: unknown): ValidationFailure[] {
       if (
         !Array.isArray(decision.choiceIds) ||
         decision.choiceIds.length === 0 ||
-        !decision.choiceIds.every((choice) => typeof choice === 'string')
+        !decision.choiceIds.every((choice) => typeof choice === 'string' && choice.length > 0) ||
+        new Set(decision.choiceIds).size !== decision.choiceIds.length
       ) {
-        issues.push({ message: 'must contain choice ids', path: `${path}.choiceIds` });
+        issues.push({
+          message: 'must contain unique non-empty choice ids',
+          path: `${path}.choiceIds`,
+        });
+      }
+      if (
+        typeof decision.openedAtTimeHours !== 'number' ||
+        !isCanonicalSimulationHours(decision.openedAtTimeHours) ||
+        decision.openedAtTimeHours < 0 ||
+        (typeof value.timeHours === 'number' && decision.openedAtTimeHours > value.timeHours)
+      ) {
+        issues.push({
+          message: 'must be a canonical time no later than current time',
+          path: `${path}.openedAtTimeHours`,
+        });
+      }
+      if (
+        decision.openedBySequenceId !== null &&
+        (!Number.isSafeInteger(decision.openedBySequenceId) ||
+          (decision.openedBySequenceId as number) < 1 ||
+          (typeof value.nextSequenceId === 'number' &&
+            (decision.openedBySequenceId as number) >= value.nextSequenceId))
+      ) {
+        issues.push({
+          message: 'must be null or a previously assigned sequence id',
+          path: `${path}.openedBySequenceId`,
+        });
+      }
+      if (!('payload' in decision)) {
+        issues.push({ message: 'is required', path: `${path}.payload` });
       }
     }
     if (value.pendingDecisions.length > 0 && value.speed !== 0) {
       issues.push({ message: 'must be paused while a decision is pending', path: '$.speed' });
+    }
+  }
+  if (Array.isArray(value.chronicle)) {
+    for (const [index, entry] of value.chronicle.entries()) {
+      const path = `$.chronicle[${index}]`;
+      if (!isRecord(entry)) {
+        issues.push({ message: 'must be an object', path });
+        continue;
+      }
+      for (const field of ['id', 'kind', 'message']) {
+        if (typeof entry[field] !== 'string' || entry[field].length === 0) {
+          issues.push({ message: 'must be a non-empty string', path: `${path}.${field}` });
+        }
+      }
+      if (
+        typeof entry.timeHours !== 'number' ||
+        !isCanonicalSimulationHours(entry.timeHours) ||
+        entry.timeHours < 0 ||
+        (typeof value.timeHours === 'number' && entry.timeHours > value.timeHours)
+      ) {
+        issues.push({ message: 'must be a valid historical time', path: `${path}.timeHours` });
+      }
+      if (!isRecord(entry.data)) {
+        issues.push({ message: 'must be an object', path: `${path}.data` });
+      }
     }
   }
   for (const field of [
@@ -205,6 +266,127 @@ function structuralValidation(value: unknown): ValidationFailure[] {
   ]) {
     if (!(field in value)) {
       issues.push({ message: 'is required', path: `$.${field}` });
+    }
+  }
+  for (const field of [
+    'lords',
+    'territories',
+    'relationships',
+    'supports',
+    'aiIntents',
+    'knowledge',
+  ]) {
+    if (field in value && !isRecord(value[field])) {
+      issues.push({ message: 'must be an object', path: `$.${field}` });
+    }
+  }
+  for (const field of ['agreements', 'orders', 'secrets']) {
+    if (field in value && !Array.isArray(value[field])) {
+      issues.push({ message: 'must be an array', path: `$.${field}` });
+    }
+  }
+  if ('playerId' in value && typeof value.playerId !== 'string') {
+    issues.push({ message: 'must be a string', path: '$.playerId' });
+  }
+  if ('flags' in value) {
+    if (!isRecord(value.flags)) {
+      issues.push({ message: 'must be an object', path: '$.flags' });
+    } else {
+      for (const [key, flag] of Object.entries(value.flags)) {
+        if (!['boolean', 'number', 'string'].includes(typeof flag)) {
+          issues.push({ message: 'must be boolean, number or string', path: `$.flags.${key}` });
+        }
+      }
+    }
+  }
+  if ('metadata' in value) {
+    if (!isRecord(value.metadata)) {
+      issues.push({ message: 'must be an object', path: '$.metadata' });
+    } else {
+      if (typeof value.metadata.createdBy !== 'string' || value.metadata.createdBy.length === 0) {
+        issues.push({ message: 'must be a non-empty string', path: '$.metadata.createdBy' });
+      }
+      if (!isRecord(value.metadata.values)) {
+        issues.push({ message: 'must be an object', path: '$.metadata.values' });
+      }
+    }
+  }
+  if ('diagnostics' in value) {
+    if (!isRecord(value.diagnostics)) {
+      issues.push({ message: 'must be an object', path: '$.diagnostics' });
+    } else {
+      const diagnostics = value.diagnostics;
+      if (typeof diagnostics.enabled !== 'boolean') {
+        issues.push({ message: 'must be a boolean', path: '$.diagnostics.enabled' });
+      }
+      if (
+        !Number.isSafeInteger(diagnostics.limit) ||
+        (diagnostics.limit as number) < 0 ||
+        (diagnostics.limit as number) > MAX_DIAGNOSTIC_LIMIT
+      ) {
+        issues.push({
+          message: `must be an integer from 0 through ${MAX_DIAGNOSTIC_LIMIT}`,
+          path: '$.diagnostics.limit',
+        });
+      }
+      for (const field of ['commandHistory', 'lastResolved', 'randomDraws']) {
+        if (!Array.isArray(diagnostics[field])) {
+          issues.push({ message: 'must be an array', path: `$.diagnostics.${field}` });
+        } else if (
+          Number.isSafeInteger(diagnostics.limit) &&
+          diagnostics[field].length > (diagnostics.limit as number)
+        ) {
+          issues.push({ message: 'exceeds the configured limit', path: `$.diagnostics.${field}` });
+        }
+      }
+      if (Array.isArray(diagnostics.commandHistory)) {
+        for (const [index, entry] of diagnostics.commandHistory.entries()) {
+          const path = `$.diagnostics.commandHistory[${index}]`;
+          if (
+            !isRecord(entry) ||
+            typeof entry.commandType !== 'string' ||
+            !isRecord(entry.payload) ||
+            typeof entry.timeHours !== 'number' ||
+            !isCanonicalSimulationHours(entry.timeHours)
+          ) {
+            issues.push({ message: 'has an invalid command trace shape', path });
+          }
+        }
+      }
+      if (Array.isArray(diagnostics.lastResolved)) {
+        for (const [index, entry] of diagnostics.lastResolved.entries()) {
+          const path = `$.diagnostics.lastResolved[${index}]`;
+          if (
+            !isRecord(entry) ||
+            typeof entry.kind !== 'string' ||
+            !Number.isSafeInteger(entry.priority) ||
+            !Number.isSafeInteger(entry.sequenceId) ||
+            typeof entry.dueTimeHours !== 'number' ||
+            !isCanonicalSimulationHours(entry.dueTimeHours)
+          ) {
+            issues.push({ message: 'has an invalid resolution trace shape', path });
+          }
+        }
+      }
+      if (Array.isArray(diagnostics.randomDraws)) {
+        for (const [index, entry] of diagnostics.randomDraws.entries()) {
+          const path = `$.diagnostics.randomDraws[${index}]`;
+          if (
+            !isRecord(entry) ||
+            typeof entry.label !== 'string' ||
+            typeof entry.stateAfter !== 'string' ||
+            !('result' in entry)
+          ) {
+            issues.push({ message: 'has an invalid random trace shape', path });
+          } else {
+            try {
+              validateRandomState(entry.stateAfter);
+            } catch {
+              issues.push({ message: 'contains invalid PRNG state', path: `${path}.stateAfter` });
+            }
+          }
+        }
+      }
     }
   }
   if (typeof value.rngState === 'string') {

@@ -1,5 +1,5 @@
 import { RandomSession } from '../random/random';
-import { cloneJson } from '../state/json';
+import { cloneJson, inspectJsonValue } from '../state/json';
 import type {
   DomainExtensions,
   GameState,
@@ -8,6 +8,7 @@ import type {
   ResolutionTrace,
   ScheduledItem,
 } from '../state/types';
+import { normalizeSimulationHours } from './time';
 import type {
   DecisionInput,
   DomainTransition,
@@ -35,8 +36,9 @@ function sorted(items: readonly ScheduledItem[]): ScheduledItem[] {
 function validateScheduleInput<E extends DomainExtensions>(
   state: GameState<E>,
   input: ScheduleInput,
+  dueTimeHours: number,
 ): void {
-  if (!Number.isFinite(input.dueTimeHours) || input.dueTimeHours < state.timeHours) {
+  if (!Number.isFinite(dueTimeHours) || dueTimeHours < state.timeHours) {
     throw new RangeError('scheduled due time must be finite and no earlier than current time');
   }
   if (!Number.isSafeInteger(input.priority)) {
@@ -45,15 +47,22 @@ function validateScheduleInput<E extends DomainExtensions>(
   if (input.kind.length === 0) {
     throw new RangeError('scheduled kind must not be empty');
   }
+  if (inspectJsonValue(input.payload ?? null).length > 0) {
+    throw new TypeError('scheduled payload must be JSON-compatible');
+  }
+  if (inspectJsonValue(input.storedDraws ?? {}).length > 0) {
+    throw new TypeError('scheduled stored draws must be JSON-compatible');
+  }
 }
 
 export function scheduleItem<E extends DomainExtensions>(
   state: GameState<E>,
   input: ScheduleInput,
 ): { item: ScheduledItem; state: GameState<E> } {
-  validateScheduleInput(state, input);
+  const dueTimeHours = normalizeSimulationHours(input.dueTimeHours);
+  validateScheduleInput(state, input, dueTimeHours);
   const item: ScheduledItem = {
-    dueTimeHours: input.dueTimeHours,
+    dueTimeHours,
     kind: input.kind,
     payload: cloneJson(input.payload ?? null),
     priority: input.priority,
@@ -61,7 +70,7 @@ export function scheduleItem<E extends DomainExtensions>(
     storedDraws: cloneJson(input.storedDraws ?? {}),
   };
   return {
-    item,
+    item: cloneJson(item),
     state: {
       ...state,
       nextSequenceId: state.nextSequenceId + 1,
@@ -76,7 +85,7 @@ export function cancelScheduledItem<E extends DomainExtensions>(
 ): { cancelled: ScheduledItem | null; state: GameState<E> } {
   const cancelled = state.scheduledEvents.find((item) => item.sequenceId === sequenceId) ?? null;
   return {
-    cancelled,
+    cancelled: cancelled ? cloneJson(cancelled) : null,
     state: cancelled
       ? {
           ...state,
@@ -173,6 +182,16 @@ export function applyDomainTransition<E extends DomainExtensions>(
     state = openDecision(state, transition.decision, sourceSequenceId);
   }
 
+  const jsonIssues = inspectJsonValue(state);
+  if (jsonIssues.length > 0) {
+    throw new TypeError(
+      `domain transition returned non-serializable state at ${jsonIssues[0]?.path ?? '$'}`,
+    );
+  }
+  if (!['playing', 'succession', 'won', 'lost'].includes(state.status)) {
+    throw new TypeError(`domain transition returned unsupported status ${String(state.status)}`);
+  }
+
   if (state.diagnostics.enabled) {
     const randomDraws: RandomDrawTrace[] = random.trace();
     state = {
@@ -187,7 +206,7 @@ export function applyDomainTransition<E extends DomainExtensions>(
       },
     };
   }
-  return { effects: transition.effects ?? [], state };
+  return { effects: cloneJson(transition.effects ?? []), state };
 }
 
 function failure(code: string, message: string, context = {}): KernelErrorDetail {
@@ -205,16 +224,18 @@ export function advanceScheduler<E extends DomainExtensions>(
   options: { maxResolutions?: number } = {},
 ): SchedulerResult<E> {
   const trace: SchedulerTrace = {
-    nextScheduled: sorted(originalState.scheduledEvents)[0] ?? null,
+    nextScheduled: cloneJson(sorted(originalState.scheduledEvents)[0] ?? null),
     resolved: [],
     stoppedForDecision: originalState.pendingDecisions[0]?.id ?? null,
-    targetTimeHours,
+    stoppedForStatus: originalState.status === 'playing' ? null : originalState.status,
+    targetTimeHours: normalizeSimulationHours(targetTimeHours),
   };
-  if (!Number.isFinite(targetTimeHours) || targetTimeHours < originalState.timeHours) {
+  const normalizedTargetTime = normalizeSimulationHours(targetTimeHours);
+  if (!Number.isFinite(normalizedTargetTime) || normalizedTargetTime < originalState.timeHours) {
     return {
       error: failure('INVALID_ADVANCEMENT', 'target time must be finite and monotonic', {
         currentTimeHours: originalState.timeHours,
-        targetTimeHours,
+        targetTimeHours: normalizedTargetTime,
       }),
       ok: false,
       state: originalState,
@@ -222,6 +243,9 @@ export function advanceScheduler<E extends DomainExtensions>(
     };
   }
   if (originalState.pendingDecisions.length > 0) {
+    return { effects: [], ok: true, state: originalState, trace };
+  }
+  if (originalState.status !== 'playing') {
     return { effects: [], ok: true, state: originalState, trace };
   }
 
@@ -232,8 +256,8 @@ export function advanceScheduler<E extends DomainExtensions>(
   try {
     while (state.pendingDecisions.length === 0) {
       const next = sorted(state.scheduledEvents)[0];
-      if (!next || next.dueTimeHours > targetTimeHours) {
-        state = { ...state, timeHours: targetTimeHours };
+      if (!next || next.dueTimeHours > normalizedTargetTime) {
+        state = { ...state, timeHours: normalizedTargetTime };
         break;
       }
       if (trace.resolved.length >= maxResolutions) {
@@ -241,7 +265,7 @@ export function advanceScheduler<E extends DomainExtensions>(
           error: failure(
             'RESOLUTION_LIMIT',
             'same-time or recursive scheduling exceeded the deterministic resolution limit',
-            { maxResolutions, targetTimeHours },
+            { maxResolutions, targetTimeHours: normalizedTargetTime },
           ),
           ok: false,
           state: originalState,
@@ -298,6 +322,9 @@ export function advanceScheduler<E extends DomainExtensions>(
           },
         };
       }
+      if (state.status !== 'playing') {
+        break;
+      }
     }
   } catch (error) {
     return {
@@ -311,8 +338,9 @@ export function advanceScheduler<E extends DomainExtensions>(
     };
   }
 
-  trace.nextScheduled = sorted(state.scheduledEvents)[0] ?? null;
+  trace.nextScheduled = cloneJson(sorted(state.scheduledEvents)[0] ?? null);
   trace.stoppedForDecision = state.pendingDecisions[0]?.id ?? null;
+  trace.stoppedForStatus = state.status === 'playing' ? null : state.status;
   return { effects, ok: true, state, trace };
 }
 
@@ -326,9 +354,9 @@ export function inspectScheduler<E extends DomainExtensions>(
 } {
   const scheduled = sorted(state.scheduledEvents);
   return {
-    currentDue: scheduled.filter((item) => item.dueTimeHours <= state.timeHours),
+    currentDue: cloneJson(scheduled.filter((item) => item.dueTimeHours <= state.timeHours)),
     lastResolved: cloneJson(state.diagnostics.lastResolved),
-    nextScheduled: scheduled.slice(0, 10),
+    nextScheduled: cloneJson(scheduled.slice(0, 10)),
     timeHours: state.timeHours,
   };
 }

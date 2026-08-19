@@ -102,14 +102,21 @@ describe('state serialization', () => {
       ...state,
       pendingDecisions: [
         {
-          choiceIds: ['accept'],
+          choiceIds: ['accept', 'accept'],
           id: 'corrupt-decision',
           kind: 'fake.choice',
-          openedAtTimeHours: 0,
-          openedBySequenceId: null,
+          openedAtTimeHours: 99,
+          openedBySequenceId: 999,
           payload: null,
         },
       ],
+      diagnostics: {
+        commandHistory: 'not-an-array',
+        enabled: 'yes',
+        lastResolved: [],
+        limit: -1,
+        randomDraws: [],
+      },
       scheduledEvents: [...state.scheduledEvents].reverse(),
       speed: 1 as const,
     };
@@ -121,6 +128,12 @@ describe('state serialization', () => {
     if (imported.ok) return;
     expect(imported.error.code).toBe('INVALID_STATE');
     expect(imported.error.issues.some((issue) => issue.path === '$.speed')).toBe(true);
+    expect(imported.error.issues.some((issue) => issue.path === '$.diagnostics.enabled')).toBe(
+      true,
+    );
+    expect(imported.error.issues.some((issue) => issue.path.endsWith('.openedAtTimeHours'))).toBe(
+      true,
+    );
     expect(
       imported.error.issues.some((issue) => issue.message.includes('canonical scheduler order')),
     ).toBe(true);

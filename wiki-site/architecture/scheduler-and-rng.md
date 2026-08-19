@@ -13,6 +13,11 @@ The scheduler jumps to the next due item rather than ticking frames. `scheduleIt
 `cancelScheduledItem`, `replaceScheduledItem` and `inspectScheduler` are pure operations. Replacing an
 item assigns a fresh sequence ID; IDs are never reused.
 
+Times are normalized to one micro-hour before storage and comparison. This makes one 1-hour command
+and ten 0.1-hour commands reach the same canonical timestamp instead of inheriting IEEE-754 addition
+drift. A resolver that changes status away from `playing` stops the current advance immediately and
+leaves later work queued; terminal states reject initiative starts and cancellations.
+
 ## Named dawn priorities
 
 `DAWN_PRIORITY` makes the canonical order inspectable rather than relying on array or object order:
@@ -46,8 +51,9 @@ returning a partially advanced state.
 
 ## PRNG contract
 
-Only `src/sim/random/random.ts` imports `pure-rand`. It wraps `xoroshiro128plus` with a stable UTF-16
-string-seed hash and a versioned serialized generator state. The project helpers define:
+Only `src/sim/random/random.ts` imports `pure-rand`. It wraps `xoroshiro128plus` with a stable 64-bit
+FNV-1a string-seed hash expanded into the generator's four-word state and a versioned serialized
+generator state. The project helpers define:
 
 - integer: both minimum and maximum are inclusive safe integers;
 - float: `0` inclusive and `1` exclusive;

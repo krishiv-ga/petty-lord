@@ -67,6 +67,29 @@ describe('replay determinism', () => {
     expect(hourly.fake.randomResults).toHaveLength(24);
   });
 
+  it('normalizes equivalent fractional time chunks before due-item comparison', () => {
+    const run = (chunks: number[]) => {
+      let state = createFakeState();
+      state = scheduleItem(state, {
+        dueTimeHours: 1,
+        kind: 'fake.increment',
+        payload: { amount: 1 },
+        priority: 100,
+      }).state;
+      for (const hours of chunks) {
+        const result = applyCommand(
+          state,
+          { hours, mode: 'instant', type: 'ADVANCE_TIME' },
+          registry,
+        );
+        if (!result.ok) throw new Error(result.error.message);
+        state = result.state;
+      }
+      return state;
+    };
+    expect(exportState(run([1]))).toBe(exportState(run(Array.from({ length: 10 }, () => 0.1))));
+  });
+
   it('changes the random stream for a different seed', () => {
     const first = fixture('first-seed');
     const second = fixture('second-seed');

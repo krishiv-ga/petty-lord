@@ -13,7 +13,7 @@ authoritative; this page summarizes its stable integration surface.
 | `rngState` | Versioned serialized `xoroshiro128plus` state |
 | `nextSequenceId` | Positive safe integer greater than every queued ID |
 | `status` | `playing`, `succession`, `won` or `lost` |
-| `timeHours` | Finite non-negative canonical simulation time |
+| `timeHours` | Finite non-negative simulation time normalized to one micro-hour |
 | `speed` | Requested pause/1×/2× pacing (`0`, `1`, `2`) |
 | `scheduledEvents` | Canonically sorted `ScheduledItem[]` |
 | `pendingDecisions` | Ordered mandatory-decision queue |
@@ -39,7 +39,8 @@ interface ScheduledItem {
 }
 ```
 
-The serialized array is already sorted by time, priority and sequence ID. An item may remain due at
+The serialized array is already sorted by time, priority and sequence ID. Due times use the same
+micro-hour normalization as current time. An item may remain due at
 the current hour while a mandatory decision blocks it, but imported work may not be in the past.
 
 ## Mandatory decision

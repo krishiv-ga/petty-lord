@@ -1,7 +1,7 @@
 import { RandomSession } from '../random/random';
 import type { ImportOptions } from '../serialization/serialization';
 import { exportState, importState } from '../serialization/serialization';
-import { cloneJson } from '../state/json';
+import { cloneJson, inspectJsonValue } from '../state/json';
 import type { CommandTrace, DomainExtensions, GameState } from '../state/types';
 import { CURRENT_KERNEL_SCHEMA_VERSION } from '../state/types';
 import {
@@ -10,6 +10,7 @@ import {
   cancelScheduledItem,
   compareScheduledItems,
 } from './scheduler';
+import { isCanonicalSimulationHours, normalizeSimulationHours } from './time';
 import type {
   KernelCommand,
   KernelErrorDetail,
@@ -82,6 +83,13 @@ function success<E extends DomainExtensions>(
   return { diagnostics: null, effects, ok: true, state: appendCommandTrace(state, command) };
 }
 
+function invalidPayloadContext(
+  payload: unknown,
+): { issues: { message: string; path: string }[] } | null {
+  const issues = inspectJsonValue(payload);
+  return issues.length === 0 ? null : { issues };
+}
+
 export function applyCommand<E extends DomainExtensions>(
   originalState: GameState<E>,
   command: KernelCommand,
@@ -96,6 +104,9 @@ export function applyCommand<E extends DomainExtensions>(
     }
 
     if (command.type === 'IMPORT_STATE') {
+      if (typeof command.serialized !== 'string') {
+        return fail(originalState, 'INVALID_COMMAND', 'serialized state must be a string');
+      }
       const imported = importState<GameState<E>>(command.serialized, {
         ...options.import,
         expectedSchemaVersion: CURRENT_KERNEL_SCHEMA_VERSION,
@@ -109,6 +120,11 @@ export function applyCommand<E extends DomainExtensions>(
     }
 
     if (command.type === 'SET_REQUESTED_SPEED') {
+      if (![0, 1, 2].includes(command.speed)) {
+        return fail(originalState, 'INVALID_SPEED', 'requested speed must be 0, 1 or 2', {
+          speed: command.speed,
+        });
+      }
       if (originalState.pendingDecisions.length > 0 && command.speed !== 0) {
         return fail(
           originalState,
@@ -123,12 +139,24 @@ export function applyCommand<E extends DomainExtensions>(
     }
 
     if (command.type === 'ADVANCE_TIME') {
-      if (!Number.isFinite(command.hours) || command.hours < 0) {
-        return fail(originalState, 'INVALID_ADVANCEMENT', 'hours must be finite and non-negative', {
-          hours: command.hours,
+      if (
+        !Number.isFinite(command.hours) ||
+        command.hours < 0 ||
+        !isCanonicalSimulationHours(command.hours)
+      ) {
+        return fail(
+          originalState,
+          'INVALID_ADVANCEMENT',
+          'hours must be finite, non-negative and aligned to canonical micro-hour precision',
+          { hours: command.hours },
+        );
+      }
+      if (!['instant', 'paced'].includes(command.mode)) {
+        return fail(originalState, 'INVALID_ADVANCEMENT_MODE', 'advancement mode is unsupported', {
+          mode: command.mode,
         });
       }
-      if (originalState.speed === 0 && command.mode === 'paced') {
+      if (originalState.speed === 0) {
         return success(originalState, command, [{ kind: 'time.paused', payload: null }]);
       }
       if (originalState.status !== 'playing') {
@@ -138,7 +166,7 @@ export function applyCommand<E extends DomainExtensions>(
       }
       const advanced = advanceScheduler(
         originalState,
-        originalState.timeHours + command.hours,
+        normalizeSimulationHours(originalState.timeHours + command.hours),
         registry,
         options.maxResolutionsPerAdvance === undefined
           ? {}
@@ -161,6 +189,26 @@ export function applyCommand<E extends DomainExtensions>(
     }
 
     if (command.type === 'START_INITIATIVE') {
+      if (originalState.status !== 'playing') {
+        return fail(
+          originalState,
+          'INITIATIVES_LOCKED',
+          'new initiatives are locked outside active play',
+          { status: originalState.status },
+        );
+      }
+      if (typeof command.initiativeType !== 'string' || command.initiativeType.length === 0) {
+        return fail(originalState, 'INVALID_COMMAND', 'initiative type must be a non-empty string');
+      }
+      const invalidPayload = invalidPayloadContext(command.payload);
+      if (invalidPayload) {
+        return fail(
+          originalState,
+          'INVALID_COMMAND_PAYLOAD',
+          'initiative payload must be JSON-compatible',
+          invalidPayload,
+        );
+      }
       const starter = registry.initiativeStarters.get(command.initiativeType);
       if (!starter) {
         return fail(
@@ -176,6 +224,21 @@ export function applyCommand<E extends DomainExtensions>(
     }
 
     if (command.type === 'CANCEL_INITIATIVE') {
+      if (originalState.status !== 'playing') {
+        return fail(
+          originalState,
+          'INITIATIVES_LOCKED',
+          'initiatives cannot be cancelled outside active play',
+          { status: originalState.status },
+        );
+      }
+      if (!Number.isSafeInteger(command.sequenceId) || command.sequenceId < 1) {
+        return fail(
+          originalState,
+          'INVALID_COMMAND',
+          'sequence id must be a positive safe integer',
+        );
+      }
       const item = [...originalState.scheduledEvents]
         .sort(compareScheduledItems)
         .find((candidate) => candidate.sequenceId === command.sequenceId);
@@ -214,6 +277,27 @@ export function applyCommand<E extends DomainExtensions>(
     }
 
     if (command.type === 'CHOOSE_DECISION') {
+      if (
+        typeof command.decisionId !== 'string' ||
+        command.decisionId.length === 0 ||
+        typeof command.choiceId !== 'string' ||
+        command.choiceId.length === 0
+      ) {
+        return fail(
+          originalState,
+          'INVALID_COMMAND',
+          'decision and choice ids must be non-empty strings',
+        );
+      }
+      const invalidPayload = invalidPayloadContext(command.payload);
+      if (invalidPayload) {
+        return fail(
+          originalState,
+          'INVALID_COMMAND_PAYLOAD',
+          'decision payload must be JSON-compatible',
+          invalidPayload,
+        );
+      }
       const decision = originalState.pendingDecisions[0];
       if (!decision || decision.id !== command.decisionId) {
         return fail(
@@ -255,6 +339,18 @@ export function applyCommand<E extends DomainExtensions>(
     if (command.type === 'DEBUG') {
       if (!options.allowDebug) {
         return fail(originalState, 'DEBUG_DISABLED', 'debug commands are disabled');
+      }
+      if (typeof command.name !== 'string' || command.name.length === 0) {
+        return fail(originalState, 'INVALID_COMMAND', 'debug command name must be non-empty');
+      }
+      const invalidPayload = invalidPayloadContext(command.payload);
+      if (invalidPayload) {
+        return fail(
+          originalState,
+          'INVALID_COMMAND_PAYLOAD',
+          'debug payload must be JSON-compatible',
+          invalidPayload,
+        );
       }
       const handler = registry.debugHandlers.get(command.name);
       if (!handler) {

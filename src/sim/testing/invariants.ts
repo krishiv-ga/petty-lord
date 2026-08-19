@@ -1,4 +1,5 @@
 import { compareScheduledItems } from '../kernel/scheduler';
+import { isCanonicalSimulationHours } from '../kernel/time';
 import { exportState, importState } from '../serialization/serialization';
 import { inspectJsonValue, stableJson } from '../state/json';
 import type { DomainExtensions, GameState } from '../state/types';
@@ -13,7 +14,11 @@ export function collectInvariantFailures<E extends DomainExtensions>(
   state: GameState<E>,
 ): InvariantFailure[] {
   const failures: InvariantFailure[] = [];
-  if (!Number.isFinite(state.timeHours) || state.timeHours < 0) {
+  if (
+    !Number.isFinite(state.timeHours) ||
+    state.timeHours < 0 ||
+    !isCanonicalSimulationHours(state.timeHours)
+  ) {
     failures.push({
       code: 'INVALID_TIME',
       context: { timeHours: state.timeHours },
@@ -48,7 +53,11 @@ export function collectInvariantFailures<E extends DomainExtensions>(
       });
       break;
     }
-    if (!Number.isFinite(item.dueTimeHours) || item.dueTimeHours < state.timeHours) {
+    if (
+      !Number.isFinite(item.dueTimeHours) ||
+      !isCanonicalSimulationHours(item.dueTimeHours) ||
+      item.dueTimeHours < state.timeHours
+    ) {
       failures.push({
         code: 'UNRESOLVABLE_SCHEDULE',
         context: { dueTimeHours: item.dueTimeHours, sequenceId: item.sequenceId },

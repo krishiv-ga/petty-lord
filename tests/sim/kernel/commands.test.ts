@@ -119,6 +119,14 @@ describe('kernel commands', () => {
     expect(noAdvance.ok).toBe(true);
     if (!noAdvance.ok) return;
     expect(noAdvance.state.timeHours).toBe(0);
+    const noInstantBypass = applyCommand(
+      paused.state,
+      { hours: 12, mode: 'instant', type: 'ADVANCE_TIME' },
+      registry,
+    );
+    expect(noInstantBypass.ok).toBe(true);
+    if (!noInstantBypass.ok) return;
+    expect(noInstantBypass.state.timeHours).toBe(0);
 
     const one = applyCommand(state, { speed: 1, type: 'SET_REQUESTED_SPEED' }, registry);
     const two = applyCommand(state, { speed: 2, type: 'SET_REQUESTED_SPEED' }, registry);
@@ -137,6 +145,78 @@ describe('kernel commands', () => {
     expect(advancedOne.ok && advancedTwo.ok).toBe(true);
     if (!advancedOne.ok || !advancedTwo.ok) return;
     expect(advancedOne.state.timeHours).toBe(advancedTwo.state.timeHours);
+  });
+
+  it('rejects invalid runtime command enums without corrupting state', () => {
+    const state = createFakeState();
+    const invalidSpeed = applyCommand(
+      state,
+      { speed: 3, type: 'SET_REQUESTED_SPEED' } as never,
+      registry,
+    );
+    expect(invalidSpeed.ok).toBe(false);
+    expect(invalidSpeed.state).toBe(state);
+    const invalidMode = applyCommand(
+      state,
+      { hours: 1, mode: 'warp', type: 'ADVANCE_TIME' } as never,
+      registry,
+    );
+    expect(invalidMode.ok).toBe(false);
+    expect(invalidMode.state).toBe(state);
+    const invalidPrecision = applyCommand(
+      state,
+      { hours: 0.0000004, mode: 'paced', type: 'ADVANCE_TIME' },
+      registry,
+    );
+    expect(invalidPrecision.ok).toBe(false);
+    expect(invalidPrecision.state).toBe(state);
+    const invalidPayload = applyCommand(
+      state,
+      {
+        initiativeType: 'fake.increment',
+        payload: { impossible: Number.NaN },
+        type: 'START_INITIATIVE',
+      } as never,
+      registry,
+    );
+    expect(invalidPayload.ok).toBe(false);
+    expect(invalidPayload.state).toBe(state);
+  });
+
+  it('stops immediately on terminal status and locks later initiatives', () => {
+    let state = createFakeState();
+    state = scheduleItem(state, {
+      dueTimeHours: 1,
+      kind: 'fake.terminal',
+      payload: { status: 'won' },
+      priority: 100,
+    }).state;
+    state = scheduleItem(state, {
+      dueTimeHours: 2,
+      kind: 'fake.increment',
+      payload: { amount: 10 },
+      priority: 100,
+    }).state;
+    const advanced = applyCommand(
+      state,
+      { hours: 10, mode: 'instant', type: 'ADVANCE_TIME' },
+      registry,
+    );
+    expect(advanced.ok).toBe(true);
+    if (!advanced.ok) return;
+    expect(advanced.state.status).toBe('won');
+    expect(advanced.state.timeHours).toBe(1);
+    expect(advanced.state.fake.counter).toBe(0);
+    expect(advanced.state.scheduledEvents.map((item) => item.kind)).toEqual(['fake.increment']);
+    expect(advanced.diagnostics?.stoppedForStatus).toBe('won');
+
+    const start = applyCommand(
+      advanced.state,
+      { initiativeType: 'fake.increment', payload: {}, type: 'START_INITIATIVE' },
+      registry,
+    );
+    expect(start.ok).toBe(false);
+    expect(start.state).toBe(advanced.state);
   });
 
   it('gates debug-only deterministic commands', () => {

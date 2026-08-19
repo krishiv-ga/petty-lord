@@ -2,11 +2,11 @@
 
 - **Packet:** WP-010 Deterministic Simulation Kernel
 - **Role:** Implementer
-- **Branch/worktree:** `wp/WP-010-deterministic-simulation-kernel`
+- **Branch/worktree:** `wp/WP-010-deterministic-simulation-kernel` / `petty-lord-wp010`
 - **Starting revision:** `5c154a87e899e924dc6c4f0395dad960b3367578`
 - **Ending revision:** pending
 - **PR:** pending
-- **Status:** Ready for critic
+- **Status:** Ready for critic re-review
 
 ## Scope
 
@@ -46,8 +46,11 @@ Explicitly out of scope:
   seams and current/previous checkpoint data without persistence orchestration.
 - Added invariant/hash/round-trip helpers plus a fake domain proving later registration without kernel
   edits.
-- Added 22 headless tests across scheduler, commands, replay determinism, serialization, PRNG and
+- Added 27 headless tests across scheduler, commands, replay determinism, serialization, PRNG and
   invariant failure paths; updated all three owned wiki pages.
+- Resolved the initial critic's two P1 and four P2 findings with canonical micro-hour time,
+  terminal/succession stopping and initiative locks, full public-command runtime validation, nested
+  kernel import validation, 64-bit seed expansion and pause-safe instant advancement.
 
 ## Decisions and assumptions
 
@@ -59,6 +62,8 @@ Explicitly out of scope:
 | Requested speed is pacing metadata, not a simulation multiplier | Canonical 1×/2× changes wall-time pacing outside the kernel | A command's simulation-hour delta resolves identically at 1× and 2×; paced pause is a no-op |
 | Choosing a mandatory decision does not automatically restore speed | The decision itself auto-pauses; resumption is an explicit UI/application request | Exact pending timestamp is preserved and a separate speed request makes resume observable |
 | Replace assigns a fresh sequence ID | Canonical IDs are creation-order monotonic and must not be reused | Replaced work has explicit new ordering rather than inheriting an earlier creation position |
+| Quantize time to one micro-hour and reject finer public deltas | Exact integer ticks are required for fractional chunk convergence; one micro-hour is far below UI pacing needs | Equivalent supported chunks reach byte-identical timestamps; adapters must accumulate sub-micro-hour fractions before dispatch |
+| Treat `succession` as a frozen-clock ending phase | Death locks new initiatives and there is no post-coronation clock; authored succession can resolve inside the death transition and mandatory decision commands | Scheduler stops on any status other than `playing`; WP-019 must preserve this ending contract |
 
 ## Validation
 
@@ -66,19 +71,27 @@ Explicitly out of scope:
 |---|---|---|
 | Gate/dependency/worktree inspection | Pass | WP-000 integrated on `main`; Wave 1 open; clean worktree; no competing WP-010 worktree |
 | Owned isolated strict TypeScript compilation | Pass | Strict, exact-optional and unchecked-index checks over all WP-010 source/tests |
-| `pnpm test:sim` | Pass | 7 files, 22 tests; repeated replay, 1h/24h/instant, save/reload, decisions, recursion, snapshots and corrupt imports |
+| `pnpm test:sim` | Pass | 7 files, 27 tests; adds fractional chunks, terminal stop/lock, runtime enums/payloads, hostile nested imports, seed collision and aliasing regressions |
 | `pnpm test` | Pass | Existing 2 files, 3 unit/workflow tests |
 | Owned `pnpm exec biome check ...` | Pass | 23 owned TypeScript files; no fixes required |
 | `pnpm wiki:check` | Pass | VitePress rendered owned contract documentation and all repository wiki links |
 | Forbidden dependency/API search | Pass | No browser/React/storage/timer/wall-clock/asset imports or `Math.random()` in `src/sim`; `pure-rand` imports exist only in `src/sim/random/random.ts` |
-| `pnpm typecheck` | Blocked externally | Concurrent uncommitted WP-012 code has an exact-optional error in `src/ui/foundation/CompositionSpikes.tsx`; no WP-010 diagnostic |
-| `pnpm check` | Blocked externally | Concurrent uncommitted WP-012 UI files are not yet formatted and have two lint findings; owned paths pass |
+| `pnpm typecheck` | Pass | Clean isolated packet worktree, strict TypeScript project references |
+| `pnpm check` | Pass | 49 repository files after remediation; no fixes required |
+| `pnpm build` | Pass | TypeScript plus Vite production build |
+| `pnpm build:storybook` | Pass | Existing development-only Storybook smoke built; expected size warning only |
+| `pnpm test:e2e` | Pass | Chromium 1280×720 smoke passed with CI-style isolated server |
 
 ## Critic findings and resolution
 
 | Severity | Finding | Resolution/status |
 |---|---|---|
-| — | None yet — critic pending | Independent critic required before integration readiness |
+| P1 | Fractional chunking delayed due work at `0.9999999999999999` | Fixed with micro-hour canonicalization, boundary precision validation and 1 vs 10×0.1 regression |
+| P1 | Terminal transition continued later work and accepted initiatives | Fixed; non-playing status stops the active advance at its exact time and locks start/cancel |
+| P2 | Runtime command enums could enter invalid canonical state | Fixed speed/mode plus IDs, numeric ranges and JSON payload validation; failures retain original state |
+| P2 | Import accepted malformed decisions and diagnostics | Fixed complete kernel-owned nested validation and hostile import regression |
+| P2 | String seed collapsed to 32 bits | Fixed version-1 mapping with stable 64-bit FNV-1a expansion; reported collision pair is a regression |
+| P2 | Instant advancement bypassed pause | Fixed; all public advancement modes respect pause, while instant skips pacing only during active play |
 
 ## Design, balance, or schema impact
 
@@ -91,8 +104,7 @@ Explicitly out of scope:
 ## Risks and deferred work
 
 - WP-019 must reconcile/freeze the generic kernel extension seams with WP-011 content schemas.
-- Full repository typecheck/check/build must be rerun after concurrent WP-012 files finish; isolated WP-010
-  compilation, format/lint, simulation tests and wiki build are green.
+- Initial critic verdict was Needs fixes; remediation is complete and awaits independent re-review.
 
 ## Integration notes
 

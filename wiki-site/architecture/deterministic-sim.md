@@ -41,8 +41,9 @@ invents economy, politics, war, AI, event or succession data.
 - registered `DEBUG` commands only when debug use is explicitly enabled.
 
 Requested 1× and 2× do not multiply simulation hours; wall-time pacing belongs to the application.
-Paced advancement while paused is a no-op. A mandatory decision rejects nonzero speed until it is
-resolved. Instant mode exists for headless tests and tools and does not alter ordering or outcomes.
+Any advancement request while paused is a no-op, including instant/headless requests. A mandatory
+decision rejects nonzero speed until it is resolved. Instant mode skips wall pacing only while the
+simulation is running and does not alter ordering or outcomes.
 
 ## Domain registration
 
@@ -59,10 +60,11 @@ resolution paths.
 ## Serialization and validation
 
 `exportState` emits recursively key-sorted, normalized JSON. Import parses into a new value, validates
-required kernel fields, finite numbers, scheduler order and IDs, decision pause, game status and PRNG
-state, then optionally calls a domain validator. An invalid import returns an error code plus paths and
-does not modify current state. Explicit one-way migration hooks and an external-validator interface
-are ready for WP-019 to connect to Zod schemas.
+required kernel fields, finite/canonical time, scheduler order and IDs, complete decision and bounded
+diagnostic shapes, game status and every serialized PRNG state, then optionally calls a domain
+validator. An invalid import returns an error code plus paths and does not modify current state.
+Explicit one-way migration hooks and an external-validator interface are ready for WP-019 to connect
+to Zod schemas.
 
 `checkpointState` creates a `{ current, previous }` data shape only. IndexedDB orchestration remains a
 later application packet.

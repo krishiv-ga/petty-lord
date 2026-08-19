@@ -10,6 +10,11 @@ export {
   replaceScheduledItem,
   scheduleItem,
 } from './scheduler';
+export {
+  isCanonicalSimulationHours,
+  normalizeSimulationHours,
+  SIMULATION_HOUR_SCALE,
+} from './time';
 export type {
   DomainModule,
   DomainTransition,

@@ -42,4 +42,9 @@ describe('seeded random adapter', () => {
     expect(second.randomState).toBe(first.randomState);
     expect(second.trace).toEqual([]);
   });
+
+  it('preserves 64 bits of stable string-seed entropy', () => {
+    expect(createRandomState('18l1cn2-169a')).not.toBe(createRandomState('1dsiqji-19fy'));
+    expect(createRandomState('repeatable-seed')).toBe(createRandomState('repeatable-seed'));
+  });
 });

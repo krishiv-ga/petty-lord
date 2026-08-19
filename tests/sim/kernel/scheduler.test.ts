@@ -105,4 +105,20 @@ describe('deterministic scheduler', () => {
     expect(replacement.item?.sequenceId).toBe(3);
     expect(replacement.state.nextSequenceId).toBe(4);
   });
+
+  it('does not expose scheduler state through mutable item or trace aliases', () => {
+    const scheduled = scheduleItem(createFakeState(), {
+      dueTimeHours: 2,
+      kind: 'fake.increment',
+      priority: 100,
+    });
+    scheduled.item.dueTimeHours = 99;
+    expect(scheduled.state.scheduledEvents[0]?.dueTimeHours).toBe(2);
+
+    const advanced = advanceScheduler(scheduled.state, 1, registry);
+    expect(advanced.ok).toBe(true);
+    if (!advanced.ok || !advanced.trace.nextScheduled) return;
+    advanced.trace.nextScheduled.dueTimeHours = 88;
+    expect(advanced.state.scheduledEvents[0]?.dueTimeHours).toBe(2);
+  });
 });
