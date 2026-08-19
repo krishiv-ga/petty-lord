@@ -6,7 +6,7 @@ The first release is a complete desktop-browser game:
 
 - title, new game and exact resume;
 - integrated onboarding;
-- 49–56 live minutes at1×;
+- 49–56 live minutes at 1×;
 - active rivals;
 - every constitutional route;
 - win/loss and detailed reconstruction;
@@ -28,9 +28,13 @@ Every confirmation shows duration, start cost, acceptance collateral, troops loc
 
 Lord inspector separates Attitude, Succession Position, Desire, Fear, Proof, bargain/collateral, public reasons and timestamped private intelligence. Relationship never visually equals vote.
 
+### Raster art, semantic interaction
+
+All shipped icons and illustrations are raster PNG/WebP assets. The map is a raster art plate with semantic DOM hotspots and CSS/DOM overlays. Do not use SVG assets, inline SVG icon components, icon fonts or a canvas map.
+
 ## 3. Main screen
 
-Minimum1280×720; preferred1440×900.
+Minimum 1280×720; preferred 1440×900.
 
 ### Top
 
@@ -42,9 +46,11 @@ Six portraits with crest/title, candidate marker, public support ribbon, public 
 
 A private Leaning or secretly blackmailed Pledge appears only when the player knows it, with intelligence/secret icon and observation age. Other actors' UI projections do not receive that label.
 
-### Center SVG map
+### Center raster map plate with semantic DOM hotspots
 
-Legal crest, occupation banner, conditions, campaign lines, adjacency and Capital state Royal/Occupied/Uncontrolled.
+Use one high-resolution raster map background/plate. Position accessible semantic territory controls over the art using validated coordinates and bounds.
+
+The dynamic layer shows legal crest, occupation banner, conditions, campaign lines, adjacency and Capital state Royal/Occupied/Uncontrolled through raster emblems plus CSS/DOM elements. It must not use generated SVG paths or canvas rendering.
 
 Selection exposes Wealth, exact known or banded Levies, Fort, trait, income/recovery, controller and garrison.
 
@@ -88,7 +94,7 @@ Decision queue and selected/stored outcomes serialize.
 ## 6. Onboarding
 
 - Prognosis: clock, pause, Orders and objective.
-- Read board: Renard favorite; relationship≠support; nobles/Claim/Church/Capital differ.
+- Read board: Renard favorite; relationship ≠ support; nobles/Claim/Church/Capital differ.
 - First initiative: suggest Watch Court, Research or Gift without forcing.
 - Ailing: Declare, maturation and hardening.
 - First Pledge/war: support levels or battle preview.
@@ -97,25 +103,38 @@ Never assumes one route.
 
 ## 7. Feedback
 
-Every authoritative change appears through delta, reason, chronicle, map, icon, event or ending.
+Every authoritative change appears through delta, reason, chronicle, map, raster icon, event or ending.
 
 Examples:
 
 - `Prestige +8 — Victory at Westmarch`
 - `Ysabel's public Pledge remains, but you know it is secured by blackmail`
 - `Edric's defeat shock expired after ten days`
-- `Capital → Uncontrolled — only176 troops survived`
+- `Capital → Uncontrolled — only 176 troops survived`
 - `Greyfen income halved — default on the Merchant Syndicate`
 
 ## 8. Accessibility and controls
 
-Space pause,1/2 speed, Escape nonmandatory close, full tab navigation, no color-only state,16px minimum body, labels+icons, reduced motion, WCAG AA. Browser hiding auto-pauses before scheduler advances.
+Space pause, 1/2 speed, Escape nonmandatory close, full tab navigation, no color-only state, 16px minimum body, labels plus raster icons, reduced motion and WCAG AA. Browser hiding auto-pauses before scheduler advances.
+
+Raster map hotspots are real accessible interactive elements with visible focus. Icon-only controls still require an accessible name and tooltip where useful.
 
 ## 9. Art and audio
 
-Required: player crest/silhouette; King+five rival portraits; seven territory emblems; house/Crown/Church symbols; parchment map; King deterioration; seals/ribbons/condition icons; title key art.
+Required:
 
-Painterly medieval-manuscript realism, muted palette and readable heraldry. Audio is optional: clicks, pledge seal, phase/death bells, battle accent and ambience. Cut audio before clarity.
+- player crest/silhouette;
+- King plus five rival portraits;
+- seven territory emblems;
+- raster Crown and Church symbols;
+- high-resolution raster parchment map plate;
+- King deterioration states;
+- raster seals, ribbons and condition/action/resource icons;
+- title key art.
+
+Painterly medieval-manuscript realism, muted palette and readable heraldry. Every shipped icon is a transparent raster PNG/WebP asset at an appropriate source density and renders through the shared raster-icon contract. Do not ship SVG assets, icon fonts or generic vector icon libraries.
+
+Audio is optional: clicks, pledge seal, phase/death bells, battle accent and ambience. Cut audio before clarity.
 
 ## 10. Ending report
 
@@ -139,7 +158,19 @@ Ending labels: Crowned by Acclamation, Crowned by Council, Crowned by Church, Ma
 
 ## 11. Stack
 
-React, TypeScript strict, Vite, serializable reducer-style store, SVG, CSS, localStorage/IndexedDB and audited seeded PRNG. No backend/engine/canvas required.
+[`../TECH_STACK.md`](../TECH_STACK.md) is the authoritative implementation stack. The launch architecture is:
+
+- React, strict TypeScript and Vite;
+- pure deterministic serializable simulation outside React;
+- Zustand as a thin UI adapter;
+- Zod-validated content and saves;
+- seeded PRNG adapter;
+- IndexedDB persistence;
+- unstyled accessible Radix Primitives wrapped in project-owned components;
+- bespoke CSS Modules and design tokens;
+- raster PNG/WebP assets and semantic DOM map hotspots;
+- Storybook, Vitest, Playwright, Biome and VitePress;
+- no backend, engine, canvas, SVG production assets, themed component kit or generic dashboard template.
 
 ## 12. Canonical serializable state
 
@@ -181,11 +212,11 @@ No authoritative state only in component/timer/animation.
 
 `advanceTime(deltaHours)` finds next due item, advances, sorts by priority and sequenceId, resolves, stops for mandatory decision and repeats.
 
-All random-dependent objects snapshot draws. This supports pause,2×, save/load, replay and instant tests.
+All random-dependent objects snapshot draws. This supports pause, 2×, save/load, replay and instant tests.
 
 ## 14. Data-driven definitions
 
-Data: lords, candidate evaluation values, territories, actions, bargains, secrets, events, shocks, phase/Church modifiers and endings.
+Data: lords, candidate evaluation values, territories, actions, bargains, secrets, events, shocks, phase/Church modifiers, raster asset slots and endings.
 
 Each action contains availability, preview, start cost, acceptance collateral, duration, visibility, resolution, fallback, AI permissions and chronicle templates.
 
@@ -193,11 +224,13 @@ Typed transitions remain authoritative.
 
 ## 15. Saves
 
-Autosave each dawn, action start/cancel, mandatory decision and before/after succession. Keep current+previous checkpoint; schema migration and validation. Restore decision queue, sequence IDs, fractional values and draws exactly.
+Autosave each dawn, action start/cancel, mandatory decision and before/after succession. Keep current plus previous checkpoint; schema migration and validation. Restore decision queue, sequence IDs, fractional values and draws exactly.
 
 ## 16. Debug panel
 
 Advance time, force phase/death, inspect truth versus each actor knowledge, candidate evaluation reasons, scheduler sequence, Orders, resources, events, save JSON, succession, RNG log, Capital Uncontrolled and invariant suite.
+
+Debug-only truth and controls do not appear in the production interface.
 
 ## 17. Tests
 
@@ -221,7 +254,9 @@ Advance time, force phase/death, inspect truth versus each actor knowledge, cand
 - Acclamation;
 - knowledge-safe forecast;
 - loan repayment/default;
-- save determinism.
+- save determinism;
+- raster asset manifest, dimensions and missing fallback;
+- rejection of project-authored/shipped SVG and prohibited vector icon imports.
 
 ### Scenarios
 
@@ -231,18 +266,24 @@ Four-vote win; Church tie; Capital tie; Claim tie; Sword; Renard despite liking 
 
 Detect unwinnable package, dominant chain, automatic Renard, impossible military route, Pledge churn, overload, softlocks, universal Mara-first and late declaration dominance.
 
+### Browser and visual
+
+Keyboard-only critical path, mandatory-decision focus, hidden-tab pause, exact resume, target viewports, dense Deathbed, reduced motion, knowledge-safe forecast, full ending reconstruction, raster map hotspot operation, missing assets and no vector/icon-font leakage.
+
 ## 18. Balance targets
 
-First-time player understands loss; no deterministic skilled opener; no package Renard>75% against varied competent policies; Coalition, legitimacy/intrigue and military each≥15% targeted wins; typical12–20 initiatives,0–3 wars,4–8 direct choices; Deathbed always at least three high-value legal actions in nonterminal state.
+First-time player understands loss; no deterministic skilled opener; no package Renard >75% against varied competent policies; Coalition, legitimacy/intrigue and military each at least 15% targeted wins; typical 12–20 initiatives, 0–3 wars, 4–8 direct choices; Deathbed always at least three high-value legal actions in nonterminal state.
 
 ## 19. Four-day production
 
-Day1 state/scheduler/map/economy/Orders/declaration/succession/debug. Day2 support/bargains/Claim/Church/AI/war/save. Day3 events/art/forecast/tutorial/chronicle/ending. Day4 freeze, simulation, balance, bugs, deployment and QA.
+Day 1 state/scheduler/map/economy/Orders/declaration/succession/debug. Day 2 support/bargains/Claim/Church/AI/war/save. Day 3 events/art/forecast/tutorial/chronicle/ending. Day 4 freeze, simulation, balance, bugs, deployment and QA.
+
+The detailed dependency-aware implementation sequence is maintained in [`../work-packets/INDEX.md`](../work-packets/INDEX.md). Parallel work begins only at an opened integration gate.
 
 Cut audio, event art, portrait variants, ambient events, one opening package, detection nuance and flourishes—in that order.
 
-Never cut exact succession, support levels/maturation/collateral, one-Intent AI, Royal Authority, casualties/garrisons/threat, Capital, deterministic scheduler/save, ending explanation, pause/reactions.
+Never cut exact succession, support levels/maturation/collateral, one-Intent AI, Royal Authority, casualties/garrisons/threat, Capital, deterministic scheduler/save, ending explanation, pause/reactions or raster-only semantic UI.
 
 ## 20. Definition of done
 
-No critical undefined state; every action preview/result; every ending reconstructed; README tests pass; at least ten complete runs; static deployment; new player can start, finish, understand and replay.
+No critical undefined state; every action preview/result; every ending reconstructed; README tests pass; at least ten complete runs; static deployment; new player can start, finish, understand and replay; production UI contains no SVG/icon-font/prohibited vector icon dependency; raster assets are validated and legible at their actual display sizes.
