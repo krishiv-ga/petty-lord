@@ -3,6 +3,7 @@
 - **Status:** Blocked
 - **Wave:** 2 integration
 - **Execution:** **Serial integration gate**
+- **Git target:** `main` only
 - **Depends on:** WP-020, WP-021, WP-022 and WP-023 ready for integration with critics complete
 - **May run with:** Nothing
 - **Must not run with:** Any Wave 3 packet
@@ -12,6 +13,10 @@
 - **Integrator:** This packet is the mandatory systems integrator
 - **Release impact:** Owns `v0.2.0-alpha.1`
 
+## Git execution
+
+Run WP-029 directly on `main`. Do not create or merge packet, feature, integration, or PR branches. Review the Wave 2 packet commits/diffs already on `main`, reconcile shared seams serially on `main`, and freeze the resulting `main` revision. Synchronize with `origin/main` before starting, before shared fixes, and before final checkpoint/release work.
+
 ## Objective
 
 Combine all parallel gameplay domains into one complete deterministic game that can initialize, run, save/reload, accept player commands or scripted policies, execute rival AI and events, kill the King, resolve Military Acclamation or Council succession, and reconstruct the ending without requiring React or the browser UI.
@@ -20,7 +25,7 @@ No full-screen feature UI may integrate before this packet proves the game exist
 
 ## Canonical inputs
 
-- all Wave 2 branches, PRs, logs, critics and hostile findings;
+- all Wave 2 commits/diffs on `main`, logs, critics and hostile findings;
 - frozen contracts from WP-019;
 - all canonical `/designer` files;
 - [`TECH_STACK.md`](../TECH_STACK.md);
@@ -50,16 +55,16 @@ Avoid feature-screen implementation. A minimal debug text output or existing smo
 
 ### 1. Integrate from evidence, not optimism
 
-For each incoming packet:
+For each incoming packet result on `main`:
 
-- inspect actual diff and critic disposition;
-- rerun packet-specific high-risk tests before merging;
+- inspect actual commit/diff and critic disposition;
+- rerun packet-specific high-risk tests before accepting the result into the combined checkpoint;
 - verify owned-path discipline and no hidden shared contract fork;
 - inventory proposed seam changes;
 - reject unresolved correctness/cheating/constitutional P0/P1 issues;
 - preserve balance-only findings for WP-040 rather than “fixing” them ad hoc.
 
-Integrate the four domains in the order that makes effect routing explicit, normally common time/economy → politics → war → AI/events, then repair reciprocal hooks centrally.
+Reconcile the four domains in the order that makes effect routing explicit, normally common time/economy → politics → war → AI/events, then repair reciprocal hooks centrally on `main`.
 
 ### 2. Complete canonical `GameState`
 
@@ -266,7 +271,7 @@ Freeze:
 
 ## Required evidence
 
-- integration/effect-routing map;
+- `main` integration/effect-routing map;
 - final GameState/schema inventory;
 - full action-contract report including semantic-intent cases;
 - end-to-end scenario output and ending reconstructions;
@@ -278,9 +283,9 @@ Freeze:
 
 ## Agent topology
 
-One integrator owns cross-domain state/effects. Original packet implementers may provide targeted fixes but do not independently redesign seams.
+One integrator owns cross-domain state/effects. Original packet implementers may provide targeted fixes but do not independently redesign shared seams on `main`.
 
-A gameplay hunter may run in parallel once the first integrated build works, but reports findings without changing shared balance data. A fresh critic reviews the final combined diff and selected traces. Release work begins only after both are cleared.
+A gameplay hunter may run in parallel once the first integrated build works, but reports findings without changing shared balance data. A fresh critic reviews the final combined `main` diff and selected traces. Release work begins only after both are cleared.
 
 ## Logging
 
@@ -294,4 +299,4 @@ Create:
 
 ## Completion handoff
 
-State exact frozen UI-facing commands/projections/save/ending/assets contracts, including action-intent semantics, release tag/SHA, balance seeds deferred to WP-040, and legal Wave 3 fan-out. The next gate opens only after the compacted log/status/index commit.
+State exact frozen UI-facing commands/projections/save/ending/assets contracts, including action-intent semantics, release tag/SHA, balance seeds deferred to WP-040, and legal Wave 3 fan-out. The next gate opens only after the compacted log/status/index commit on `main`.
