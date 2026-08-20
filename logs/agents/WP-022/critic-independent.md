@@ -4,8 +4,8 @@
 - **Role:** Critic
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** `219b32f262e9d4744af102096422a83eda048c05` (remediation reviewed)
-- **Status:** Needs fixes
+- **Ending revision:** `416d828aecaf8c0d1555f31a39d51401caeefd19` (final remediation reviewed)
+- **Status:** Ready for integration
 
 ## Scope
 
@@ -218,3 +218,55 @@ attacker-now-controller and current aid/base checks. It is not yet safe for inte
 resolution-time force filtering can still (1) bypass the canonical 250-troop Capital gate after aid
 expiry and (2) crash a campaign whose sole mercenary force expires before battle. Close both with
 kernel-level regressions, rerun the hostile/full gates, and request one final focused critic recheck.
+
+## Final independent verification — remediation `416d828`
+
+Commit `416d828aecaf8c0d1555f31a39d51401caeefd19` is a focused WP-022 remediation
+over `219b32f`: 24 production lines in `campaign.ts`, two hostile regressions, and the packet logs.
+The checkout was exactly at that commit and clean while this verification ran.
+
+### Remaining finding disposition
+
+| Severity | Follow-up finding | Final reproduction and disposition |
+|---|---|---|
+| P1 | Expired aid leaves a sub-250 Capital force in battle | **Fixed and verified.** The exact Greyfen 25 + Edric 225 probe now filters the expired Edric authorization, produces no battle, emits no Prestige, completes `cancelled` with reason `Capital attack no longer has 250 active troops`, and marks both Greyfen's 25 and Edric's 225 `returning` for hour 96. |
+| P1 | Expired mercenary-only primary force throws at battle | **Fixed and verified.** After the sole Greyfen band expires, direct resolution produces no battle and completes `cancelled` with reason `attacking force no longer has any active troops`. The empty campaign commitment is `returning` for hour 216. The registered `war.campaign` scheduled resolver also completes successfully, emits a structured cancelled effect and schedules `war.return-forces` at hour 216; no exception or scheduler stall occurs. |
+
+The production guard is correctly placed after authorization/base filtering and before Uncontrolled
+entry or battle construction. Royal/Occupied Capital rechecks the canonical 250 active troops;
+Uncontrolled entry retains its separate 200 claimant-owned garrison check.
+
+### Regression and gate evidence
+
+| Command/check | Result | Evidence/notes |
+|---|---|---|
+| Exact Vite SSR Capital-aid-expiry probe | Pass | `battle:null`, `outcome:cancelled`, `prestigeDeltas:{}`, both commitments return at hour 96 |
+| Exact Vite SSR mercenary-expiry direct probe | Pass | `battle:null`, deterministic cancellation, empty primary commitment returns at hour 216 |
+| Registered scheduled-resolver mercenary probe | Pass | Structured `war.campaign-resolved` cancellation plus `war.return-forces` scheduled for hour 216; no throw |
+| `pnpm exec vitest run --config vitest.sim.config.ts tests/sim/war/hostile-correctness.test.ts` | Pass | 1 file / 16 hostile tests |
+| `pnpm exec vitest run --config vitest.sim.config.ts tests/sim/war tests/sim/occupation tests/sim/capital` | Pass | 6 files / 36 WP-022 tests |
+
+The six findings cleared at `219b32f` remain covered and green: authenticated adjacent aid/current
+bases, stale-controller and Yield cleanup, attacker-now-controller cancellation, failed Uncontrolled
+entry, campaign-bound candidacy, layered Capital Prestige and third-party Southmere occupation for
+Renard. The same focused run also preserves deterministic fortune/reload, casualty accounting,
+post-battle/expiry garrison collapse, mercenary lifecycle, dispossessed voters, observer-safe preview,
+leverage invalidation and Military Acclamation.
+
+### Final design and integration status
+
+- Canonical design changed: No
+- Design amendment: none
+- Balance values changed: none
+- Save/shared schema changed: No; the existing JSON-compatible authorization records remain the
+  WP-029 composition seam
+- Unresolved critic findings: none
+- Integration-ready: **Yes**
+
+### Final authoritative verdict
+
+**Clear for integration.** Remediation `416d828` closes both resolution-time P1 defects without
+regressing any previously cleared hostile path. Cancellation, commitment return timing, effect output
+and scheduled follow-up are deterministic and explicit. WP-022 is ready for the serialized WP-029
+integration gate; Mara-first frequency remains the documented WP-040 tuning question, not a packet
+correctness blocker.

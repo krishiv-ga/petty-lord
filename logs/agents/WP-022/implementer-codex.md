@@ -4,8 +4,8 @@
 - **Role:** Implementer
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** pending follow-up critic checkpoint
-- **Status:** Critic remediation complete; follow-up independent verdict pending
+- **Ending revision:** `416d828aecaf8c0d1555f31a39d51401caeefd19` (final implementation reviewed)
+- **Status:** Complete; independent critic clear for integration
 
 ## Scope
 
@@ -75,7 +75,7 @@ Explicitly out of scope:
 | `pnpm exec biome check --write ...<WP-022 paths>` | Pass | Scoped implementation/test files formatted; two files updated mechanically |
 | Focused Vitest command from wiki | Pass | 6 files, 36 tests, including hunter and critic regressions |
 | `pnpm exec vitest run --config vitest.sim.config.ts --maxWorkers=1` | Pass | 30 files, 199 deterministic simulation tests; single-worker rerun avoided unrelated worker-pool exhaustion under concurrent repository activity |
-| `pnpm test` | Pass | 8 files, 46 unit/content/architecture tests |
+| `pnpm exec vitest run --maxWorkers=1` | Pass | 8 files, 46 unit/content/architecture tests |
 | `pnpm typecheck` | Pass | `tsc -b` completed without diagnostics |
 | `pnpm build` | Pass | TypeScript and Vite production build completed |
 | `pnpm wiki:check` | Pass | VitePress client/server build and page rendering completed |
@@ -95,8 +95,9 @@ Explicitly out of scope:
 | P1 follow-up | Expired mercenary-only primary force throws at battle | A zero-troop active attacker now completes as a deterministic cancellation before battle construction. |
 
 The first critic verdict was **Needs fixes** at `ee1d9b3`. The follow-up at `219b32f` verified all six
-original fixes and found the two resolution-time issues above. Both are implemented and regressed;
-final independent verification is pending on the next remediation commit.
+original fixes and found the two resolution-time issues above. Final review of `416d828` verified
+both fixes through the registered scheduler, reran 16/16 hostile cases and 36/36 focused tests, and
+returned **Clear for integration** with no unresolved findings.
 
 ## Design, balance, or schema impact
 
@@ -121,4 +122,4 @@ final independent verification is pending on the next remediation commit.
 - Shared contracts touched: none
 - Reconciliation/order constraints on `main`: WP-029 must install the military domain state/module alongside WP-020/021/023
 - Follow-up packets: WP-029, WP-040 for balance findings
-- Integration-ready: No — follow-up independent critic clearance remains
+- Integration-ready: **Yes** — all acceptance gates and independent hostile/critic checks pass
