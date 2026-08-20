@@ -15,13 +15,14 @@ All work packets execute directly on `main`.
 
 ## Current gate
 
-> **WAVE 1 fan-out uses shared `main`: WP-010, WP-011 and WP-012 may run concurrently only on disjoint owned paths. No packet branches/worktrees.**
+> **WAVE 2 OPEN: WP-020, WP-021, WP-022 and WP-023 may run concurrently on shared `main` only on disjoint owned paths. No packet branches/worktrees.**
 
-WP-000 is integrated at reviewed revision `aa11d6b2379f1d3563e4aeb787dc1a73c090e2a9` with a frozen
-toolchain, lockfile, CI/release baseline, wiki and path contracts. Do not change shared root seams in
-parallel packets; WP-019 owns foundation integration.
+WP-019 is integrated at reviewed revision `6be70ed7b2ac79c51adc834e9ef27a92d58981eb` with the verified
+[`v0.1.0-alpha.1`](https://github.com/krishiv-ga/petty-lord/releases/tag/v0.1.0-alpha.1) foundation
+checkpoint. Wave 2 must use the frozen narrow contracts and must not change shared root seams in
+parallel; WP-029 owns the next integration.
 
-Do not begin WP-020 or later until WP-019 integrates Wave 1 and explicitly opens Gate 2.
+Do not begin WP-029, Wave 3 or later until WP-020–023 integrate and explicitly open Gate 3.
 
 ## Dependency graph
 
@@ -140,14 +141,14 @@ Then serialize final integration, full regression, and release into:
 | Packet | Title | Execution | Depends on | Critic | Status |
 |---|---|---|---|---|---|
 | WP-000 | Repository bootstrap, tooling, wiki, CI and releases | **Serial** | None | Required | **Integrated** |
-| WP-010 | Deterministic simulation kernel | Parallel Wave 1 | WP-000 | Required | **Ready** |
-| WP-011 | Content schema and canonical data | Parallel Wave 1 | WP-000 | Required | **Ready** |
-| WP-012 | Visual language and UI foundation | Parallel Wave 1 | WP-000 | Required + `$ui-audit` | **Ready** |
-| WP-019 | Foundation integration and checkpoint | **Serial integration** | WP-010–012 | Required | Blocked |
-| WP-020 | Time, economy, Orders and action infrastructure | Parallel Wave 2 | WP-019 | Required | Blocked |
-| WP-021 | Politics, support, Claim, Church and succession | Parallel Wave 2 | WP-019 | Required | Blocked |
-| WP-022 | War, occupation, threat and Capital | Parallel Wave 2 | WP-019 | Required | Blocked |
-| WP-023 | Rival AI, knowledge, openings and events | Parallel Wave 2 | WP-019 | Required | Blocked |
+| WP-010 | Deterministic simulation kernel | Parallel Wave 1 | WP-000 | Required | **Integrated** |
+| WP-011 | Content schema and canonical data | Parallel Wave 1 | WP-000 | Required | **Integrated** |
+| WP-012 | Visual language and UI foundation | Parallel Wave 1 | WP-000 | Required + `$ui-audit` | **Integrated** |
+| WP-019 | Foundation integration and checkpoint | **Serial integration** | WP-010–012 | Required | **Integrated** |
+| WP-020 | Time, economy, Orders and action infrastructure | Parallel Wave 2 | WP-019 | Required | **Ready** |
+| WP-021 | Politics, support, Claim, Church and succession | Parallel Wave 2 | WP-019 | Required | **Ready** |
+| WP-022 | War, occupation, threat and Capital | Parallel Wave 2 | WP-019 | Required | **Ready** |
+| WP-023 | Rival AI, knowledge, openings and events | Parallel Wave 2 | WP-019 | Required | **Ready** |
 | WP-029 | Complete headless-game integration | **Serial integration** | WP-020–023 | Required | Blocked |
 | WP-030 | Raster map and territory UI | Parallel Wave 3 | WP-029 | Required + `$ui-audit` | Blocked |
 | WP-031 | Lords, politics and action UI | Parallel Wave 3 | WP-029 | Required + `$ui-audit` | Blocked |

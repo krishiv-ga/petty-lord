@@ -1,6 +1,6 @@
 # WP-020 — Time, Royal Health, Economy, Orders and Common Actions
 
-- **Status:** Blocked by WP-019
+- **Status:** Ready
 - **Wave:** 2
 - **Execution:** Parallel-safe within Wave 2
 - **Depends on:** WP-019

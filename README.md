@@ -6,10 +6,12 @@ A real-time-with-pause political strategy game for desktop browsers. One in-game
 
 ## Current repository state
 
-The complete game design is locked. WP-019 has assembled the deterministic kernel, canonical content
-registry and authored UI foundation behind shared contracts, but **Wave 2 remains closed until the
-integration critic clears the candidate and the foundation release is verified**. Use
-[`logs/STATUS.md`](./logs/STATUS.md) for the authoritative gate.
+The complete game design is locked. WP-019 has assembled and released the deterministic kernel,
+canonical content registry and authored UI foundation behind shared contracts. **WAVE 2 OPEN**:
+WP-020, WP-021, WP-022 and WP-023 are Ready on disjoint paths. Use [`logs/STATUS.md`](./logs/STATUS.md)
+for the authoritative gate and the
+[`v0.1.0-alpha.1` foundation checkpoint](https://github.com/krishiv-ga/petty-lord/releases/tag/v0.1.0-alpha.1)
+for the immutable release evidence.
 
 See [`work-packets/INDEX.md`](./work-packets/INDEX.md) for the full dependency graph and exact fan-out/serialization gates.
 
@@ -60,7 +62,7 @@ The maintained wiki lives under `wiki-site/`; its command and architecture docum
 
 ```text
 WP-000 serialized bootstrap
-  → pending Wave 1 foundation integration at WP-019 / v0.1.0-alpha.1
+  → WP-019 foundation integration / v0.1.0-alpha.1 complete
   → Wave 2: time/economy | politics/succession | war/capital | AI/knowledge/events
   → serialized complete headless-game integration/release
   → Wave 3: raster map | political UI | operational shell/save | forecast/endings | raster assets
@@ -69,7 +71,9 @@ WP-000 serialized bootstrap
   → serialized final integration and v1.0.0
 ```
 
-Parallel work uses separate branches/worktrees and disjoint path ownership. Significant changes require an independent critic. Every agent writes a packet log; only integrators update compacted logs, status and fan-out gates.
+Parallel work shares `main` and requires disjoint path ownership; agents do not create packet or
+integration branches. Significant changes require an independent critic. Every agent writes a packet
+log; only integrators update compacted logs, status and fan-out gates.
 
 ## Visual/technical direction
 

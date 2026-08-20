@@ -11,6 +11,8 @@ development, operations and reference sections in the sidebar. Sections whose im
 to later packets say so explicitly rather than speculating.
 
 The current integrated state is summarized in the repository's
-[status log](https://github.com/krishiv-ga/petty-lord/blob/main/logs/STATUS.md). Wave 01's compacted
-handoff becomes authoritative only after WP-019 is critic-cleared, merged and released; until then
-[Wave 00](https://github.com/krishiv-ga/petty-lord/blob/main/logs/compacted/WAVE-00.md) remains current.
+[status log](https://github.com/krishiv-ga/petty-lord/blob/main/logs/STATUS.md). **WAVE 2 OPEN**:
+WP-020 through WP-023 are Ready after the verified
+[`v0.1.0-alpha.1` foundation checkpoint](https://github.com/krishiv-ga/petty-lord/releases/tag/v0.1.0-alpha.1).
+[Wave 01](https://github.com/krishiv-ga/petty-lord/blob/main/logs/compacted/WAVE-01.md) is the current
+compacted handoff.

@@ -1,6 +1,6 @@
 # WP-019 — Foundation Integration, Contract Freeze and Alpha Checkpoint
 
-- **Status:** Blocked
+- **Status:** Integrated
 - **Wave:** 1 integration
 - **Execution:** **Serial integration gate**
 - **Git target:** `main` only
@@ -194,18 +194,18 @@ Mark WP-019 Integrated and WP-020/021/022/023 Ready. State the frozen contracts 
 
 ## Acceptance tests
 
-- [ ] All three Wave 1 packets and critic dispositions are accounted for.
-- [ ] Fresh clean install produces no lockfile diff.
-- [ ] Canonical content initializes a deterministic kernel envelope with content hash/build/schema metadata.
-- [ ] Save/export/import round-trip remains exact after content integration.
-- [ ] Representative Wave 2 consumers compile against frozen contracts without editing shared modules.
-- [ ] Dependency-boundary tests prevent UI/browser imports into simulation and behavior imports into content.
-- [ ] Storybook fixtures render canonical data and raster placeholders without SVG/vector fallback.
-- [ ] Character slot contract exposes `full`/`bust`/`tight` without requiring Wave 3 UI agents to hardcode files.
-- [ ] Check, typecheck, all foundation tests, game build, Storybook build, wiki check and Playwright smoke pass together.
-- [ ] Combined independent critic clears the integration.
-- [ ] `v0.1.0-alpha.1` release points to the exact integrated commit and artifacts verify.
-- [ ] WAVE-01 compacted log/status/index open only Wave 2 packets.
+- [x] All three Wave 1 packets and critic dispositions are accounted for.
+- [x] Fresh clean install produces no lockfile diff.
+- [x] Canonical content initializes a deterministic kernel envelope with content hash/build/schema metadata.
+- [x] Save/export/import round-trip remains exact after content integration.
+- [x] Representative Wave 2 consumers compile against frozen contracts without editing shared modules.
+- [x] Dependency-boundary tests prevent UI/browser imports into simulation and behavior imports into content.
+- [x] Storybook fixtures render canonical data and raster placeholders without SVG/vector fallback.
+- [x] Character slot contract exposes `full`/`bust`/`tight` without requiring Wave 3 UI agents to hardcode files.
+- [x] Check, typecheck, all foundation tests, game build, Storybook build, wiki check and Playwright smoke pass together.
+- [x] Combined independent critic clears the integration.
+- [x] `v0.1.0-alpha.1` release points to the exact integrated commit and artifacts verify.
+- [x] WAVE-01 compacted log/status/index open only Wave 2 packets.
 
 ## Required evidence
 

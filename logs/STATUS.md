@@ -1,18 +1,19 @@
 # Repository Status
 
-- **Current phase:** WP-000 integrated; Wave 1 foundations ready to fan out.
-- **Reviewed integration revision:** `aa11d6b2379f1d3563e4aeb787dc1a73c090e2a9`.
-- **Latest compacted log:** [`logs/compacted/WAVE-00.md`](./compacted/WAVE-00.md)
-- **Fan-out gate:** **Open**.
-- **Ready now:** [`WP-010`](../work-packets/WP-010-deterministic-simulation-kernel.md),
-  [`WP-011`](../work-packets/WP-011-content-schema-and-canonical-data.md) and
-  [`WP-012`](../work-packets/WP-012-visual-language-and-ui-foundation.md).
-- **Do not start yet:** WP-019 waits for WP-010–012; WP-020+ remain blocked.
-- **Next checkpoint:** foundation integration and `v0.1.0-alpha.1` through WP-019.
+- **Current phase:** WP-019 foundation integration complete; Wave 2 systems ready to fan out.
+- **Reviewed integration revision:** `6be70ed7b2ac79c51adc834e9ef27a92d58981eb`.
+- **Latest compacted log:** [`logs/compacted/WAVE-01.md`](./compacted/WAVE-01.md)
+- **Fan-out gate:** **WAVE 2 OPEN**.
+- **Ready now:** [`WP-020`](../work-packets/WP-020-time-economy-orders-actions.md),
+  [`WP-021`](../work-packets/WP-021-politics-claim-church-succession.md),
+  [`WP-022`](../work-packets/WP-022-war-occupation-threat-capital.md) and
+  [`WP-023`](../work-packets/WP-023-ai-knowledge-events.md).
+- **Do not start yet:** WP-029 waits for WP-020–023; Wave 3+ remain blocked.
+- **Checkpoint:** [`v0.1.0-alpha.1`](https://github.com/krishiv-ga/petty-lord/releases/tag/v0.1.0-alpha.1), verified at the reviewed revision above.
 
-WP-010, WP-011 and WP-012 may run concurrently only in separate branches/worktrees with disjoint
-owned paths. Shared root tooling, lockfile, workflows, navigation and compacted status are frozen for
-the wave and belong to WP-019 integration.
+WP-020, WP-021, WP-022 and WP-023 may run concurrently on shared `main` only when their owned paths
+remain disjoint. The frozen contracts under `src/contracts/**`, shared root tooling, lockfile,
+workflows, navigation and compacted status belong to the next serialized integrator, WP-029.
 
 This file is updated only by an integration packet. Individual packet agents write under
 `logs/agents/<packet-id>/` and do not edit this shared status.

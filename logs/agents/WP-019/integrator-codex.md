@@ -4,9 +4,9 @@
 - **Role:** Integrator
 - **Branch/worktree:** `wp/WP-019-foundation-integration` / `petty-lord-wp019`
 - **Starting revision:** `8a213c56abf33c066fa0545d32c3ef486cd5b944`
-- **Ending revision:** `4fb1fb4a64f3817b4e2b8c1fe0c6e55fc8068af2` reviewed production candidate; evidence commit follows
+- **Ending revision:** `6be70ed7b2ac79c51adc834e9ef27a92d58981eb` released integration; final gate-status commit follows
 - **PR:** https://github.com/krishiv-ga/petty-lord/pull/4
-- **Status:** Critic-cleared — ready to merge and release
+- **Status:** Complete — released and Wave 2 gate opened
 
 ## Scope
 
@@ -51,6 +51,11 @@ Explicitly out of scope:
   the simulation-safe contract, reserved four system namespaces, typed domain messages/transitions,
   made kernel registrations and raster descriptors runtime-immutable, validated save mirrors, restored
   the reviewed UI copy, hardened dependency walking, and made the release workflow self-verifying.
+- Merged and independently cleared the cross-platform visual-evidence repair, with strict Linux and
+  Windows baselines and reliable pinned Chromium installation in CI/release workflows.
+- Published and verified `v0.1.0-alpha.1` at exact integrated `main` revision `6be70ed`; the release
+  contains game, Storybook and wiki archives plus compacted log, known issues, structured notes, test
+  summary and checksums.
 
 ## Decisions and assumptions
 
@@ -74,6 +79,9 @@ Explicitly out of scope:
 | `pnpm test:e2e` | Pass | Integrated foundation smoke at 1280×720, axe clean |
 | Content snapshot | Pass | 6 lords, 7 territories, 19 actions, 16 events, 96 raster slots, zero unresolved; hash `fnv1a64-71139efd89443029` |
 | Extracted release-artifact smoke | Pass | Built game copied into the release layout and booted in Chromium; checkpoint identity present and zero SVG elements |
+| Focused release-fix critic | Pass | Clear for integration at `a31ef88`; no P0/P1/P2, evidence-log P3 resolved |
+| Real release workflow | Pass | Run `32270680771`; all gates, Linux foundation 11/11, app smoke, package/checksum, extracted smoke, tag/release and published-download verification green |
+| Independent published-asset audit | Pass | Tag dereferences to `6be70ed`; eight assets present, seven checksum entries match, three archives readable, fresh extracted game smoke 1/1 |
 
 ## Critic findings and resolution
 
@@ -102,13 +110,12 @@ Explicitly out of scope:
 ## Risks and deferred work
 
 - Dedicated production bust/tight portraits remain WP-034 work; Wave 1 uses explicitly temporary raster stand-ins.
-- Live GitHub release publication depends on repository credentials and the maintained manual workflow succeeding.
+- Foundation browser/visual evidence covers Windows and Linux Chromium; other browsers/platforms remain later hardening work.
 
 ## Integration notes
 
 - Shared contracts touched: `src/contracts/{ids,domains,content,state,simulation,projection,assets,index}.ts`,
   `@contracts/*` alias, application smoke projection and release version metadata
 - Merge order constraints: WP-010 → WP-011 → WP-012 → seam reconciliation
-- Follow-up packets: WP-020, WP-021, WP-022, WP-023 after the gate is formally opened
-- Integration-ready: Yes for merge/release — independent critic has no residual findings. Release
-  publication/verification and the atomic gate-opening status commit remain.
+- Follow-up packets: WP-020, WP-021, WP-022, WP-023 are Ready; WP-029 remains the next serialized integrator
+- Integration-ready: Complete. The foundation release is verified and Wave 2 is open only for the four named packets.

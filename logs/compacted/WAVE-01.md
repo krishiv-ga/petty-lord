@@ -1,10 +1,10 @@
 # Compacted Log — Wave 01 Foundation Integration
 
-- **Integration candidate:** `wp/WP-019-foundation-integration` (exact revision recorded at merge)
+- **Integrated `main` revision:** `6be70ed7b2ac79c51adc834e9ef27a92d58981eb`
 - **Source packet revisions:** WP-010 `944e824`, WP-011 `88e0f34`, WP-012 `719c5f4`
-- **Release/tag:** `v0.1.0-alpha.1` pending verified publication from integrated `main`
-- **Critic verdict:** **Clear for integration** at `4fb1fb4`; no residual findings
-- **Fan-out gate:** **Closed** until this log, status and packet index are updated atomically
+- **Release/tag:** [`v0.1.0-alpha.1`](https://github.com/krishiv-ga/petty-lord/releases/tag/v0.1.0-alpha.1), verified at the integrated revision
+- **Critic verdict:** **Clear for integration** at `4fb1fb4`; focused release-fix critic clear at `a31ef88`; no blocking findings
+- **Fan-out gate:** **WAVE 2 OPEN** for WP-020, WP-021, WP-022 and WP-023 only
 
 ## Repository capability assembled
 
@@ -64,8 +64,10 @@ verified. No critic finding remains.
   current close portraits are visibly inventoried temporary raster stand-ins.
 - Foundation browser/visual evidence is Chromium-only; broader support remains later hardening work.
 
-## Pending gate handoff
+## Gate handoff
 
-After critic clearance, merge the exact candidate to `main`, dispatch and verify the manual
-`v0.1.0-alpha.1` checkpoint, then update this header plus `logs/STATUS.md`, `work-packets/INDEX.md`,
-README and wiki atomically to mark only WP-020, WP-021, WP-022 and WP-023 Ready.
+The manual `v0.1.0-alpha.1` checkpoint passed run
+[`32270680771`](https://github.com/krishiv-ga/petty-lord/actions/runs/32270680771), created an annotated
+tag at `6be70ed`, published eight assets, verified all checksums and archive readability, and passed
+the extracted-game Chromium smoke. WP-020, WP-021, WP-022 and WP-023 are Ready on disjoint `main`
+paths. WP-029 and every later wave remain blocked.

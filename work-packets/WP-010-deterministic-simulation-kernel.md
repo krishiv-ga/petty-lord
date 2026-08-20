@@ -1,6 +1,6 @@
 # WP-010 — Deterministic Simulation Kernel
 
-- **Status:** Blocked by WP-000
+- **Status:** Integrated by WP-019
 - **Wave:** 1
 - **Execution:** Parallel-safe within Wave 1
 - **Depends on:** WP-000

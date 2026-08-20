@@ -1,6 +1,6 @@
 # WP-012 — Visual Language, Raster Asset Contract and UI Foundation
 
-- **Status:** Blocked by WP-000
+- **Status:** Integrated by WP-019
 - **Wave:** 1
 - **Execution:** Parallel-safe within Wave 1
 - **Depends on:** WP-000

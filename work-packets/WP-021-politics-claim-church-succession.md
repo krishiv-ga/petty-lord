@@ -1,6 +1,6 @@
 # WP-021 — Politics, Support, Claim, Church and Succession
 
-- **Status:** Blocked by WP-019
+- **Status:** Ready
 - **Wave:** 2
 - **Execution:** Parallel-safe within Wave 2
 - **Depends on:** WP-019

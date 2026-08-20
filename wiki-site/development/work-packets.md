@@ -15,7 +15,7 @@ Significant work requires an independent critic reviewing the relevant `main` co
 evidence. A PR is not required. Only integration packets update shared status, compacted logs and
 fan-out gates; they reconcile the combined state already on `main` rather than merging feature branches.
 
-WP-019 integrates Wave 1 and, only after independent clearance plus a verified foundation release,
-opens the second fan-out gate for WP-020 (time/economy/orders), WP-021
-(politics/Church/succession), WP-022 (war/occupation/Capital) and WP-023 (AI/knowledge/events). The
-authoritative status log still controls whether those packets are actually open.
+WP-019 integrated Wave 1 and published the verified `v0.1.0-alpha.1` foundation release. **WAVE 2
+OPEN**: WP-020 (time/economy/orders), WP-021 (politics/Church/succession), WP-022
+(war/occupation/Capital) and WP-023 (AI/knowledge/events) are Ready on disjoint `main` paths. WP-029
+and every Wave 3 packet remain blocked; the authoritative status log controls the gate.
