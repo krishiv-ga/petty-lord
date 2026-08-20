@@ -793,6 +793,30 @@ export function resolveCampaign(
   workingState = activeAttack.state;
   const attackerCommitmentIds = activeAttack.activeIds;
   const attackerAllocations = totalCommittedForce(workingState, attackerCommitmentIds);
+  const attackerTroops = attackerAllocations.reduce(
+    (sum, allocation) => sum + allocation.troops,
+    0,
+  );
+  if (attackerTroops === 0) {
+    return cancelAndReturnCampaign(
+      workingState,
+      campaign,
+      atHours,
+      'attacking force no longer has any active troops',
+    );
+  }
+  if (
+    campaign.targetTerritoryId === 'capital' &&
+    workingState.capital.stableStatus !== 'uncontrolled' &&
+    attackerTroops < CAPITAL_MINIMUM_ATTACK
+  ) {
+    return cancelAndReturnCampaign(
+      workingState,
+      campaign,
+      atHours,
+      `Capital attack no longer has ${CAPITAL_MINIMUM_ATTACK} active troops`,
+    );
+  }
   if (
     campaign.targetTerritoryId === 'capital' &&
     workingState.capital.stableStatus === 'uncontrolled'

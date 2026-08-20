@@ -3,9 +3,11 @@ import { projectForcePreview } from '../../../src/sim/projections/military/previ
 import { createRandomState, RandomSession } from '../../../src/sim/random/random';
 import { occupyCapital } from '../../../src/sim/systems/capital/capital';
 import {
+  hireMercenaryBand,
   lockForceRequests,
   totalCommittedForce,
 } from '../../../src/sim/systems/military/availability';
+import { processMilitaryExpiry } from '../../../src/sim/systems/military/maintenance';
 import {
   addCapitalMarchAuthorization,
   addDefensiveAuthorization,
@@ -271,6 +273,92 @@ describe('hostile military correctness scenarios', () => {
         random('occupied-allied-base'),
       ),
     ).toThrow('lacks a valid campaign base');
+  });
+
+  it('cancels when expired aid leaves a Capital attack below its resolution-time minimum', () => {
+    let state = createTestMilitaryState();
+    state = addMilitaryAidAuthorization(state, {
+      beneficiaryId: 'greyfen',
+      campaignId: 'expired-capital-aid',
+      expiresAtHours: 60,
+      id: 'aid:expired-capital-aid:edric',
+      maximumTroops: 225,
+      providerId: 'edric',
+      side: 'attacker',
+    });
+    const capitalAuthorization = authorizeCapital(state, 'expired-capital-aid');
+    const started = startCampaign(
+      capitalAuthorization.state,
+      campaignInput({
+        campaignId: 'expired-capital-aid',
+        capitalAuthorizationId: capitalAuthorization.authorizationId,
+        forces: [
+          {
+            basingTerritoryId: 'greyfen',
+            garrisonEligible: true,
+            levyTroops: 25,
+            lordId: 'greyfen',
+            mercenaryIds: [],
+          },
+          {
+            basingTerritoryId: 'northkeep',
+            garrisonEligible: true,
+            levyTroops: 225,
+            lordId: 'edric',
+            mercenaryIds: [],
+          },
+        ],
+        goal: 'capital',
+        targetTerritoryId: 'capital',
+      }),
+      0,
+      random('expired-capital-aid'),
+    );
+    state = makeCampaignPublic(started.state, started.campaign.id);
+    state = reactToCampaign(state, started.campaign.id, 'defend', [], 12);
+    const result = resolveCampaign(state, started.campaign.id, 72);
+    expect(result.battle).toBeNull();
+    expect(result.state.campaigns[started.campaign.id]?.outcome).toBe('cancelled');
+    expect(result.state.campaigns[started.campaign.id]?.reasons).toContain(
+      'Capital attack no longer has 250 active troops',
+    );
+    expect(result.state.commitments[`${started.campaign.id}:attacker:edric`]?.kind).toBe(
+      'returning',
+    );
+  });
+
+  it('cancels rather than throwing when every primary troop contract expires before battle', () => {
+    const hired = hireMercenaryBand(createTestMilitaryState(), {
+      atHours: 0,
+      forceId: 'expiring-primary-band',
+      ownerId: 'greyfen',
+    });
+    const started = startCampaign(
+      hired.state,
+      campaignInput({
+        campaignId: 'expired-primary-force',
+        forces: [
+          {
+            basingTerritoryId: 'greyfen',
+            garrisonEligible: true,
+            levyTroops: 0,
+            lordId: 'greyfen',
+            mercenaryIds: ['expiring-primary-band'],
+          },
+        ],
+      }),
+      120,
+      random('expired-primary-force'),
+    );
+    let state = makeCampaignPublic(started.state, started.campaign.id);
+    state = reactToCampaign(state, started.campaign.id, 'defend', [], 132);
+    state = processMilitaryExpiry(state, 192).state;
+    const result = resolveCampaign(state, started.campaign.id, 192);
+    expect(result.battle).toBeNull();
+    expect(result.state.campaigns[started.campaign.id]?.outcome).toBe('cancelled');
+    expect(result.state.campaigns[started.campaign.id]?.reasons).toContain(
+      'attacking force no longer has any active troops',
+    );
   });
 
   it('enforces AI Yield ratio/relief while preserving the player right to Yield', () => {

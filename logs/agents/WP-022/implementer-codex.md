@@ -52,6 +52,9 @@ Explicitly out of scope:
   layered Capital battle/control Prestige, and Renard's literal third-party Southmere gate.
 - Added structured political fallout for Capital loss, usurper/Church conduct, Pledge shock and
   first-dispossession viability integration without crossing WP-021/WP-029 ownership boundaries.
+- Closed two resolution-time findings from the follow-up review: revalidated Capital attacks cancel
+  below 250 active troops after aid expires, and campaigns whose entire primary force expires cancel
+  deterministically instead of entering battle with zero troops.
 
 ## Decisions and assumptions
 
@@ -70,8 +73,8 @@ Explicitly out of scope:
 |---|---|---|
 | Gate/dependency/current-main audit | Pass | WP-019 integrated; WP-022 Ready; Wave 2 open at `e98954d` |
 | `pnpm exec biome check --write ...<WP-022 paths>` | Pass | Scoped implementation/test files formatted; two files updated mechanically |
-| Focused Vitest command from wiki | Pass | 6 files, 34 tests, including hunter and critic regressions |
-| `pnpm test:sim` | Pass | 30 files, 197 deterministic simulation tests |
+| Focused Vitest command from wiki | Pass | 6 files, 36 tests, including hunter and critic regressions |
+| `pnpm exec vitest run --config vitest.sim.config.ts --maxWorkers=1` | Pass | 30 files, 199 deterministic simulation tests; single-worker rerun avoided unrelated worker-pool exhaustion under concurrent repository activity |
 | `pnpm test` | Pass | 8 files, 46 unit/content/architecture tests |
 | `pnpm typecheck` | Pass | `tsc -b` completed without diagnostics |
 | `pnpm build` | Pass | TypeScript and Vite production build completed |
@@ -88,9 +91,12 @@ Explicitly out of scope:
 | P1 | Caller-forged `declaredClaimant` | The boolean was removed. A current campaign-bound Capital march authorization is required and raw-command forgery is regressed. |
 | P1 | Capital defender-victory Prestige is wrong | Normal major/minor battle Prestige is computed first, then Capital acquisition/loss is layered from control state; Royal, claimant, collapse and attacker-victory cases are regressed. |
 | P2 | Renard gate requires the claimant to occupy Southmere | Any current hostile occupation satisfies the authored Southmere branch; demanding-claimant Capital control remains separate. |
+| P1 follow-up | Expired aid leaves a sub-250 Capital force in battle | Resolution now rechecks the active post-authorization force and cancels/returns the campaign below the canonical 250 minimum. |
+| P1 follow-up | Expired mercenary-only primary force throws at battle | A zero-troop active attacker now completes as a deterministic cancellation before battle construction. |
 
-The first critic verdict was **Needs fixes** at `ee1d9b3`. All findings are implemented and tested;
-the independent follow-up review is pending on the remediation commit.
+The first critic verdict was **Needs fixes** at `ee1d9b3`. The follow-up at `219b32f` verified all six
+original fixes and found the two resolution-time issues above. Both are implemented and regressed;
+final independent verification is pending on the next remediation commit.
 
 ## Design, balance, or schema impact
 

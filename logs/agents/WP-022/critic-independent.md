@@ -4,7 +4,7 @@
 - **Role:** Critic
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** `ee1d9b3b46d7fc478786a05cfd1375166ea8d9e5` (reviewed snapshot)
+- **Ending revision:** `219b32f262e9d4744af102096422a83eda048c05` (remediation reviewed)
 - **Status:** Needs fixes
 
 ## Scope
@@ -136,7 +136,7 @@ canonical design amendment or balance change.
 - Follow-up packets: WP-022 remediation, then WP-029; WP-040 only for measured balance
 - Integration-ready: **No**
 
-## Final verdict
+## Final verdict — initial review
 
 **Needs fixes.** The ordinary battle, garrison, expiry, observer-preview and Acclamation paths are
 substantially implemented and deterministic, but five P1 correctness exploits remain: unauthorized
@@ -144,3 +144,77 @@ and remote allied forces/bases, stale simultaneous defenders and orphaned garris
 failed-entry Capital Prestige, caller-forged candidacy, and incorrect Capital battle Prestige. The
 Renard withdrawal query also contradicts the locked constitution. WP-022 must remediate and rerun the
 hostile suite before it is safe for WP-029 integration.
+
+## Follow-up independent review — remediation `219b32f`
+
+The follow-up review inspected the actual remediation commit rather than the accumulated Wave 2
+range. Commit `219b32f262e9d4744af102096422a83eda048c05` changes only WP-022-owned production,
+tests, wiki and logs. Current `main` was `08061d1ce17c209096b1077901338e09bd821ac4` while the
+checks ran; an exact path comparison showed no change to any WP-022 production/test/wiki file after
+`219b32f`, so every probe below is pinned to the remediation.
+
+### Original finding disposition
+
+| Severity | Original finding | Follow-up reproduction and disposition |
+|---|---|---|
+| P1 | Arbitrary/remote allied forces and enemy-occupied allied bases | **Fixed and verified.** Unauthorized adjacent aid now needs a campaign/side/provider/beneficiary authorization; a remote authorized Eastvale force is rejected for adjacency; an enemy-occupied allied seat returns `hasCampaignBase=false`. Stored aid and each provider base are checked again at resolution, with invalid contingents returned. |
+| P1 | Stale simultaneous defenders and orphaned prior garrisons | **Fixed and verified.** The original two-campaign probe now fights only the current Greyfen 75-troop garrison, not Mara's stale 200; both stale Mara troops and the displaced Greyfen garrison become `returning`, and Edric becomes controller. A third-party Yield transfer returns the old 75 garrison. An additional same-attacker campaign cancels with no battle once its attacker already controls the target. |
+| P1 | Failed Uncontrolled entry farms +8 Prestige | **Fixed and verified.** Start rejects 200 troops with `garrisonEligible:false`; resolution independently rechecks 200 claimant-owned eligible troops. Failed assignment maps to cancellation, not `pyrrhic-capital`. |
+| P1 | Caller-forged `declaredClaimant` | **Fixed and verified.** The boolean was removed from `StartCampaignInput`; raw `true` is ignored and a current campaign/claimant-bound authorization is mandatory. The original unchanged war state now rejects the forged command. |
+| P1 | Capital defender-victory Prestige | **Fixed and verified.** A 250-troop Royal assault resolves as a major defender victory with `{greyfen:-6}`. Claimant attack/victory and defender-win garrison-collapse regressions correctly layer ordinary battle Prestige and the separate -8 Capital-control loss. |
+| P2 | Renard required the demanding claimant to occupy Southmere | **Fixed and verified.** With Greyfen occupying Southmere, Edric controlling the Capital, Renard at 450 and zero supporters, Edric's withdrawal query now returns `credible:true`; the wiki uses the canonical any-hostile-occupation rule. |
+
+### New findings on the remediation
+
+| Severity | Finding | Reproduction/evidence and expected behavior | Resolution/status |
+|---|---|---|---|
+| P1 | A Capital campaign does not revalidate the 250-troop attack minimum after allied aid becomes invalid | Start correctly accepted Greyfen 25 + authorized Edric 225. Edric's campaign-bound authorization expired before hour 72; `activeCampaignCommitments` returned Edric's 225, but `campaign.ts:792-795` continued directly to battle without repeating the `capitalMinimum` check from `campaign.ts:274-277`. The result was a 25-troop assault on the Royal Capital with `defender-victory`, rather than an explicit invalidation/cancellation. The packet and core Order rule require resolution-time revalidation when available force changes; the Capital gate is 250 until Uncontrolled. | **Unresolved.** After active attacker contingents are rebuilt, revalidate 250 troops for Royal/Occupied Capital and 200 claimant-owned eligible troops for Uncontrolled. Cancel, return survivors and emit the exact reason before any battle. Add expired authorization and lost aid-base Capital regressions. |
+| P1 | Expiry of a mercenary-only primary campaign force throws from the scheduled battle resolver | A canonical Greyfen band was hired at hour 0, used as the sole force in a campaign started at hour 120, expired at hour 168 and was removed from its commitment by `availability.ts:153-174`. At hour 192, `activeCampaignCommitments` produced no active attacker allocations, but `resolveCampaign` reached `resolveBattle` (`campaign.ts:912`), which threw `battle requires non-zero forces on both sides` (`battle.ts:53`). A scheduled resolver failure can prevent time advancement instead of producing the required invalidation/fallback. | **Unresolved.** If active attacker force is zero after expiry/revalidation, cancel deterministically and return/release all surviving commitments before battle. Add a kernel-level contract-expiry-before-resolution regression proving the scheduled campaign completes/cancels without an engine error. |
+
+Both new findings have the same missing post-filter force gate, but they are recorded separately because
+one produces an illegal Capital battle and the other produces a scheduled-resolution failure/softlock.
+No new P0, design defect or balance issue was found.
+
+### Follow-up acceptance and validation
+
+- The six original critic findings now pass their exact hostile reproductions.
+- Attacker-now-controller cancellation passes and returns every later commitment without battle.
+- Resolution-time expiration/loss of a non-primary aid authorization or provider base is detected;
+  the aid commitment returns and a sub-garrison hereditary attempt cancels normally.
+- Resolution-time Capital minimum and zero-primary-force invalidation still fail as described above.
+- Battle formula/casualties, post-battle/expiry garrison collapse, ordinary occupation/withdrawal,
+  observer-safe preview, deterministic reload/fortune and Acclamation remain green.
+- Because the packet requires no P0/P1 hostile correctness exploit, WP-022 still fails its hostile
+  acceptance gate despite the expanded maintained suite being green.
+
+| Command/check | Follow-up result | Evidence/notes |
+|---|---|---|
+| Actual remediation diff audit | Pass | `git show 219b32f` touches 12 WP-022-owned files; current WP-022 paths are byte-identical to that commit |
+| `pnpm test:sim` | Pass but insufficient | 30 files / 197 tests; no maintained test covers zero attacker force after contract expiry or post-aid Capital minimum |
+| `pnpm test` | Pass | 8 files / 46 tests |
+| `pnpm typecheck` | Pass | `tsc -b` completed without diagnostics |
+| `pnpm wiki:check` | Pass | VitePress client/server build and page rendering completed |
+| Six original Vite SSR probes | Pass | Aid/base, stale controller/Yield, failed entry, candidacy, Capital Prestige and Renard all match canon |
+| Attacker-now-controller probe | Pass | Later same-attacker campaign cancelled; no battle; commitment returning |
+| Aid expiry/provider-base-loss hereditary probes | Pass | Invalid Edric aid returned; campaign cancelled without occupation |
+| Aid-expiry Capital probe | **Fail** | Continued with 25 attackers after authorized 225 returned |
+| Mercenary-expiry campaign probe | **Fail** | Threw `battle requires non-zero forces on both sides` at scheduled resolution |
+
+### Follow-up design, schema and integration impact
+
+- Canonical design changed: No
+- Design amendment: none
+- Balance values changed: none
+- Save/schema impact: authorization records extend the JSON-compatible war payload without changing
+  the frozen shared schema; WP-029 remains responsible for composed validation/production
+- Wiki impact: the updated page is correct for the six original findings, but its broad statement
+  that force availability is revalidated is not yet true for the two post-filter cases
+- Integration-ready: **No**
+
+### Final follow-up verdict
+
+**Needs fixes.** Remediation `219b32f` clears every original critic finding, including the requested
+attacker-now-controller and current aid/base checks. It is not yet safe for integration because
+resolution-time force filtering can still (1) bypass the canonical 250-troop Capital gate after aid
+expiry and (2) crash a campaign whose sole mercenary force expires before battle. Close both with
+kernel-level regressions, rerun the hostile/full gates, and request one final focused critic recheck.
