@@ -70,6 +70,9 @@ export function addContractedForce(state: MilitaryState, force: ContractedForce)
   if (!state.lords[force.ownerId]) throw new Error('contracted force owner is not a legal lord');
   validateWholeTroops(force.troops, `${force.id} troops`);
   validateWholeTroops(force.initialTroops, `${force.id} initial troops`);
+  validateWholeTroops(force.hiredAtHours, `${force.id} hire time`);
+  validateWholeTroops(force.expiresAtHours, `${force.id} expiry time`);
+  validateWholeTroops(force.renewalCostGold, `${force.id} renewal cost`);
   if (force.troops > force.initialTroops)
     throw new Error('contract troops exceed initial strength');
   if (state.contractedForces[force.id])

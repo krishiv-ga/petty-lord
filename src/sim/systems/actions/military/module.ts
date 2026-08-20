@@ -80,8 +80,9 @@ function startInput(value: unknown): StartCampaignInput {
   for (const key of ['campaignId', 'attackerId', 'baseTerritoryId', 'targetTerritoryId', 'goal'])
     stringField(input, key);
   if (!Array.isArray(input.forces)) throw new TypeError('forces must be an array');
-  if (typeof input.declaredClaimant !== 'boolean')
-    throw new TypeError('declaredClaimant must be boolean');
+  if (input.capitalAuthorizationId !== null && typeof input.capitalAuthorizationId !== 'string') {
+    throw new TypeError('capitalAuthorizationId must be a string or null');
+  }
   if (
     input.defensiveAuthorizationId !== null &&
     typeof input.defensiveAuthorizationId !== 'string'
@@ -102,6 +103,38 @@ function nextReturnTime(state: MilitaryState): number | null {
       : [],
   );
   return times.length === 0 ? null : Math.min(...times);
+}
+
+function politicalFallout(
+  before: MilitaryState,
+  after: MilitaryState,
+  facts: ReadonlyArray<MilitaryState['history'][number]>,
+  attackerId: LordId | null,
+): Record<string, unknown> {
+  const priorCapitalController = before.capital.controllerLordId;
+  const capitalLossLordId =
+    priorCapitalController && after.capital.controllerLordId !== priorCapitalController
+      ? priorCapitalController
+      : null;
+  const capitalControlGained =
+    attackerId !== null &&
+    before.capital.controllerLordId !== attackerId &&
+    after.capital.stableStatus === 'occupied' &&
+    after.capital.controllerLordId === attackerId;
+  const viabilityShockLordIds = [
+    ...new Set(
+      facts.flatMap((fact) =>
+        fact.kind === 'lord-dispossessed' && fact.lordId ? [fact.lordId] : [],
+      ),
+    ),
+  ].sort();
+  return {
+    capitalLossLordId,
+    churchConductDelta: capitalControlGained ? -2 : 0,
+    pledgeShockDeltas: capitalLossLordId ? { [capitalLossLordId]: -12 } : {},
+    tags: capitalControlGained ? ['usurper'] : [],
+    viabilityShockLordIds,
+  };
 }
 
 const startCampaignInitiative: InitiativeStarter<MilitaryDomainExtensions> = ({
@@ -272,13 +305,15 @@ const resolveCampaignSchedule: ScheduledResolver<MilitaryDomainExtensions> = ({ 
   let war = result.state;
   if (campaign.targetTerritoryId === 'capital') war = finishCapitalCampaign(war, campaign.id);
   const returnAt = nextReturnTime(war);
+  const facts = war.history.slice(historyStart);
   return {
     effects: [
       effect('war.campaign-resolved', {
         battle: result.battle,
         campaignId: campaign.id,
-        facts: war.history.slice(historyStart),
+        facts,
         outcome: campaign.outcome,
+        politicalFallout: politicalFallout(state.systems.war, war, facts, campaign.attackerId),
         prestigeDeltas: result.prestigeDeltas,
         reasons: campaign.reasons,
       }),
@@ -394,6 +429,7 @@ const resolveExpiry: ScheduledResolver<MilitaryDomainExtensions> = ({ state }) =
   const historyStart = state.systems.war.history.length;
   const result = processMilitaryExpiry(state.systems.war, state.timeHours);
   const returnAt = nextReturnTime(result.state);
+  const facts = result.state.history.slice(historyStart);
   return {
     effects:
       result.expiredForceIds.length === 0
@@ -401,8 +437,9 @@ const resolveExpiry: ScheduledResolver<MilitaryDomainExtensions> = ({ state }) =
         : [
             effect('war.contracts-expired', {
               affectedCommitmentIds: result.affectedCommitmentIds,
-              facts: result.state.history.slice(historyStart),
+              facts,
               forceIds: result.expiredForceIds,
+              politicalFallout: politicalFallout(state.systems.war, result.state, facts, null),
             }),
           ],
     ...(returnAt === null

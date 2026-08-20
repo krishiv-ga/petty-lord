@@ -4,8 +4,8 @@
 - **Role:** Implementer
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** pending
-- **Status:** Implementation complete; independent critic pending
+- **Ending revision:** pending follow-up critic checkpoint
+- **Status:** Critic remediation complete; follow-up independent verdict pending
 
 ## Scope
 
@@ -46,6 +46,12 @@ Explicitly out of scope:
 - Resolved every independent hunter P1 with a deterministic regression: defender-win garrison
   collapse, forged defense/Yield facts, unbounded mercenaries, stranded expiry returns,
   Capital/dispossession Prestige, royal resurrection and generic Renard leverage.
+- Resolved the independent critic's five P1 and one P2 findings: campaign-bound claimant and military
+  aid authorization, per-contributor basing/adjacency revalidation, occupied-allied-base rejection,
+  current-controller reaction rebuilding, prior-garrison return, failed-entry Prestige prevention,
+  layered Capital battle/control Prestige, and Renard's literal third-party Southmere gate.
+- Added structured political fallout for Capital loss, usurper/Church conduct, Pledge shock and
+  first-dispossession viability integration without crossing WP-021/WP-029 ownership boundaries.
 
 ## Decisions and assumptions
 
@@ -63,17 +69,28 @@ Explicitly out of scope:
 | Command/check | Result | Evidence/notes |
 |---|---|---|
 | Gate/dependency/current-main audit | Pass | WP-019 integrated; WP-022 Ready; Wave 2 open at `e98954d` |
-| `pnpm exec biome check ...<WP-022 paths>` | Pass | 25 files; no fixes required after scoped formatting |
-| Focused Vitest command from wiki | Pass | 6 files, 29 tests, including all seven hunter regressions |
-| `pnpm test:sim` | Mixed shared-main result | WP-022's 29 tests passed; shared run was 165/175 with 10 concurrent WP-020/021/023 failures in AI, bargains and one time timeout |
-| `pnpm typecheck` | Blocked outside scope | Only concurrent `events.ts` and `bargains.ts` errors remained; no WP-022 diagnostic |
-| `pnpm wiki:check` | Environment/shared dependency failure on latest run | VitePress could not resolve `vue/server-renderer` from unchanged `content-and-schemas.md`; this command passed earlier in the packet before concurrent dependency activity |
+| `pnpm exec biome check --write ...<WP-022 paths>` | Pass | Scoped implementation/test files formatted; two files updated mechanically |
+| Focused Vitest command from wiki | Pass | 6 files, 34 tests, including hunter and critic regressions |
+| `pnpm test:sim` | Pass | 30 files, 197 deterministic simulation tests |
+| `pnpm test` | Pass | 8 files, 46 unit/content/architecture tests |
+| `pnpm typecheck` | Pass | `tsc -b` completed without diagnostics |
+| `pnpm build` | Pass | TypeScript and Vite production build completed |
+| `pnpm wiki:check` | Pass | VitePress client/server build and page rendering completed |
 | Independent `$hunt` | Findings resolved | 13 named attacks executed; seven P1 findings converted to regressions, no design amendment |
 
 ## Critic findings and resolution
 
-Independent critic pending. Hunter findings and resolutions are recorded above and in
-`hunter-independent.md`.
+| Severity | Finding | Resolution |
+|---|---|---|
+| P1 | Arbitrary/remote allied forces and enemy-occupied allied bases | Every contributor now needs a current adjacent base; non-primary providers need a campaign/side/provider/beneficiary-bound authorization capped by troops. Bases and aid are revalidated at resolution. |
+| P1 | Simultaneous campaigns combine stale defenders or orphan a prior garrison | Controller change returns obsolete reaction forces and rebuilds from the current controller/garrison; attacker-already-controls cancels; every Yield transfer first restores legal control and returns the old garrison. |
+| P1 | Failed Uncontrolled entry farms +8 Prestige | Start and resolution both require 200 claimant-owned, garrison-eligible troops; failed assignment cancels without battle Prestige. |
+| P1 | Caller-forged `declaredClaimant` | The boolean was removed. A current campaign-bound Capital march authorization is required and raw-command forgery is regressed. |
+| P1 | Capital defender-victory Prestige is wrong | Normal major/minor battle Prestige is computed first, then Capital acquisition/loss is layered from control state; Royal, claimant, collapse and attacker-victory cases are regressed. |
+| P2 | Renard gate requires the claimant to occupy Southmere | Any current hostile occupation satisfies the authored Southmere branch; demanding-claimant Capital control remains separate. |
+
+The first critic verdict was **Needs fixes** at `ee1d9b3`. All findings are implemented and tested;
+the independent follow-up review is pending on the remediation commit.
 
 ## Design, balance, or schema impact
 
@@ -90,11 +107,12 @@ Independent critic pending. Hunter findings and resolutions are recorded above a
   WP-029 owns that adapter. The military module no longer trusts a caller-provided payment flag.
 - Mara-first conquest frequency remains a WP-040 tuning question after integrated multi-seed policy
   tests; no locked values were tuned here.
-- Shared-main full gates currently include failures in concurrently edited WP-020/021/023 paths.
+- Trusted authorization records must be created only by WP-029's composed politics/knowledge adapter;
+  player commands cannot construct them through the registered military command parser.
 
 ## Integration notes
 
 - Shared contracts touched: none
 - Reconciliation/order constraints on `main`: WP-029 must install the military domain state/module alongside WP-020/021/023
 - Follow-up packets: WP-029, WP-040 for balance findings
-- Integration-ready: No — independent critic and post-review full gates remain
+- Integration-ready: No — follow-up independent critic clearance remains

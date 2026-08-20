@@ -23,8 +23,8 @@ const startWestmarch = (state: MilitaryGameState) => {
       payload: {
         attackerId: 'greyfen',
         baseTerritoryId: 'greyfen',
+        capitalAuthorizationId: null,
         campaignId: 'greyfen-westmarch-1',
-        declaredClaimant: true,
         defensiveAuthorizationId: null,
         forces: [
           {
@@ -82,6 +82,38 @@ function chooseDefense(state: MilitaryGameState): MilitaryGameState {
 }
 
 describe('campaign flow and Royal Authority', () => {
+  it('rejects a caller-forged declared-claimant boolean at the command boundary', () => {
+    const result = applyCommand(
+      createTestMilitaryGameState(),
+      {
+        initiativeType: MILITARY_HANDLER_KINDS.campaign,
+        payload: {
+          attackerId: 'greyfen',
+          baseTerritoryId: 'greyfen',
+          campaignId: 'forged-claimant',
+          capitalAuthorizationId: null,
+          declaredClaimant: true,
+          defensiveAuthorizationId: null,
+          forces: [
+            {
+              basingTerritoryId: 'greyfen',
+              garrisonEligible: true,
+              levyTroops: 250,
+              lordId: 'greyfen',
+              mercenaryIds: [],
+            },
+          ],
+          goal: 'capital',
+          targetTerritoryId: 'capital',
+        },
+        type: 'START_INITIATIVE',
+      },
+      registry,
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.message).toContain('claimant authorization');
+  });
+
   it('opens a mandatory defender reaction outside two occupied Order slots', () => {
     const initial = { ...createTestMilitaryGameState(), orders: [{ id: 'one' }, { id: 'two' }] };
     const started = startWestmarch(initial);

@@ -28,13 +28,15 @@ domains.
 
 `war.campaign` is both an initiative and scheduled handler.
 
-1. Start validates a campaign base, adjacency, phase, declared-claimant Capital gate and force
+1. Start validates a campaign base, adjacency, phase, authenticated claimant Capital gate and force
    availability. It emits the mandatory 10 Gold logistics debit; a command cannot claim that payment
    already happened. Levies must be committed in 25-troop increments.
    Defensive cause is derived from reclamation/recent aggression or a stored, actor/target/time-bound
    authorization; a command cannot assert that it is defensive.
 2. The system atomically locks every levy, allied contingent and contracted band. A band or troop
-   allocation cannot appear in two commitments.
+   allocation cannot appear in two commitments. Every contributing lord needs a current adjacent
+   base; every non-primary force needs a campaign/side/provider-bound aid authorization. Listed allied
+   bases are valid only while the legal ally still physically holds that unoccupied seat.
 3. Attacker and defender battlefield fortune are drawn once in the seeded session, stored on the
    campaign and copied to the scheduled item.
 4. The campaign becomes public after 12 hours. The defender receives a mandatory reaction—Defend,
@@ -45,7 +47,9 @@ domains.
    not change retroactively. An Uncontrolled-Capital entry instead takes one full day.
 6. Resolution revalidates the base and current controller. Simultaneous campaigns therefore resolve
    by scheduler `sequenceId`; a later Capital campaign fights the first victor's surviving garrison
-   rather than the obsolete royal force.
+   rather than the obsolete royal force. A changed controller invalidates and returns the prior
+   reaction forces; old and new defenders are never combined, and stale Yield cannot transfer a new
+   controller's seat without resistance.
 7. Survivors assigned to no garrison return after one day. A campaign cancelled by loss of every base
    takes two days to return. Logistics Gold is never refunded.
 
@@ -55,7 +59,9 @@ its one-day return.
 
 The registered handler emits structured `war.*` effects for Gold/political integration, Royal
 sanctions, public visibility, battle reasons, casualty traces, outcomes and Prestige deltas. It never
-directly mutates economy, support or observer knowledge.
+directly mutates economy, support or observer knowledge. Resolution fallout also identifies first
+dispossession viability shocks, the -12 Pledge shock for a claimant who loses the Capital, and the
+`usurper`/-2 Church case only when Occupied control is actually gained.
 
 `war.hire-mercenary` and `war.renew-mercenary` are the canonical contract handlers. They construct
 only 150-troop, seven-day bands, enforce the two-band limit, emit the exact 50 Gold debit (40 for Mara
@@ -126,8 +132,9 @@ Yield result.
 
 `contested` is a transient status while one or more scheduled Capital campaigns are pending; the
 stable underlying state remains explicit. A victory with fewer than 200 eligible survivors sets
-Uncontrolled and the defeated royal garrison to zero. A later declared claimant may commit 200 troops
-and complete a one-day entry without battle—never instantly or for free. Contract/temporary-force
+Uncontrolled and the defeated royal garrison to zero. A later authorized claimant may commit 200
+claimant-owned, garrison-eligible troops and complete a one-day entry without battle—never instantly,
+for free, or for pyrrhic battle Prestige when assignment fails. Contract/temporary-force
 expiry removes troops before garrison validation; falling below 200 immediately makes the Capital
 Uncontrolled and emits a reasoned history fact.
 
@@ -147,7 +154,7 @@ them into observer estimates before AI or UI consumes them.
 
 Renard never uses the generic military-Pledge ratio. `queryRenardWithdrawalLeverage` exposes his
 separate checklist: no supporters, the demanding claimant controls the Capital, and either Southmere
-is occupied by that claimant or Renard has fewer than 150 available troops.
+is occupied by any hostile force or Renard has fewer than 150 available troops.
 
 The query derives from current state each time, so withdrawal, garrison collapse, force commitment or
 loss of adjacency invalidates leverage without a stale flag. WP-021 owns Threaten costs and support

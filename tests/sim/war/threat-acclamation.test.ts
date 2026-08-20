@@ -144,5 +144,53 @@ describe('military facts, leverage and Acclamation', () => {
       renardArmyBelowThreshold: true,
       renardHasNoSupporters: true,
     });
+
+    const thirdPartySeat = lockForceRequests(
+      createTestMilitaryState({ lordOverrides: { greyfen: { availableLevies: 420 } } }),
+      'third-party-southmere',
+      'attacker',
+      [
+        {
+          basingTerritoryId: 'greyfen',
+          garrisonEligible: true,
+          levyTroops: 75,
+          lordId: 'greyfen',
+          mercenaryIds: [],
+        },
+      ],
+    );
+    const southmereOccupied = occupyHereditarySeat(thirdPartySeat.state, {
+      atHours: 1,
+      campaignId: 'third-party-southmere',
+      commitmentIds: thirdPartySeat.commitmentIds,
+      occupierId: 'greyfen',
+      territoryId: 'southmere',
+    }).state;
+    const edricCapital = lockForceRequests(
+      southmereOccupied,
+      'edric-controls-capital',
+      'attacker',
+      [
+        {
+          basingTerritoryId: 'northkeep',
+          garrisonEligible: true,
+          levyTroops: 200,
+          lordId: 'edric',
+          mercenaryIds: [],
+        },
+      ],
+    );
+    const edricControlled = occupyCapital(edricCapital.state, {
+      atHours: 2,
+      campaignId: 'edric-controls-capital',
+      claimantId: 'edric',
+      commitmentIds: edricCapital.commitmentIds,
+    }).state;
+    expect(queryRenardWithdrawalLeverage(edricControlled, 'edric', 0)).toMatchObject({
+      capitalControlled: true,
+      credible: true,
+      renardArmyBelowThreshold: false,
+      southmereOccupied: true,
+    });
   });
 });

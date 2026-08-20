@@ -7,8 +7,10 @@ import {
 } from '../../../contracts/ids';
 import type {
   CapitalControlState,
+  CapitalMarchAuthorization,
   DefensiveAuthorization,
   LordMilitaryState,
+  MilitaryAidAuthorization,
   MilitaryState,
   TerritoryMilitaryState,
   YieldAssessment,
@@ -73,6 +75,7 @@ export function createMilitaryState(options: CreateMilitaryStateOptions): Milita
   if (capital.legalLordId !== null || capital.controllerLordId !== null) {
     throw new Error('Capital must begin under royal administration');
   }
+  validateWholeTroops(options.capitalRoyalGarrison ?? 450, 'royal Capital garrison');
   const capitalState: CapitalControlState = {
     controllerLordId: null,
     garrisonCommitmentId: null,
@@ -84,14 +87,61 @@ export function createMilitaryState(options: CreateMilitaryStateOptions): Milita
   return {
     campaigns: {},
     capital: capitalState,
+    capitalMarchAuthorizations: {},
     commitments: {},
     contractedForces: {},
     defensiveAuthorizations: {},
     history: [],
     lords,
+    militaryAidAuthorizations: {},
     phase: options.phase ?? 'stable',
     territories,
     yieldAssessments: {},
+  };
+}
+
+export function addCapitalMarchAuthorization(
+  state: MilitaryState,
+  authorization: CapitalMarchAuthorization,
+): MilitaryState {
+  if (state.capitalMarchAuthorizations[authorization.id]) {
+    throw new Error(`Capital march authorization ${authorization.id} already exists`);
+  }
+  if (authorization.id.length === 0 || authorization.campaignId.length === 0) {
+    throw new Error('Capital march authorization requires ids');
+  }
+  validateWholeTroops(authorization.expiresAtHours, 'Capital authorization expiry');
+  if (!state.lords[authorization.claimantId]) throw new Error('claimant is not a legal lord');
+  return {
+    ...state,
+    capitalMarchAuthorizations: {
+      ...state.capitalMarchAuthorizations,
+      [authorization.id]: authorization,
+    },
+  };
+}
+
+export function addMilitaryAidAuthorization(
+  state: MilitaryState,
+  authorization: MilitaryAidAuthorization,
+): MilitaryState {
+  if (state.militaryAidAuthorizations[authorization.id]) {
+    throw new Error(`military aid authorization ${authorization.id} already exists`);
+  }
+  if (authorization.id.length === 0 || authorization.campaignId.length === 0) {
+    throw new Error('military aid authorization requires ids');
+  }
+  validateWholeTroops(authorization.expiresAtHours, 'military aid authorization expiry');
+  validateWholeTroops(authorization.maximumTroops, 'authorized military aid');
+  if (authorization.providerId === authorization.beneficiaryId) {
+    throw new Error('military aid authorization requires two different lords');
+  }
+  return {
+    ...state,
+    militaryAidAuthorizations: {
+      ...state.militaryAidAuthorizations,
+      [authorization.id]: authorization,
+    },
   };
 }
 
@@ -117,6 +167,8 @@ export function addDefensiveAuthorization(
   if (state.defensiveAuthorizations[authorization.id]) {
     throw new Error(`defensive authorization ${authorization.id} already exists`);
   }
+  if (authorization.id.length === 0) throw new Error('defensive authorization requires an id');
+  validateWholeTroops(authorization.expiresAtHours, 'defensive authorization expiry');
   return {
     ...state,
     defensiveAuthorizations: {
@@ -130,13 +182,22 @@ export function recordYieldAssessment(
   state: MilitaryState,
   assessment: YieldAssessment,
 ): MilitaryState {
+  if (state.yieldAssessments[assessment.id]) {
+    throw new Error(`yield assessment ${assessment.id} already exists`);
+  }
   if (
+    assessment.id.length === 0 ||
+    assessment.campaignId.length === 0 ||
     !Number.isFinite(assessment.attackerExpectedPower) ||
     assessment.attackerExpectedPower < 0 ||
     !Number.isFinite(assessment.defenderExpectedPower) ||
     assessment.defenderExpectedPower < 0
   ) {
-    throw new Error('yield assessment powers must be finite and non-negative');
+    throw new Error('yield assessment must have ids and finite non-negative powers');
+  }
+  validateWholeTroops(assessment.expiresAtHours, 'yield assessment expiry');
+  if (!state.lords[assessment.observerId] || !state.lords[assessment.attackerId]) {
+    throw new Error('yield assessment actors must be legal lords');
   }
   return {
     ...state,
@@ -170,7 +231,10 @@ export function hasCampaignBase(
     territory.controllerLordId === lordId &&
     territory.occupation === null;
   const occupiedControl = territory.controllerLordId === lordId;
-  return (
-    ownUnoccupiedSeat || occupiedControl || lord.alliedBasingTerritoryIds.includes(territoryId)
-  );
+  const unoccupiedAlliedSeat =
+    lord.alliedBasingTerritoryIds.includes(territoryId) &&
+    territory.legalLordId !== null &&
+    territory.controllerLordId === territory.legalLordId &&
+    territory.occupation === null;
+  return ownUnoccupiedSeat || occupiedControl || unoccupiedAlliedSeat;
 }

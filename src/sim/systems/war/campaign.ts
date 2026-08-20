@@ -1,6 +1,7 @@
 import type { LordId, TerritoryId } from '../../../contracts/ids';
 import type { RandomSession } from '../../random/random';
 import {
+  CAPITAL_GARRISON_REQUIREMENT,
   CAPITAL_MINIMUM_ATTACK,
   occupyCapital,
   revalidateCapitalGarrison,
@@ -29,8 +30,8 @@ import {
 export interface StartCampaignInput {
   readonly attackerId: LordId;
   readonly baseTerritoryId: TerritoryId;
+  readonly capitalAuthorizationId: string | null;
   readonly campaignId: string;
-  readonly declaredClaimant: boolean;
   readonly defensiveAuthorizationId: string | null;
   readonly forces: ForceRequest[];
   readonly goal: CampaignState['goal'];
@@ -148,6 +149,58 @@ function durationHours(state: MilitaryState, targetTerritoryId: TerritoryId): nu
   return state.phase === 'deathbed' ? 48 : 72;
 }
 
+function requestTroops(state: MilitaryState, request: ForceRequest): number {
+  return (
+    request.levyTroops +
+    request.mercenaryIds.reduce(
+      (total, forceId) => total + (state.contractedForces[forceId]?.troops ?? 0),
+      0,
+    )
+  );
+}
+
+function validateForceContributors(
+  state: MilitaryState,
+  options: {
+    readonly atHours: number;
+    readonly beneficiaryId: LordId;
+    readonly campaignId: string;
+    readonly forceRequests: readonly ForceRequest[];
+    readonly side: 'attacker' | 'defender';
+    readonly targetTerritoryId: TerritoryId;
+  },
+): string[] {
+  const authorizationIds: string[] = [];
+  options.forceRequests.forEach((request, index) => {
+    const baseCanReachTarget =
+      request.basingTerritoryId === options.targetTerritoryId ||
+      isAdjacent(request.basingTerritoryId, options.targetTerritoryId);
+    if (!baseCanReachTarget) {
+      throw new Error(`${request.lordId} force base is not adjacent to the campaign target`);
+    }
+    if (index === 0) return;
+    const authorization = Object.values(state.militaryAidAuthorizations).find(
+      (candidate) =>
+        candidate.beneficiaryId === options.beneficiaryId &&
+        candidate.campaignId === options.campaignId &&
+        candidate.expiresAtHours >= options.atHours &&
+        candidate.providerId === request.lordId &&
+        candidate.side === options.side,
+    );
+    if (!authorization || requestTroops(state, request) > authorization.maximumTroops) {
+      throw new Error(`${request.lordId} lacks campaign-bound military aid authorization`);
+    }
+    authorizationIds.push(authorization.id);
+  });
+  return authorizationIds;
+}
+
+function garrisonEligibleTroops(allocations: readonly ForceAllocation[], lordId: LordId): number {
+  return allocations
+    .filter((allocation) => allocation.ownerId === lordId && allocation.garrisonEligible)
+    .reduce((total, allocation) => total + allocation.troops, 0);
+}
+
 function fortune(random: RandomSession, label: string): number {
   return random.integer(label, 920, 1080) / 1000;
 }
@@ -170,15 +223,46 @@ export function startCampaign(
     if (state.phase === 'stable' || state.phase === 'ailing') {
       throw new Error('Capital march is unavailable before Gravely Ill');
     }
-    if (!input.declaredClaimant)
-      throw new Error('only a declared claimant may March on the Capital');
+    const authorization = input.capitalAuthorizationId
+      ? state.capitalMarchAuthorizations[input.capitalAuthorizationId]
+      : null;
+    if (
+      !authorization ||
+      authorization.campaignId !== input.campaignId ||
+      authorization.claimantId !== input.attackerId ||
+      authorization.expiresAtHours < atHours
+    ) {
+      throw new Error(
+        'March on the Capital requires a current campaign-bound claimant authorization',
+      );
+    }
     if (input.goal !== 'capital') throw new Error('Capital campaign requires capital goal');
   } else if (input.goal === 'capital') {
     throw new Error('capital goal requires the Capital target');
+  } else if (input.capitalAuthorizationId !== null) {
+    throw new Error('Capital authorization is valid only for a Capital campaign');
+  }
+  if (
+    input.goal === 'liberate' &&
+    input.targetTerritoryId !== 'capital' &&
+    !state.territories[input.targetTerritoryId].occupation
+  ) {
+    throw new Error('liberation requires a hostile occupation');
   }
   if (input.forces[0]?.lordId !== input.attackerId) {
     throw new Error('first force request must be the attacking lord');
   }
+  if (input.forces[0].basingTerritoryId !== input.baseTerritoryId) {
+    throw new Error('first force request must use the declared campaign base');
+  }
+  const attackerAidAuthorizationIds = validateForceContributors(state, {
+    atHours,
+    beneficiaryId: input.attackerId,
+    campaignId: input.campaignId,
+    forceRequests: input.forces,
+    side: 'attacker',
+    targetTerritoryId: input.targetTerritoryId,
+  });
   const defenderId = campaignDefender(state, input.targetTerritoryId);
   const defensiveCause = isDefensiveCampaign(state, input, defenderId, atHours);
   const consequences = royalAuthorityConsequences(state, input.targetTerritoryId, defensiveCause);
@@ -192,16 +276,28 @@ export function startCampaign(
   if (input.targetTerritoryId === 'capital' && committedTroops < capitalMinimum) {
     throw new Error(`March on the Capital requires at least ${capitalMinimum} committed troops`);
   }
+  if (
+    input.targetTerritoryId === 'capital' &&
+    locked.state.capital.stableStatus === 'uncontrolled' &&
+    garrisonEligibleTroops(
+      totalCommittedForce(locked.state, locked.commitmentIds),
+      input.attackerId,
+    ) < CAPITAL_GARRISON_REQUIREMENT
+  ) {
+    throw new Error('Uncontrolled Capital entry requires 200 claimant-owned garrison troops');
+  }
   if (defenderId === input.attackerId)
     throw new Error('attacker already controls target territory');
   const resolvesAtHours = atHours + durationHours(locked.state, input.targetTerritoryId);
   const campaign: CampaignState = {
+    attackerAidAuthorizationIds,
     attackerCommitmentIds: locked.commitmentIds,
     attackerFortune: fortune(random, `war.${input.campaignId}.attacker-fortune`),
     attackerId: input.attackerId,
     baseTerritoryId: input.baseTerritoryId,
     createdAtHours: atHours,
     defenderCommitmentIds: [],
+    defenderAidAuthorizationIds: [],
     defenderFortune: fortune(random, `war.${input.campaignId}.defender-fortune`),
     defenderId,
     defenderIsAi: defenderId !== null && defenderId !== 'greyfen',
@@ -318,10 +414,20 @@ export function reactToCampaign(
   }
   let next = state;
   let addedCommitmentIds: string[] = [];
+  let addedAuthorizationIds: string[] = [];
   if (reaction === 'defend' && forceRequests.length > 0) {
-    if (forceRequests[0]?.lordId !== campaign.defenderId) {
+    const defenderId = campaign.defenderId;
+    if (!defenderId || forceRequests[0]?.lordId !== defenderId) {
       throw new Error('first defensive force must belong to the current defender');
     }
+    addedAuthorizationIds = validateForceContributors(next, {
+      atHours,
+      beneficiaryId: defenderId,
+      campaignId,
+      forceRequests,
+      side: 'defender',
+      targetTerritoryId: campaign.targetTerritoryId,
+    });
     const locked = lockForceRequests(next, campaignId, 'defender', forceRequests);
     next = locked.state;
     addedCommitmentIds = locked.commitmentIds;
@@ -333,6 +439,10 @@ export function reactToCampaign(
       ...next.campaigns,
       [campaignId]: {
         ...current,
+        defenderAidAuthorizationIds: [
+          ...current.defenderAidAuthorizationIds,
+          ...addedAuthorizationIds,
+        ],
         defenderCommitmentIds: [...current.defenderCommitmentIds, ...addedCommitmentIds],
         reaction,
       },
@@ -457,19 +567,19 @@ export function campaignPrestigeDeltas(
       outcome === 'unopposed-entry' ||
       outcome === 'pyrrhic-capital'
     ) {
+      const defenderBattleLoss = battle ? (battle.major ? -4 : -2) : 0;
       return {
         [campaign.attackerId]: 8,
-        ...(campaign.defenderId ? { [campaign.defenderId]: -8 } : {}),
+        ...(campaign.defenderId ? { [campaign.defenderId]: defenderBattleLoss - 8 } : {}),
       };
     }
-    if (outcome === 'defender-victory') return { [campaign.attackerId]: -8 };
     if (outcome === 'yield') {
       return {
         [campaign.attackerId]: 3,
         ...(campaign.defenderId ? { [campaign.defenderId]: -13 } : {}),
       };
     }
-    return {};
+    if (outcome !== 'defender-victory') return {};
   }
   if (outcome === 'yield') {
     return {
@@ -534,30 +644,138 @@ function withCollapsedCapitalPrestige(
   return { ...deltas, [priorController]: (deltas[priorController] ?? 0) - 8 };
 }
 
+function targetGarrisonCommitmentId(state: MilitaryState, campaign: CampaignState): string | null {
+  return campaign.targetTerritoryId === 'capital'
+    ? state.capital.garrisonCommitmentId
+    : (state.territories[campaign.targetTerritoryId].occupation?.garrisonCommitmentId ?? null);
+}
+
+function activeCampaignCommitments(
+  state: MilitaryState,
+  campaign: CampaignState,
+  side: 'attacker' | 'defender',
+  atHours: number,
+): { readonly activeIds: string[]; readonly state: MilitaryState } {
+  const primaryLordId = side === 'attacker' ? campaign.attackerId : campaign.defenderId;
+  const authorizationIds =
+    side === 'attacker'
+      ? campaign.attackerAidAuthorizationIds
+      : campaign.defenderAidAuthorizationIds;
+  const commitmentIds =
+    side === 'attacker' ? campaign.attackerCommitmentIds : campaign.defenderCommitmentIds;
+  const activeIds: string[] = [];
+  const invalidIds: string[] = [];
+  for (const commitmentId of commitmentIds) {
+    const commitment = state.commitments[commitmentId];
+    if (commitment?.kind !== 'campaign') continue;
+    const providerId = commitment.allocations[0]?.ownerId;
+    if (providerId === primaryLordId) {
+      activeIds.push(commitmentId);
+      continue;
+    }
+    const authorization = authorizationIds
+      .map((id) => state.militaryAidAuthorizations[id])
+      .find(
+        (candidate) =>
+          candidate?.beneficiaryId === primaryLordId &&
+          candidate.campaignId === campaign.id &&
+          candidate.expiresAtHours >= atHours &&
+          candidate.providerId === providerId &&
+          candidate.side === side,
+      );
+    const baseId = commitment.territoryId;
+    const canReach =
+      baseId !== null &&
+      (baseId === campaign.targetTerritoryId || isAdjacent(baseId, campaign.targetTerritoryId));
+    if (
+      authorization &&
+      providerId !== null &&
+      providerId !== undefined &&
+      baseId !== null &&
+      canReach &&
+      hasCampaignBase(state, providerId, baseId)
+    ) {
+      activeIds.push(commitmentId);
+    } else {
+      invalidIds.push(commitmentId);
+    }
+  }
+  return {
+    activeIds,
+    state:
+      invalidIds.length === 0 ? state : markCommitmentsReturning(state, invalidIds, atHours + 24),
+  };
+}
+
+function cancelAndReturnCampaign(
+  state: MilitaryState,
+  campaign: CampaignState,
+  atHours: number,
+  reason: string,
+  attackerDelayHours = 24,
+): ResolveCampaignResult {
+  let cancelled = markCommitmentsReturning(
+    state,
+    campaign.attackerCommitmentIds,
+    atHours + attackerDelayHours,
+  );
+  cancelled = markCampaignForcesReturning(cancelled, campaign.defenderCommitmentIds, atHours);
+  cancelled = completeCampaign(cancelled, campaign, 'cancelled', [reason], atHours);
+  return { battle: null, prestigeDeltas: {}, state: cancelled };
+}
+
 export function resolveCampaign(
   state: MilitaryState,
   campaignId: string,
   atHours: number,
 ): ResolveCampaignResult {
-  const campaign = state.campaigns[campaignId];
+  let campaign = state.campaigns[campaignId];
   if (campaign?.status !== 'public' || campaign.reaction === 'pending') {
     throw new Error('campaign cannot resolve before visibility and defender reaction');
   }
   if (!hasCampaignBase(state, campaign.attackerId, campaign.baseTerritoryId)) {
-    let cancelled = markCommitmentsReturning(state, campaign.attackerCommitmentIds, atHours + 48);
-    cancelled = completeCampaign(
-      cancelled,
+    return cancelAndReturnCampaign(state, campaign, atHours, 'attacker lost every valid base', 48);
+  }
+  let workingState = state;
+  const currentController = stableTargetController(workingState, campaign);
+  if (currentController === campaign.attackerId) {
+    return cancelAndReturnCampaign(
+      workingState,
       campaign,
-      'cancelled',
-      ['attacker lost every valid base'],
       atHours,
+      'attacker already achieved physical control',
     );
-    return { battle: null, prestigeDeltas: {}, state: cancelled };
+  }
+  if (
+    campaign.targetTerritoryId !== 'capital' &&
+    currentController !== campaign.targetControllerAtStart &&
+    currentController === workingState.territories[campaign.targetTerritoryId].legalLordId
+  ) {
+    return cancelAndReturnCampaign(workingState, campaign, atHours, 'target was already liberated');
+  }
+  if (currentController !== campaign.targetControllerAtStart) {
+    const currentGarrisonId = targetGarrisonCommitmentId(workingState, campaign);
+    const obsoleteDefenderIds = campaign.defenderCommitmentIds.filter(
+      (id) => id !== currentGarrisonId,
+    );
+    workingState = markCommitmentsReturning(workingState, obsoleteDefenderIds, atHours + 24);
+    campaign = {
+      ...campaign,
+      defenderAidAuthorizationIds: [],
+      defenderCommitmentIds: currentGarrisonId ? [currentGarrisonId] : [],
+      defenderId: currentController,
+      defenderIsAi: currentController !== null && currentController !== 'greyfen',
+      reaction: 'defend',
+    };
+    workingState = {
+      ...workingState,
+      campaigns: { ...workingState.campaigns, [campaignId]: campaign },
+    };
   }
   if (campaign.reaction === 'withdraw-occupation') {
     const target = campaign.targetTerritoryId;
     if (target === 'capital') throw new Error('Capital cannot use hereditary withdrawal reaction');
-    let next = liberateTerritory(state, target, atHours);
+    let next = liberateTerritory(workingState, target, atHours);
     next = markCampaignForcesReturning(next, campaign.attackerCommitmentIds, atHours);
     return {
       battle: null,
@@ -571,48 +789,53 @@ export function resolveCampaign(
       ),
     };
   }
-  const attackerAllocations = totalCommittedForce(state, campaign.attackerCommitmentIds);
-  const currentController = stableTargetController(state, campaign);
-  if (campaign.targetTerritoryId === 'capital' && state.capital.stableStatus === 'uncontrolled') {
-    let next = state;
+  const activeAttack = activeCampaignCommitments(workingState, campaign, 'attacker', atHours);
+  workingState = activeAttack.state;
+  const attackerCommitmentIds = activeAttack.activeIds;
+  const attackerAllocations = totalCommittedForce(workingState, attackerCommitmentIds);
+  if (
+    campaign.targetTerritoryId === 'capital' &&
+    workingState.capital.stableStatus === 'uncontrolled'
+  ) {
+    if (
+      garrisonEligibleTroops(attackerAllocations, campaign.attackerId) <
+      CAPITAL_GARRISON_REQUIREMENT
+    ) {
+      return cancelAndReturnCampaign(
+        workingState,
+        campaign,
+        atHours,
+        'Uncontrolled Capital entry no longer has 200 eligible claimant troops',
+      );
+    }
+    let next = workingState;
     const control = occupyCapital(next, {
       atHours,
       campaignId,
       claimantId: campaign.attackerId,
-      commitmentIds: campaign.attackerCommitmentIds,
+      commitmentIds: attackerCommitmentIds,
     });
     next = markCampaignForcesReturning(control.state, campaign.attackerCommitmentIds, atHours);
     const completed = completeCampaign(
       next,
       campaign,
-      control.controlled ? 'unopposed-entry' : 'pyrrhic-capital',
+      control.controlled ? 'unopposed-entry' : 'cancelled',
       [control.reason],
       atHours,
     );
     const completedCampaign = completed.campaigns[campaignId] as CampaignState;
     return {
       battle: null,
-      prestigeDeltas: campaignPrestigeDeltas(campaign, null, completedCampaign.outcome),
+      prestigeDeltas: campaignPrestigeDeltas(
+        { ...campaign, defenderId: currentController },
+        null,
+        completedCampaign.outcome,
+      ),
       state: completed,
     };
   }
-  if (
-    campaign.targetTerritoryId !== 'capital' &&
-    currentController !== campaign.targetControllerAtStart &&
-    currentController === state.territories[campaign.targetTerritoryId].legalLordId
-  ) {
-    let cancelled = markCommitmentsReturning(state, campaign.attackerCommitmentIds, atHours + 24);
-    cancelled = completeCampaign(
-      cancelled,
-      campaign,
-      'cancelled',
-      ['target was already liberated'],
-      atHours,
-    );
-    return { battle: null, prestigeDeltas: {}, state: cancelled };
-  }
   if (campaign.reaction === 'yield') {
-    let next = state;
+    let next = workingState;
     let reasons: string[];
     let outcome: CampaignState['outcome'] = 'yield';
     if (campaign.targetTerritoryId === 'capital') {
@@ -620,7 +843,7 @@ export function resolveCampaign(
         atHours,
         campaignId,
         claimantId: campaign.attackerId,
-        commitmentIds: campaign.attackerCommitmentIds,
+        commitmentIds: attackerCommitmentIds,
       });
       next = control.state;
       reasons = [control.reason, 'defender yielded without casualties'];
@@ -629,10 +852,13 @@ export function resolveCampaign(
       next = liberateTerritory(next, campaign.targetTerritoryId, atHours);
       reasons = ['hostile occupier yielded; legal control restored without casualties'];
     } else {
+      if (next.territories[campaign.targetTerritoryId].occupation) {
+        next = liberateTerritory(next, campaign.targetTerritoryId, atHours);
+      }
       const occupation = occupyHereditarySeat(next, {
         atHours,
         campaignId,
-        commitmentIds: campaign.attackerCommitmentIds,
+        commitmentIds: attackerCommitmentIds,
         dispossessionShockAlreadyApplied: dispossessionShockAlreadyApplied(
           state,
           campaign.targetTerritoryId,
@@ -658,42 +884,35 @@ export function resolveCampaign(
       state: completeCampaign(next, campaign, outcome, reasons, atHours),
     };
   }
-  const occupationGarrisonId =
-    campaign.targetTerritoryId === 'capital'
-      ? null
-      : (state.territories[campaign.targetTerritoryId].occupation?.garrisonCommitmentId ?? null);
+  const activeDefense = activeCampaignCommitments(workingState, campaign, 'defender', atHours);
+  workingState = activeDefense.state;
+  const currentGarrisonId = targetGarrisonCommitmentId(workingState, campaign);
   const currentDefenseCommitmentIds = [
-    ...new Set([
-      ...campaign.defenderCommitmentIds,
-      ...(campaign.targetTerritoryId === 'capital'
-        ? state.capital.garrisonCommitmentId
-          ? [state.capital.garrisonCommitmentId]
-          : []
-        : occupationGarrisonId
-          ? [occupationGarrisonId]
-          : []),
-    ]),
+    ...new Set([...activeDefense.activeIds, ...(currentGarrisonId ? [currentGarrisonId] : [])]),
   ];
   const defenderAllocations = [
-    ...totalCommittedForce(state, currentDefenseCommitmentIds),
-    ...royalDefense(state, campaign),
+    ...totalCommittedForce(workingState, currentDefenseCommitmentIds),
+    ...royalDefense(workingState, campaign),
   ];
   if (defenderAllocations.reduce((sum, allocation) => sum + allocation.troops, 0) === 0) {
     const noDefense = {
-      ...state,
-      campaigns: { ...state.campaigns, [campaignId]: { ...campaign, reaction: 'yield' as const } },
+      ...workingState,
+      campaigns: {
+        ...workingState.campaigns,
+        [campaignId]: { ...campaign, reaction: 'yield' as const },
+      },
     };
     return resolveCampaign(noDefense, campaignId, atHours);
   }
-  const target = state.territories[campaign.targetTerritoryId];
+  const target = workingState.territories[campaign.targetTerritoryId];
   const resolvedDefenderId = currentController ?? campaign.defenderId;
   const defenderCommander = resolvedDefenderId
-    ? state.lords[resolvedDefenderId].commanderMultiplier
+    ? workingState.lords[resolvedDefenderId].commanderMultiplier
     : 1;
   let battle = resolveBattle(
     {
       allocations: attackerAllocations,
-      commanderMultiplier: state.lords[campaign.attackerId].commanderMultiplier,
+      commanderMultiplier: workingState.lords[campaign.attackerId].commanderMultiplier,
       fortificationMultiplier: 1,
       fortune: campaign.attackerFortune,
       terrainMultiplier: 1,
@@ -708,8 +927,8 @@ export function resolveCampaign(
     false,
   );
   let next = applyCommitmentCasualties(
-    state,
-    campaign.attackerCommitmentIds,
+    workingState,
+    attackerCommitmentIds,
     battle.attacker.casualties,
   );
   const totalDefenderTroops = defenderAllocations.reduce(
@@ -724,7 +943,7 @@ export function resolveCampaign(
     Math.round((battle.defender.casualties * nonRoyalDefenderTroops) / totalDefenderTroops),
   );
   next = applyCommitmentCasualties(next, currentDefenseCommitmentIds, nonRoyalCasualties);
-  if (campaign.targetTerritoryId === 'capital' && state.capital.stableStatus === 'royal') {
+  if (campaign.targetTerritoryId === 'capital' && workingState.capital.stableStatus === 'royal') {
     const royalCasualties = battle.defender.casualties - nonRoyalCasualties;
     next = {
       ...next,
@@ -746,7 +965,7 @@ export function resolveCampaign(
         atHours,
         campaignId,
         claimantId: campaign.attackerId,
-        commitmentIds: campaign.attackerCommitmentIds,
+        commitmentIds: attackerCommitmentIds,
       });
       next = control.state;
       reasons.push(control.reason);
@@ -761,7 +980,7 @@ export function resolveCampaign(
       const occupation = occupyHereditarySeat(next, {
         atHours,
         campaignId,
-        commitmentIds: campaign.attackerCommitmentIds,
+        commitmentIds: attackerCommitmentIds,
         dispossessionShockAlreadyApplied: dispossessionShockAlreadyApplied(
           state,
           campaign.targetTerritoryId,

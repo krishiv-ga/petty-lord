@@ -134,7 +134,7 @@ export function queryMilitaryLeverage(
       sourceCommitmentIds: [],
       supportingFacts: [],
     };
-  if (targetId === 'renard' && purpose === 'pledge') {
+  if (targetId === 'renard') {
     return {
       credible: false,
       reasons: ['Renard uses the separate forced-withdrawal gate'],
@@ -207,7 +207,7 @@ export function queryRenardWithdrawalLeverage(
   }
   const capitalControlled = state.capital.controllerLordId === candidateId;
   const renardHasNoSupporters = renardSupportCount === 0;
-  const southmereOccupied = state.territories.southmere.occupation?.occupierId === candidateId;
+  const southmereOccupied = state.territories.southmere.occupation !== null;
   const renardArmyBelowThreshold = armyAvailability(state, 'renard').totalAvailable < 150;
   const credible =
     candidateId !== 'renard' &&
@@ -218,7 +218,7 @@ export function queryRenardWithdrawalLeverage(
     capitalControlled ? 'candidate controls the Capital' : 'candidate does not control the Capital',
     renardHasNoSupporters ? 'Renard has no supporters' : 'Renard still has supporters',
     southmereOccupied
-      ? 'candidate occupies Southmere'
+      ? 'Southmere is occupied'
       : renardArmyBelowThreshold
         ? 'Renard army is below 150'
         : 'Southmere is not occupied and Renard army is at least 150',
@@ -232,7 +232,7 @@ export function queryRenardWithdrawalLeverage(
     southmereOccupied,
     sourceCommitmentIds: [],
     supportingFacts: collectAuthoritativeMilitaryFacts(state, candidateId).filter(
-      (fact) => fact.kind === 'capital-control' || fact.territoryId === 'southmere',
+      (fact) => fact.kind === 'capital-control',
     ),
   };
 }

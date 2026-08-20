@@ -105,12 +105,14 @@ export interface ForceRequest {
 }
 
 export interface CampaignState {
+  readonly attackerAidAuthorizationIds: string[];
   readonly attackerCommitmentIds: string[];
   readonly attackerFortune: number;
   readonly attackerId: LordId;
   readonly baseTerritoryId: TerritoryId;
   readonly createdAtHours: number;
   readonly defenderCommitmentIds: string[];
+  readonly defenderAidAuthorizationIds: string[];
   readonly defenderFortune: number;
   readonly defenderId: LordId | null;
   readonly defenderIsAi: boolean;
@@ -137,6 +139,23 @@ export interface DefensiveAuthorization {
   readonly targetTerritoryId: TerritoryId;
 }
 
+export interface CapitalMarchAuthorization {
+  readonly campaignId: string;
+  readonly claimantId: LordId;
+  readonly expiresAtHours: number;
+  readonly id: string;
+}
+
+export interface MilitaryAidAuthorization {
+  readonly beneficiaryId: LordId;
+  readonly campaignId: string;
+  readonly expiresAtHours: number;
+  readonly id: string;
+  readonly maximumTroops: number;
+  readonly providerId: LordId;
+  readonly side: 'attacker' | 'defender';
+}
+
 export interface YieldAssessment {
   readonly alliedReliefAvailable: boolean;
   readonly attackerExpectedPower: number;
@@ -159,12 +178,14 @@ export interface MilitaryHistoryEntry {
 
 export interface MilitaryState {
   readonly campaigns: Record<string, CampaignState>;
+  readonly capitalMarchAuthorizations: Record<string, CapitalMarchAuthorization>;
   readonly capital: CapitalControlState;
   readonly commitments: Record<string, MilitaryCommitment>;
   readonly contractedForces: Record<string, ContractedForce>;
   readonly defensiveAuthorizations: Record<string, DefensiveAuthorization>;
   readonly history: MilitaryHistoryEntry[];
   readonly lords: Record<LordId, LordMilitaryState>;
+  readonly militaryAidAuthorizations: Record<string, MilitaryAidAuthorization>;
   readonly phase: PhaseId;
   readonly territories: Record<TerritoryId, TerritoryMilitaryState>;
   readonly yieldAssessments: Record<string, YieldAssessment>;
