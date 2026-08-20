@@ -4,7 +4,7 @@
 - **Role:** Implementer
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** `2caaf6328468ea6779f458f2283e35c7b2109ccd`
+- **Ending revision:** `2caaf636445574e729b1b3a0787c2b061f624c31`
 - **Status:** Ready for integration
 
 ## Scope
@@ -115,4 +115,4 @@ Explicitly out of scope:
 - Reconciliation/order constraints on `main`: retain `PLAYER_ORDERS_AND_AI_INTENTS` before economy/health/death priorities
 - Follow-up packets: WP-029
 - Integration-ready: **Yes for WP-029**; critic cleared all findings and the focused implementation
-  commit is `2caaf6328468ea6779f458f2283e35c7b2109ccd`
+  commit is `2caaf636445574e729b1b3a0787c2b061f624c31`
