@@ -4,8 +4,8 @@
 - **Role:** Implementer
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** pending
-- **Status:** Critic findings resolved; final handoff pending commit
+- **Ending revision:** `2caaf6328468ea6779f458f2283e35c7b2109ccd`
+- **Status:** Ready for integration
 
 ## Scope
 
@@ -114,4 +114,5 @@ Explicitly out of scope:
 - Shared contracts touched: none
 - Reconciliation/order constraints on `main`: retain `PLAYER_ORDERS_AND_AI_INTENTS` before economy/health/death priorities
 - Follow-up packets: WP-029
-- Integration-ready: Pending critic log and focused commit; no known unresolved WP-020 finding
+- Integration-ready: **Yes for WP-029**; critic cleared all findings and the focused implementation
+  commit is `2caaf6328468ea6779f458f2283e35c7b2109ccd`
