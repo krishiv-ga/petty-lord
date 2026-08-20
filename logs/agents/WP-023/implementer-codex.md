@@ -4,7 +4,7 @@
 - **Role:** Implementer
 - **Git target:** `main`
 - **Starting revision:** `e98954dfb3a8fbd48b6efbfb1dc181b153b14283`
-- **Ending revision:** pending
+- **Ending revision:** `5ffb23b70fdfb16823c5893113ad60ef2b8a7d8d` (implementation; evidence-only log amendment follows)
 - **Status:** Ready for integration
 
 ## Scope
